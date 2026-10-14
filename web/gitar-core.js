@@ -104,8 +104,26 @@
     return /^\{.*\}$/.test(t) || (/:$/.test(t) && t.split(/\s+/).length <= 4);
   }
 
+  // Gítartabs (e|---3---|) og hausar af gítarsíðum (Tuning, Capo, Key)
+  var TAB_RE = /^\s*[eBGDAEbgda]\s*[|:][-\d\s|hpbrstxv\/\\~()^.*=<>]{3,}$/;
+  function cleanPaste(lines) {
+    var out = [];
+    lines.forEach(function (L) {
+      var t = L.trim();
+      if (TAB_RE.test(t)) return;
+      var capo = /^capo\s*[:\-]?\s*(?:on\s*)?(?:fret\s*)?(\d{1,2})/i.exec(t) || /^capo\b.{0,20}?(\d{1,2})\s*(?:st|nd|rd|th)?\s*fret/i.exec(t);
+      if (capo) { out.push('{capo: ' + capo[1] + '}'); return; }
+      if (/^capo\s*:?\s*(no capo|none|nei|0)?\s*$/i.test(t)) return;
+      var key = /^(?:key|tóntegund)\s*:\s*([A-H][#b]?m?)\s*$/i.exec(t);
+      if (key) { out.push('{key: ' + key[1] + '}'); return; }
+      if (/^(tuning|stilling|difficulty|author|strumming)\s*:/i.test(t)) return;
+      out.push(L);
+    });
+    return out;
+  }
+
   function fromChordsOverLyrics(text) {
-    var lines = String(text).replace(/\r\n?/g, '\n').replace(/\t/g, '    ').split('\n');
+    var lines = cleanPaste(String(text).replace(/\r\n?/g, '\n').replace(/\t/g, '    ').replace(/\u00a0/g, ' ').split('\n'));
     var out = [];
     for (var i = 0; i < lines.length; i++) {
       var L = lines[i];

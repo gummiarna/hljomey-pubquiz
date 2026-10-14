@@ -140,17 +140,20 @@ Spilarinn fær lögin með hljómum, og allir sem skanna QR-kóðann fylgjast me
 3. Hljómur fer í hornklofa beint á undan atkvæðinu: `[Am]Sofðu unga [E7]ástin mín`. Auð lína skilur á milli erinda, og lína eins og `Viðlag:` verður fyrirsögn.
 4. Lag af gítarsíðu með **hljómum fyrir ofan textann** má líma beint inn, því er breytt sjálfkrafa. Skoðaðu **Forskoðun** og vistaðu.
 5. Örvarnar raða söngbókinni.
-6. **Heil söngbók í einu**: smelltu á **Flytja inn** og veldu PDF-söngbók (t.d. af guitarparty.com). Lögin eru lesin í vafranum, hljómarnir settir á rétt atkvæði og viðlög merkt. Taktu hak af lögum sem þú vilt sleppa og smelltu á **Flytja inn**. Lög sem eru þegar í söngbókinni eru ekki valin sjálfkrafa.
+6. **Lag af Ultimate Guitar eða annarri gítarsíðu**: opnaðu lagið þar, veldu textann með hljómunum og afritaðu (Ctrl+C). Smelltu á **Nýtt lag** og límdu inn. Hljómunum er breytt sjálfkrafa, gítartabs fjarlægð, og Capo og Key sett í réttu reitina. [Verse]/[Chorus] verða Erindi/Viðlag. Skrifaðu svo heiti lagsins og vistaðu.
+7. **Heil söngbók í einu**: smelltu á **Flytja inn** og veldu PDF-söngbók (t.d. af guitarparty.com). Lögin eru lesin í vafranum, hljómarnir settir á rétt atkvæði og viðlög merkt. Taktu hak af lögum sem þú vilt sleppa og smelltu á **Flytja inn**. Lög sem eru þegar í söngbókinni eru ekki valin sjálfkrafa.
 
 **Í partýinu**
 
 1. Á **gitar.html**: hakaðu við lögin fyrir kvöldið og ýttu á **Byrja partý**. QR-kóði og fjögurra stafa kóði birtast.
 2. Gestir skanna QR-kóðann, eða slá kóðann inn á **hljomey.is/pubquiz** (ekkert nafn þarf).
 3. Þegar þú flettir á næsta lag fylgja allir símar með. Gestir sjá aðeins textann nema þeir kveiki á **Hljómar**.
-4. **− / +** færa lagið um hálftón (líka hljómana í símum gesta). **☰** sýnir lagalistann. Undir **Öll lög** geturðu bætt við lagi úr söngbókinni sem var ekki valið.
-5. QR-takkinn efst sýnir kóðann aftur í fullri stærð. Örvalyklar og fótstig (síðuflettarar) fletta á milli laga.
-6. Ef síminn eða tölvan endurræsist: opnaðu gitar.html aftur og veldu **Halda áfram**.
-7. **Prenta valin lög** býr til söngbók með einu lagi á síðu. Í prentglugganum má velja **Vista sem PDF**.
+4. **− / +** færa lagið um hálftón (líka hljómana í símum gesta).
+5. **Velja lag utan raðar**: ýttu á heiti lagsins efst (eða ☰). Leitaðu, eða raðaðu eftir stafrófi með **A–Ö**. ✓ merkir lög sem búið er að spila. Undir **Öll lög** geturðu valið lag úr söngbókinni sem var ekki á listanum.
+6. **Sjálfvirkt skrun**: hringlaga takkinn niðri til hægri. Hver smellur hækkar hraðann 1 → 2 → 3 → af. Skrunið stoppar á meðan þú snertir skjáinn, á enda lagsins og þegar skipt er um lag. Gestir hafa sama takka í sínum síma. Við tölvu: **S** skiptir um hraða og **L** opnar lagalistann.
+7. QR-takkinn efst sýnir kóðann aftur í fullri stærð. Örvalyklar og fótstig (síðuflettarar) fletta á milli laga.
+8. Ef síminn eða tölvan endurræsist: opnaðu gitar.html aftur og veldu **Halda áfram**.
+9. **Prenta valin lög** býr til söngbók með einu lagi á síðu. Í prentglugganum má velja **Vista sem PDF**.
 
 ## Stigagjöf í Pöbbkvissi
 
