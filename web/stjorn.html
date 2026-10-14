@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hljómey Pöbbkviss – stjórnandi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="host.css">
+</head>
+<body>
+
+<!-- 1. Stillingar -->
+<section id="setup" class="stage">
+  <div class="setup-wrap">
+    <div class="topline"><div class="brand">Hljómey <span>Pöbbkviss</span></div><nav class="modes"><a class="on" href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a></nav></div>
+
+    <div id="resumeBox" class="panel hidden">
+      <div class="resume">
+        <div>Leikur <b id="resumeCode"></b> er enn í gangi.</div>
+        <div class="row"><button class="btn small" id="resumeBtn">Halda áfram</button><button class="btn small ghost" id="discardBtn">Hunsa</button></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>1. Þema</h2>
+      <div class="row">
+        <div style="flex:0 0 220px"><label for="kind">Sækja lög úr</label>
+          <select id="kind">
+            <option value="search">Leit á Deezer</option>
+            <option value="playlist">Deezer-lagalista</option>
+            <option value="artists">Flytjendum</option>
+            <option value="chart">Vinsælast núna</option>
+          </select></div>
+        <div class="grow" id="valueWrap"><label for="value" id="valueLabel">Leitarorð</label><input type="text" id="value" placeholder="t.d. íslenskt 80s, jólalög, Eurovision"></div>
+        <div class="grow hidden" id="genreWrap"><label for="genre">Tegund</label>
+          <select id="genre">
+            <option value="0">Allt</option><option value="132">Popp</option><option value="152">Rokk</option>
+            <option value="116">Rapp / hipphopp</option><option value="113">Dans</option>
+          </select></div>
+        <button class="btn" id="fetchBtn">Sækja lög</button>
+      </div>
+      <p class="muted" id="kindHint" style="margin:12px 0 0;font-size:14px"></p>
+      <div id="poolInfo" class="muted" style="margin-top:10px"></div>
+      <div id="setupErr" class="err hidden"></div>
+    </div>
+
+    <div class="panel">
+      <h2>2. Stillingar</h2>
+      <div class="grid">
+        <div><label for="title">Heiti leiks</label><input type="text" id="title" value="Hljómey Pöbbkviss"></div>
+        <div><label for="rounds">Fjöldi laga</label><input type="number" id="rounds" value="10" min="3" max="30"></div>
+        <div><label for="clip">Lengd búts</label><select id="clip"><option value="3">3 sek</option><option value="5" selected>5 sek</option><option value="10">10 sek</option></select></div>
+        <div><label for="secs">Svartími</label><select id="secs"><option>10</option><option selected>15</option><option>20</option><option>30</option></select></div>
+        <div><label for="mode">Spurt um</label><select id="mode"><option value="both" selected>Lag + flytjanda</option><option value="song">Heiti lags</option><option value="artist">Flytjanda</option></select></div>
+      </div>
+      <div class="row" style="margin-top:16px"><button class="btn ghost" id="pickBtn" disabled>Velja lög af handahófi</button></div>
+    </div>
+
+    <div class="panel hidden" id="roundsPanel">
+      <h2>3. Lögin <span class="muted" style="font-weight:400;font-size:14px">– hlustaðu, skiptu út eða haltu áfram</span></h2>
+      <ul class="tracklist" id="trackList"></ul>
+      <div class="row" style="margin-top:18px">
+        <div style="flex:0 0 200px"><label for="pin">PIN stjórnanda</label><input type="password" id="pin" autocomplete="off"></div>
+        <button class="btn" id="createBtn">Búa til leik</button>
+      </div>
+      <div id="createErr" class="err hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Biðsalur -->
+<section id="lobby" class="stage hidden">
+  <div class="topline"><div class="brand" id="lobbyTitle"></div><div class="muted" id="lobbyRounds"></div></div>
+  <div class="lobby">
+    <div class="qr" id="qr"></div>
+    <div>
+      <div class="join-url">Skannaðu QR eða farðu á <b id="joinUrl"></b></div>
+      <div class="code" id="code"></div>
+      <div class="pcount" id="pcount">0 þátttakendur</div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Spurning / rétt svar -->
+<section id="question" class="stage hidden">
+  <div class="topline"><div class="brand" id="qTitle"></div><div class="muted" id="qCode"></div></div>
+  <div class="qhead"><h1 id="qNo"></h1></div>
+  <div id="songBox" class="hidden">
+    <div class="song"><img id="cover" alt=""><div><h2 id="songTitle"></h2><p id="songArtist"></p></div></div>
+    <div class="first" id="firstBox"></div>
+  </div>
+  <div class="qmid" id="qmid">
+    <div class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="timer" id="timer"><b id="timerNum">15</b></div>
+    <div class="answered"><span id="ansNum">0</span> / <span id="ansTot">0</span><small>hafa svarað</small></div>
+  </div>
+  <div class="opts" id="opts"></div>
+</section>
+
+<!-- 4. Stigatafla -->
+<section id="board" class="stage hidden">
+  <div class="topline"><div class="brand" id="bTitle"></div><div class="muted" id="bCode"></div></div>
+  <div class="board" id="boardList"></div>
+</section>
+
+<!-- 5. Úrslit -->
+<section id="final" class="stage hidden">
+  <div class="topline"><div class="brand" id="fTitle"></div><div class="muted">Úrslit</div></div>
+  <div class="podium" id="podium"></div>
+</section>
+
+<div class="bar-ctl hidden" id="ctl">
+  <button class="btn" id="primary">Byrja leik</button>
+  <button class="btn ghost small" id="replayBtn">▶ Spila aftur</button>
+  <div class="info" id="ctlInfo"></div>
+  <button class="btn ghost small" id="fsBtn">Fullur skjár</button>
+  <button class="btn ghost small" id="quitBtn">Hætta</button>
+</div>
+<div class="toast err hidden" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script src="deezer.js"></script>
+<script src="host.js"></script>
+</body>
+</html>

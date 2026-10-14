@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hljómey Tónlistarbingó – stjórnandi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="host.css">
+<style>
+  .checks { display: flex; gap: 18px; flex-wrap: wrap; }
+  .checks label { display: flex; align-items: center; gap: 8px; color: var(--text); font-size: 15px; margin: 0; cursor: pointer; }
+  .checks input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .potgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 6px 14px; margin-top: 12px; max-height: 300px; overflow-y: auto; font-size: 14px; }
+  .potgrid div { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+  .potgrid b { color: var(--text); font-weight: 500; }
+
+  /* Spilun */
+  .play { flex: 1; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 4vw; align-items: center; }
+  .now { text-align: center; }
+  .now .no { font-size: clamp(90px, 16vw, 260px); font-weight: 900; line-height: .9; color: var(--accent); }
+  .now .of { font-size: clamp(20px, 2.4vw, 40px); color: var(--muted); margin-bottom: 3vh; }
+  .clipbar { height: 10px; background: var(--card); border-radius: 10px; overflow: hidden; margin: 3vh auto 0; max-width: 520px; }
+  .clipbar i { display: block; height: 100%; width: 0; background: var(--accent); }
+  .stages { display: flex; gap: 10px; justify-content: center; margin-top: 3vh; flex-wrap: wrap; }
+  .stages span { padding: 8px 18px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: clamp(14px, 1.5vw, 24px); }
+  .stages span.cur { background: var(--accent); color: #1b1300; border-color: var(--accent); font-weight: 700; }
+  .stages span.done { text-decoration: line-through; opacity: .6; }
+  .side h3 { margin: 0 0 1.5vh; font-size: clamp(16px, 1.6vw, 26px); color: var(--muted); font-weight: 500; }
+  .last { display: flex; align-items: center; gap: 1.2vw; background: var(--card); border-radius: 14px; padding: 1.2vh 1vw; margin-bottom: 1vh; }
+  .last img { width: clamp(44px, 6vh, 80px); aspect-ratio: 1; border-radius: 8px; object-fit: cover; background: var(--bg2); }
+  .last b, .last small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .last b { font-size: clamp(15px, 1.6vw, 26px); } .last small { font-size: clamp(13px, 1.2vw, 20px); color: var(--muted); }
+  .last div { min-width: 0; }
+  .last.big { padding: 2vh 1.4vw; } .last.big img { width: clamp(70px, 12vh, 140px); }
+  .last.big b { font-size: clamp(20px, 2.4vw, 40px); }
+  .hiddeninfo { color: var(--muted); font-size: clamp(16px, 1.6vw, 26px); }
+
+  /* BINGÓ */
+  .claim { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vh; }
+  .claimgrid { flex: 1; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 3vw; align-items: center; min-height: 0; }
+  .claimgrid .claim { text-align: center; }
+  .claim h1 { font-size: clamp(60px, 9vw, 170px); font-weight: 900; margin: 0; color: var(--accent); line-height: 1; letter-spacing: .02em; }
+  .claim .who { font-size: clamp(26px, 3.6vw, 60px); font-weight: 900; text-align: center; }
+  .claim .what { font-size: clamp(16px, 1.8vw, 30px); color: var(--muted); }
+  .cards { display: flex; gap: 3vw; justify-content: center; flex-wrap: wrap; }
+  .mini { display: grid; grid-template-columns: repeat(var(--n, 5), 1fr); gap: 4px; width: min(66vh, 42vw); }
+  .cards.multi .mini { width: min(40vh, 20vw); }
+  .mini div { aspect-ratio: 1; border-radius: 6px; background: var(--card); font-size: calc(clamp(9px, 1.4vh, 15px) * var(--fs, 1)); display: grid; place-items: center; text-align: center; padding: 2px; overflow: hidden; color: var(--muted); line-height: 1.1; }
+  .mini div.ok { background: var(--good); color: #fff; font-weight: 700; }
+  .mini div.win { outline: 3px solid #fff; outline-offset: -3px; }
+  .mini div.free { background: var(--accent); color: #1b1300; font-weight: 900; }
+  .mini-name { text-align: center; margin-top: 6px; font-weight: 700; }
+  .verified { color: var(--good); font-weight: 700; font-size: clamp(15px, 1.6vw, 26px); }
+
+  /* Spiluð lög */
+  .overlay { position: fixed; inset: 0 0 64px 0; background: rgba(10,8,18,.96); z-index: 4; padding: 3vh 4vw; overflow-y: auto; }
+  .overlay h2 { margin-top: 0; }
+  .playedlist { columns: 3 280px; column-gap: 30px; }
+  .playedlist div { break-inside: avoid; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+  .playedlist span { color: var(--accent); font-weight: 700; display: inline-block; width: 2.4em; }
+
+  .winners { display: flex; flex-direction: column; gap: 1.4vh; width: min(900px, 100%); }
+  .winners div { display: flex; justify-content: space-between; background: var(--card); border-radius: 12px; padding: 1.6vh 1.6vw; font-size: clamp(18px, 2.2vw, 36px); }
+  .winners div span:first-child { color: var(--muted); }
+  .winners div span:last-child { font-weight: 900; }
+  @media (max-width: 800px) { .play, .claimgrid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- 1. Stillingar -->
+<section id="setup" class="stage">
+  <div class="setup-wrap">
+    <div class="topline"><div class="brand">Hljómey <span>Tónlistarbingó</span></div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a class="on" href="bingo-stjorn.html">Tónlistarbingó</a></nav></div>
+
+    <div id="resumeBox" class="panel hidden">
+      <div class="resume">
+        <div>Bingó <b id="resumeCode"></b> er enn í gangi.</div>
+        <div class="row"><button class="btn small" id="resumeBtn">Halda áfram</button><button class="btn small ghost" id="discardBtn">Hunsa</button></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>1. Þema</h2>
+      <div class="row">
+        <div style="flex:0 0 220px"><label for="kind">Sækja lög úr</label>
+          <select id="kind">
+            <option value="search">Leit á Deezer</option>
+            <option value="playlist">Deezer-lagalista</option>
+            <option value="artists">Flytjendum</option>
+            <option value="chart">Vinsælast núna</option>
+          </select></div>
+        <div class="grow" id="valueWrap"><label for="value" id="valueLabel">Leitarorð</label><input type="text" id="value"></div>
+        <div class="grow hidden" id="genreWrap"><label for="genre">Tegund</label>
+          <select id="genre">
+            <option value="0">Allt</option><option value="132">Popp</option><option value="152">Rokk</option>
+            <option value="116">Rapp / hipphopp</option><option value="113">Dans</option>
+          </select></div>
+        <button class="btn" id="fetchBtn">Sækja lög</button>
+      </div>
+      <p class="muted" id="kindHint" style="margin:12px 0 0;font-size:14px"></p>
+      <div id="poolInfo" class="muted" style="margin-top:10px"></div>
+      <div id="setupErr" class="err hidden"></div>
+    </div>
+
+    <div class="panel">
+      <h2>2. Stillingar</h2>
+      <div class="grid">
+        <div><label for="title">Heiti</label><input type="text" id="title" value="Hljómey Tónlistarbingó"></div>
+        <div><label for="gridSize">Stærð spjalds</label><select id="gridSize">
+          <option value="5" selected>5×5 – 24 lög + fríreitur</option>
+          <option value="4">4×4 – 16 lög</option>
+          <option value="3">3×3 – 8 lög + fríreitur</option></select></div>
+        <div><label for="potSize">Lög í potti</label><input type="number" id="potSize" value="60" min="8" max="100"></div>
+        <div><label for="clip">Lengd búts</label><select id="clip"><option value="10">10 sek</option><option value="15" selected>15 sek</option><option value="20">20 sek</option><option value="30">30 sek</option></select></div>
+        <div><label for="gap">Sjálfvirkt næsta lag</label><select id="gap"><option value="0">Nei, ég smelli</option><option value="3">Eftir 3 sek hlé</option><option value="5" selected>Eftir 5 sek hlé</option><option value="10">Eftir 10 sek hlé</option></select></div>
+        <div><label for="cardMode">Spjaldið sýnir</label><select id="cardMode">
+          <option value="both" selected>Lag + flytjanda</option>
+          <option value="song">Aðeins heiti lags</option>
+          <option value="artist_hard">Aðeins flytjanda (erfitt)</option></select></div>
+      </div>
+      <div style="margin-top:18px"><label>Spilað um (í þessari röð)</label>
+        <div class="checks">
+          <label><input type="checkbox" class="stage-cb" value="line" checked> 1 lína</label>
+          <label><input type="checkbox" class="stage-cb" value="two_lines" checked> 2 línur</label>
+          <label><input type="checkbox" class="stage-cb" value="full" checked> Fullt spjald</label>
+        </div></div>
+      <div style="margin-top:14px" class="checks">
+        <label><input type="checkbox" id="reveal"> Sýna lagið á stóra skjánum eftir að það hefur verið spilað</label>
+      </div>
+      <p class="muted" id="modeHint" style="margin:12px 0 0;font-size:14px"></p>
+    </div>
+
+    <div class="panel hidden" id="potPanel">
+      <h2>3. Potturinn <span class="muted" style="font-weight:400;font-size:14px" id="potCount"></span></h2>
+      <div class="row"><button class="btn ghost small" id="reshuffleBtn">Velja önnur lög af handahófi</button></div>
+      <div class="potgrid" id="potGrid"></div>
+      <div class="row" style="margin-top:18px">
+        <div style="flex:0 0 200px"><label for="pin">PIN stjórnanda</label><input type="password" id="pin" autocomplete="off"></div>
+        <button class="btn" id="createBtn">Búa til bingó</button>
+      </div>
+      <div id="createErr" class="err hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Biðsalur -->
+<section id="lobby" class="stage hidden">
+  <div class="topline"><div class="brand" id="lobbyTitle"></div><div class="muted" id="lobbyInfo"></div></div>
+  <div class="lobby">
+    <div class="qr" id="qr"></div>
+    <div>
+      <div class="join-url">Skannaðu QR eða farðu á <b id="joinUrl"></b></div>
+      <div class="code" id="code"></div>
+      <div class="pcount" id="pcount">0 þátttakendur</div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Spilun -->
+<section id="playing" class="stage hidden">
+  <div class="topline"><div class="brand" id="pTitle"></div><div class="muted" id="pCode"></div></div>
+  <div class="play">
+    <div class="now">
+      <div class="of">Lag</div>
+      <div class="no" id="songNo">0</div>
+      <div class="of" id="songOf">af 60</div>
+      <div class="wave" id="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="clipbar"><i id="clipFill"></i></div>
+      <div class="stages" id="stages"></div>
+    </div>
+    <div class="side" id="side"></div>
+  </div>
+</section>
+
+<!-- 4. BINGÓ -->
+<section id="claimView" class="stage hidden">
+  <div class="topline"><div class="brand" id="cTitle"></div><div class="muted" id="cCode"></div></div>
+  <div class="claimgrid">
+    <div class="claim">
+      <h1 class="pop">BINGÓ!</h1>
+      <div class="who" id="claimWho"></div>
+      <div class="what" id="claimWhat"></div>
+      <div class="verified">✓ Kerfið hefur staðfest að öll merktu lögin hafa verið spiluð</div>
+    </div>
+    <div class="cards" id="claimCards"></div>
+  </div>
+</section>
+
+<!-- 5. Lok -->
+<section id="final" class="stage hidden">
+  <div class="topline"><div class="brand" id="fTitle"></div><div class="muted">Vinningshafar</div></div>
+  <div class="claim"><div class="winners" id="winners"></div></div>
+</section>
+
+<div class="overlay hidden" id="playedOverlay">
+  <h2>Spiluð lög <span class="muted" id="playedCount" style="font-weight:400"></span></h2>
+  <div class="playedlist" id="playedList"></div>
+</div>
+
+<div class="bar-ctl hidden" id="ctl">
+  <button class="btn" id="primary">Byrja</button>
+  <button class="btn ghost small" id="pauseBtn">❚❚ Hlé</button>
+  <button class="btn ghost small" id="replayBtn">▶ Spila aftur</button>
+  <button class="btn ghost small" id="playedBtn">Spiluð lög</button>
+  <div class="info" id="ctlInfo"></div>
+  <button class="btn ghost small" id="fsBtn">Fullur skjár</button>
+  <button class="btn ghost small" id="quitBtn">Ljúka</button>
+</div>
+<div class="toast err hidden" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script src="deezer.js"></script>
+<script src="bingo-host.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+body { overflow: hidden; }
+  .stage { position: fixed; inset: 0 0 64px 0; display: flex; flex-direction: column; padding: 3vh 4vw; }
+  .topline { display: flex; justify-content: space-between; align-items: center; font-size: clamp(16px, 1.6vw, 26px); }
+  .topline .brand { font-size: clamp(20px, 2vw, 34px); }
+
+  /* Stillingar */
+  #setup { overflow-y: auto; inset: 0; }
+  .setup-wrap { max-width: 980px; margin: 0 auto; width: 100%; padding-bottom: 40px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin-top: 18px; }
+  .panel h2 { margin: 0 0 14px; font-size: 18px; }
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
+  .row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; }
+  .row > .grow { flex: 1 1 260px; }
+  .tracklist { list-style: none; margin: 12px 0 0; padding: 0; }
+  .tracklist li { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); }
+  .tracklist img { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; background: var(--bg2); }
+  .tracklist .t { flex: 1; min-width: 0; }
+  .tracklist .t b, .tracklist .t small { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tracklist .n { width: 26px; color: var(--muted); text-align: right; }
+  .resume { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  /* Biðsalur */
+  .lobby { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 4vw; align-items: center; }
+  .qr { background: #fff; border-radius: 22px; padding: 2vh; aspect-ratio: 1; max-height: 62vh; justify-self: center; width: 100%; max-width: 62vh; }
+  .qr svg { width: 100%; height: 100%; display: block; }
+  .join-url { font-size: clamp(18px, 2.2vw, 38px); color: var(--muted); }
+  .join-url b { color: var(--text); }
+  .code { font-size: clamp(60px, 10vw, 170px); font-weight: 900; letter-spacing: .08em; line-height: 1; color: var(--accent); margin: 1vh 0 2vh; }
+  .pcount { font-size: clamp(18px, 2vw, 32px); font-weight: 700; margin-bottom: 1.5vh; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; max-height: 32vh; overflow: hidden; }
+  .chips span { background: var(--card); border: 1px solid var(--line); padding: 6px 14px; border-radius: 999px; font-size: clamp(14px, 1.3vw, 22px); }
+
+  /* Spurning */
+  .qhead { text-align: center; margin-top: 2vh; }
+  .qhead h1 { font-size: clamp(28px, 4vw, 64px); margin: 0; font-weight: 900; }
+  .qmid { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6vw; }
+  .timer { width: clamp(120px, 16vh, 200px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
+           font-size: clamp(44px, 8vh, 96px); font-weight: 900; background: conic-gradient(var(--accent) var(--p, 100%), var(--card) 0); position: relative; }
+  .timer::before { content: ''; position: absolute; inset: 10px; border-radius: 50%; background: var(--bg); }
+  .timer b { position: relative; }
+  .answered { text-align: center; font-size: clamp(20px, 2.4vw, 40px); font-weight: 700; }
+  .answered small { display: block; font-size: .5em; color: var(--muted); font-weight: 400; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6vh 1.2vw; }
+  .opt { border-radius: var(--radius); padding: 2.4vh 1.6vw; font-size: clamp(18px, 2.4vw, 42px); font-weight: 700; display: flex; align-items: center; gap: 1.2vw; min-height: 11vh; position: relative; overflow: hidden; transition: opacity .3s, transform .3s; }
+  .opt .sh { font-size: .9em; opacity: .9; }
+  .opt .lbl { flex: 1; min-width: 0; }
+  .opt .cnt { font-size: .8em; font-weight: 900; }
+  .opt .bar { position: absolute; left: 0; bottom: 0; height: 6px; background: rgba(255,255,255,.75); }
+  .opts.revealed .opt:not(.right) { opacity: .28; transform: scale(.97); }
+  .opts.revealed .opt.right { outline: 5px solid #fff; }
+
+  /* Rétt svar */
+  .song { display: flex; align-items: center; gap: 2.5vw; justify-content: center; margin: 1vh 0 3vh; }
+  .song img { width: clamp(110px, 20vh, 240px); aspect-ratio: 1; border-radius: 14px; box-shadow: 0 20px 60px rgba(0,0,0,.5); object-fit: cover; background: var(--card); }
+  .song h2 { font-size: clamp(30px, 4.4vw, 76px); margin: 0; font-weight: 900; line-height: 1.05; }
+  .song p { font-size: clamp(20px, 2.6vw, 44px); margin: .4vh 0 0; color: var(--muted); }
+  .first { text-align: center; font-size: clamp(18px, 2vw, 34px); margin-bottom: 2vh; }
+  .first b { color: var(--accent); }
+
+  /* Stigatafla */
+  .board { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 1100px; width: 100%; margin: 0 auto; gap: 1.1vh; }
+  .board h1 { text-align: center; font-size: clamp(30px, 4vw, 64px); margin: 0 0 2vh; font-weight: 900; }
+  .brow { display: grid; grid-template-columns: 3em 1fr auto; align-items: center; gap: 1vw; background: var(--card); border-radius: 12px; padding: 1.2vh 1.4vw; font-size: clamp(16px, 2vw, 34px); position: relative; overflow: hidden; }
+  .brow .fill { position: absolute; inset: 0 auto 0 0; background: rgba(255,185,56,.14); }
+  .brow > * { position: relative; }
+  .brow .r { font-weight: 900; color: var(--accent); }
+  .brow .s { font-weight: 700; }
+
+  /* Verðlaunapallur */
+  .podium { flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 2vw; padding-bottom: 2vh; }
+  .pod { width: min(24vw, 320px); text-align: center; }
+  .pod .name { font-size: clamp(20px, 2.6vw, 44px); font-weight: 900; margin-bottom: 1vh; overflow-wrap: anywhere; }
+  .pod .pts { color: var(--muted); font-size: clamp(14px, 1.6vw, 26px); margin-bottom: 1vh; }
+  .pod .block { border-radius: 14px 14px 0 0; display: grid; place-items: start center; padding-top: 2vh; font-size: clamp(40px, 6vw, 100px); font-weight: 900; color: #1b1300; }
+  .pod.p1 .block { height: 40vh; background: var(--accent); }
+  .pod.p2 .block { height: 28vh; background: #cfd3e6; }
+  .pod.p3 .block { height: 20vh; background: #d99a63; }
+
+  /* Stjórnborð */
+  .bar-ctl { position: fixed; left: 0; right: 0; bottom: 0; height: 64px; display: flex; align-items: center; gap: 10px; padding: 0 16px;
+             background: rgba(15,12,24,.92); border-top: 1px solid var(--line); z-index: 5; }
+  .bar-ctl .info { flex: 1; color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .toast { position: fixed; left: 50%; top: 16px; transform: translateX(-50%); z-index: 9; }
+
+  @media (max-width: 800px) {
+    body { overflow: auto; }
+    .lobby { grid-template-columns: 1fr; }
+    .opts { grid-template-columns: 1fr; }
+  }
+
+/* Val á leik */
+.modes { display: flex; gap: 6px; background: var(--bg2); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
+.modes a { color: var(--muted); text-decoration: none; padding: 7px 14px; border-radius: 999px; font-size: 15px; font-weight: 500; }
+.modes a.on { background: var(--accent); color: #1b1300; }

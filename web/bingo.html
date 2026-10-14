@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#15121f">
+<title>Hljómey Tónlistarbingó</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  body { min-height: 100dvh; display: flex; flex-direction: column; user-select: none; -webkit-tap-highlight-color: transparent; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; padding-top: max(12px, env(safe-area-inset-top)); }
+  header .brand { font-size: 18px; }
+  header .me { font-size: 15px; font-weight: 700; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  main { flex: 1; display: flex; flex-direction: column; padding: 0 10px 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .center { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; width: 100%; max-width: 420px; }
+  .card h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; }
+  .card p { margin: 0 0 18px; color: var(--muted); }
+  .field { margin-bottom: 14px; text-align: left; }
+  #codeIn { text-transform: uppercase; letter-spacing: .3em; font-weight: 700; font-size: 22px; text-align: center; }
+  .card .btn { width: 100%; font-size: 18px; padding: 14px; }
+
+  .status { display: flex; justify-content: space-between; align-items: center; padding: 2px 4px 10px; font-size: 14px; color: var(--muted); }
+  .status b { color: var(--accent); }
+  .grid5 { display: grid; grid-template-columns: repeat(var(--n, 5), 1fr); gap: 5px; width: 100%; max-width: 560px; margin: 0 auto; }
+  .grid5.n4 { gap: 7px; } .grid5.n4 .cell { font-size: clamp(11px, 3.4vw, 17px); border-radius: 11px; }
+  .grid5.n3 { gap: 10px; max-width: 460px; } .grid5.n3 .cell { font-size: clamp(14px, 4.6vw, 22px); border-radius: 14px; padding: 6px; }
+  .grid5.n3 .cell.free, .grid5.n4 .cell.free { font-size: clamp(16px, 5vw, 26px); }
+  .cell { aspect-ratio: 1; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 3px; display: flex; flex-direction: column;
+          align-items: center; justify-content: center; text-align: center; font-size: clamp(9px, 2.6vw, 14px); line-height: 1.12; overflow: hidden; position: relative;
+          overflow-wrap: anywhere; transition: transform .1s, background .15s; color: var(--text); }
+  .cell small { color: var(--muted); font-size: .85em; margin-top: 2px; }
+  .cell .tx { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .cell:active { transform: scale(.95); }
+  .cell.marked { background: var(--accent); border-color: var(--accent); color: #1b1300; font-weight: 700; }
+  .cell.marked small { color: #4a3500; }
+  .cell.marked::after { content: ''; position: absolute; inset: 14%; border: 3px solid rgba(27,19,0,.35); border-radius: 50%; }
+  .cell.free { background: linear-gradient(135deg, var(--c0), var(--c2)); border: 0; color: #fff; font-weight: 900; font-size: clamp(12px, 3.4vw, 18px); }
+  .cell.locked { opacity: .45; }
+  .cell.locked::before { content: 'LÆST'; position: absolute; top: 2px; right: 3px; font-size: 8px; font-weight: 700; color: var(--bad); }
+  .cell.shake { animation: shake .4s; }
+  @keyframes shake { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+
+  .bingo-btn { margin: 14px auto 0; width: 100%; max-width: 560px; font-size: 30px; font-weight: 900; letter-spacing: .06em; padding: 18px; border-radius: 18px;
+               background: var(--c0); color: #fff; box-shadow: 0 6px 0 rgba(0,0,0,.3); }
+  .bingo-btn:disabled { background: var(--card); color: var(--muted); box-shadow: none; }
+  .hint { text-align: center; color: var(--muted); font-size: 13px; margin-top: 10px; min-height: 1.2em; }
+
+  .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 10; display: flex; align-items: flex-end; }
+  .sheet { background: var(--bg2); width: 100%; border-radius: 20px 20px 0 0; padding: 20px 16px; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .sheet h2 { margin: 0 0 4px; font-size: 20px; } .sheet p { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+  .sheet .opt-btn { display: block; width: 100%; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 8px; font-size: 17px; font-weight: 500; }
+  .sheet .cancel { display: block; width: 100%; margin-top: 6px; background: none; color: var(--muted); padding: 10px; }
+
+  .banner { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; background: rgba(21,18,31,.94); }
+  .banner h1 { font-size: 64px; font-weight: 900; color: var(--accent); margin: 0; }
+  .banner p { font-size: 20px; margin: 10px 0 0; }
+  .banner .sub { color: var(--muted); font-size: 16px; }
+  .banner.me h1 { color: var(--good); }
+  .toast2 { position: fixed; left: 50%; bottom: 110px; transform: translateX(-50%); z-index: 15; background: #4a1822; color: #ffd7dc; border: 1px solid #7a2533; padding: 10px 14px; border-radius: 10px; width: max-content; max-width: 90vw; text-align: center; font-size: 15px; }
+  .winners-list { margin-top: 18px; width: 100%; max-width: 360px; }
+  .winners-list div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
+  .winners-list span:first-child { color: var(--muted); }
+  .conn { position: fixed; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Hljómey <span>Bingó</span></div>
+  <div class="me hidden" id="me"></div>
+</header>
+<main>
+  <div class="center" id="vJoin">
+    <div class="card">
+      <h1>Tónlistarbingó</h1>
+      <p>Hlustaðu, merktu við lögin á spjaldinu þínu og kallaðu BINGÓ!</p>
+      <div class="field"><label for="codeIn">Leikkóði</label><input type="text" id="codeIn" maxlength="4" autocomplete="off" autocapitalize="characters"></div>
+      <div class="field"><label for="nameIn">Nafn eða lið</label><input type="text" id="nameIn" maxlength="20" autocomplete="nickname"></div>
+      <button class="btn" id="joinBtn">Fá spjald</button>
+      <div class="err hidden" id="joinErr"></div>
+    </div>
+  </div>
+
+  <div class="hidden" id="vCard" style="flex:1;display:flex;flex-direction:column">
+    <div class="status"><span id="stLeft">Bíð eftir að bingóið hefjist</span><span id="stRight"></span></div>
+    <div class="grid5" id="grid"></div>
+    <button class="bingo-btn" id="bingoBtn" disabled>BINGÓ!</button>
+    <div class="hint" id="hint"></div>
+  </div>
+</main>
+
+<div class="sheet-bg hidden" id="sheet">
+  <div class="sheet">
+    <h2 id="sheetArtist"></h2>
+    <p>Hvaða lag með þessum flytjanda var spilað?</p>
+    <div id="sheetOpts"></div>
+    <button class="cancel" id="sheetCancel">Hætta við</button>
+  </div>
+</div>
+<div class="banner hidden" id="banner"></div>
+<div class="toast2 hidden" id="toast"></div>
+<div class="conn hidden" id="conn">Tengist aftur…</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="common.js"></script>
+<script src="bingo-player.js"></script>
+</body>
+</html>
