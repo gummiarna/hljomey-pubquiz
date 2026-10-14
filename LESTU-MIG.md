@@ -140,8 +140,9 @@ Spilarinn fær lögin með hljómum, og allir sem skanna QR-kóðann fylgjast me
 3. Hljómur fer í hornklofa beint á undan atkvæðinu: `[Am]Sofðu unga [E7]ástin mín`. Auð lína skilur á milli erinda, og lína eins og `Viðlag:` verður fyrirsögn.
 4. Lag af gítarsíðu með **hljómum fyrir ofan textann** má líma beint inn, því er breytt sjálfkrafa. Skoðaðu **Forskoðun** og vistaðu.
 5. Örvarnar raða söngbókinni.
-6. **Lag af Ultimate Guitar eða annarri gítarsíðu**: opnaðu lagið þar, veldu textann með hljómunum og afritaðu (Ctrl+C). Smelltu á **Nýtt lag** og límdu inn. Hljómunum er breytt sjálfkrafa, gítartabs fjarlægð, og Capo og Key sett í réttu reitina. [Verse]/[Chorus] verða Erindi/Viðlag. Skrifaðu svo heiti lagsins og vistaðu.
-7. **Heil söngbók í einu**: smelltu á **Flytja inn** og veldu PDF-söngbók (t.d. af guitarparty.com). Lögin eru lesin í vafranum, hljómarnir settir á rétt atkvæði og viðlög merkt. Taktu hak af lögum sem þú vilt sleppa og smelltu á **Flytja inn**. Lög sem eru þegar í söngbókinni eru ekki valin sjálfkrafa.
+6. **Lag af gitargrip.is (guitarparty.com)**: opnaðu lagið, veldu allt (Ctrl+A) og afritaðu (Ctrl+C). Smelltu á **Nýtt lag** og límdu inn í textareitinn. Hljómarnir lenda á nákvæmlega sama atkvæði og á síðunni, og heiti og höfundar fyllast út sjálfkrafa.
+7. **Lag af Ultimate Guitar eða annarri gítarsíðu**: opnaðu lagið þar, veldu textann með hljómunum og afritaðu (Ctrl+C). Smelltu á **Nýtt lag** og límdu inn. Hljómunum er breytt sjálfkrafa, gítartabs fjarlægð, og Capo og Key sett í réttu reitina. [Verse]/[Chorus] verða Erindi/Viðlag. Skrifaðu svo heiti lagsins og vistaðu.
+8. **Heil söngbók í einu**: smelltu á **Flytja inn** og veldu PDF-söngbók (t.d. af guitarparty.com). Lögin eru lesin í vafranum, líka síður í tveimur dálkum, hljómarnir settir á rétt atkvæði og viðlög merkt. Taktu hak af lögum sem þú vilt sleppa og smelltu á **Flytja inn**. Lög sem eru þegar í söngbókinni eru ekki valin. Hakirðu við þau er gömlu útgáfunni **skipt út**, svo þú getur flutt sömu bók inn aftur án þess að fá tvöföld lög.
 
 **Í partýinu**
 

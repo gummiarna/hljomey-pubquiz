@@ -271,7 +271,7 @@ a{color:var(--accent)}
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="config.js"></script>
 <script src="common.js"></script>
-<script src="gitar-core.js?v=2026-10-14c"></script>
+<script src="gitar-core.js?v=2026-10-14f"></script>
 <script>
 (function () {
 'use strict';
@@ -965,8 +965,9 @@ function readPdf(file) {
     function next() {
       n++;
       if (n > doc.numPages) return Promise.resolve(pages);
-      return doc.getPage(n).then(function (pg) { return pg.getTextContent(); }).then(function (tc) {
-        pages.push({ items: tc.items.filter(function (i) { return typeof i.str === 'string'; }).map(function (i) {
+      var width = 0;
+      return doc.getPage(n).then(function (pg) { width = pg.view[2] - pg.view[0]; return pg.getTextContent(); }).then(function (tc) {
+        pages.push({ width: width, items: tc.items.filter(function (i) { return typeof i.str === 'string'; }).map(function (i) {
           var t = i.transform;
           return { str: i.str, x: t[4], y: t[5], w: i.width, size: Math.hypot(t[2], t[3]) || Math.abs(t[0]), font: i.fontName };
         }) });
@@ -1001,9 +1002,10 @@ function importFile(file) {
   readPdf(file).then(function (pages) {
     var songs = G.fromPdfPages(pages, measure);
     var have = {};
-    S.book.forEach(function (b) { have[b.title.trim().toLowerCase()] = 1; });
+    S.book.forEach(function (b) { have[b.title.trim().toLowerCase()] = b.id; });
     IMP = songs.map(function (sg, i) {
-      return { i: i, title: sg.title, artist: sg.artist, body: sg.body, exists: !!have[sg.title.trim().toLowerCase()], sel: !have[sg.title.trim().toLowerCase()], open: false };
+      var ex = have[sg.title.trim().toLowerCase()] || null;
+      return { i: i, title: sg.title, artist: sg.artist, body: sg.body, exists: ex, sel: !ex, open: false };
     });
     renderImportList();
   }).catch(function (e) {
@@ -1015,13 +1017,15 @@ function renderImportList() {
   document.getElementById('drop').style.display = 'none';
   if (!IMP.length) { out.innerHTML = '<div class="empty"><b>Engin lög fundust</b>Þetta lítur ekki út eins og söngbók með hljómum.</div>'; return; }
   var n = IMP.filter(function (x) { return x.sel; }).length;
+  var nex = IMP.filter(function (x) { return x.exists; }).length;
   out.innerHTML =
     '<div class="sechead"><h2>' + IMP.length + ' lög fundust</h2><span class="muted">' + n + ' valin</span>' +
     '<button class="linkbtn" data-act="imp-all">' + (n === IMP.length ? 'Afvelja öll' : 'Velja öll') + '</button></div>' +
+    (nex ? '<p class="help" style="margin:-4px 0 12px">' + nex + ' lög eru þegar í söngbókinni og eru ekki valin. Hakaðu við þau til að <b>skipta gömlu útgáfunni út</b> fyrir þessa.</p>' : '') +
     IMP.map(function (x) {
       return '<div class="imp-row"><label class="pick"><input type="checkbox" data-imp="' + x.i + '"' + (x.sel ? ' checked' : '') + '>' +
         '<span class="m"><b>' + esc(x.title) + '</b>' + (x.artist ? '<small>' + esc(x.artist) + '</small>' : '') + '</span>' +
-        (x.exists ? '<span class="tag">Er þegar til</span>' : '') +
+        (x.exists ? '<span class="tag" data-ex="' + x.i + '">' + (x.sel ? 'Skipt út' : 'Er þegar til') + '</span>' : '') +
         '<button class="lb" data-act="imp-prev" data-i="' + x.i + '">' + (x.open ? 'Fela' : 'Skoða') + '</button></label>' +
         (x.open ? '<div class="imp-prev"><div class="song chords-on"><div class="gp">' + G.renderSong(G.parseSong(x.body), { chords: true }) + '</div></div></div>' : '') +
         '</div>';
@@ -1035,14 +1039,15 @@ function runImport() {
   app.querySelectorAll('[data-imp]').forEach(function (c) { c.disabled = true; });
   function step() {
     if (done + failed.length >= list.length) {
-      toast(done + ' lög flutt inn' + (failed.length ? ', ' + failed.length + ' mistókust' : ''));
+      var rp = list.filter(function (x) { return x.exists; }).length;
+      toast(done + ' lög flutt inn' + (rp ? ' (' + rp + ' skipt út)' : '') + (failed.length ? ', ' + failed.length + ' mistókust' : ''));
       IMP = null;
       return viewBook();
     }
     var x = list[done + failed.length];
     btn.disabled = true;
     btn.textContent = 'Flyt inn ' + (done + failed.length + 1) + ' af ' + list.length + '…';
-    D.saveSong(S.pass, { id: null, title: x.title, artist: x.artist, body: x.body, song_key: '', capo: 0 }).then(function () {
+    D.saveSong(S.pass, { id: x.exists || null, title: x.title, artist: x.artist, body: x.body, song_key: '', capo: 0 }).then(function () {
       done++; step();
     }).catch(function (e) {
       var m = errMsg(e);
@@ -1168,6 +1173,7 @@ document.addEventListener('change', function (e) {
   if (t.dataset.inp === 'pdf' && t.files && t.files[0]) importFile(t.files[0]);
   if (t.dataset.imp !== undefined && IMP) {
     IMP[+t.dataset.imp].sel = t.checked;
+    var tg = app.querySelector('[data-ex="' + t.dataset.imp + '"]'); if (tg) tg.textContent = t.checked ? 'Skipt út' : 'Er þegar til';
     var nn = IMP.filter(function (x) { return x.sel; }).length;
     var gb = app.querySelector('[data-act=imp-go]'); if (gb) { gb.disabled = !nn; gb.innerHTML = I.upload + 'Flytja inn ' + nn + ' lög'; }
     var mh = app.querySelector('.sechead .muted'); if (mh) mh.textContent = nn + ' valin';
@@ -1187,7 +1193,24 @@ document.addEventListener('input', function (e) {
   }
 });
 document.addEventListener('paste', function (e) {
-  if (e.target.id === 'f-body') setTimeout(function () { if (G.needsConversion(e.target.value)) { convertBody(); toast('Hljómum fyrir ofan texta breytt í hljómasnið'); } }, 0);
+  if (e.target.id !== 'f-body') return;
+  // Afritað af gitargrip.is / guitarparty.com: hljómarnir eru merktir í HTML-útgáfu klippiborðsins
+  var html = e.clipboardData && e.clipboardData.getData('text/html');
+  if (html && /data-chord/.test(html) && typeof G.fromChordDom === 'function') {
+    var r = G.fromChordDom(new DOMParser().parseFromString(html, 'text/html').body);
+    if (r && r.body) {
+      e.preventDefault();
+      var ta = e.target;
+      ta.setRangeText(r.body, ta.selectionStart, ta.selectionEnd, 'end');
+      ED.body = ta.value; ED.dirty = true;
+      if (r.title && !ED.title) { ED.title = r.title; document.getElementById('f-title').value = r.title; }
+      if (r.artist && !ED.artist) { ED.artist = r.artist; document.getElementById('f-artist').value = r.artist; }
+      updatePreview();
+      toast('Lagið lesið með hljómunum á réttum stað');
+      return;
+    }
+  }
+  setTimeout(function () { if (G.needsConversion(e.target.value)) { convertBody(); toast('Hljómum fyrir ofan texta breytt í hljómasnið'); } }, 0);
 });
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') { closeDrawer(); closeSheet(); var q = document.getElementById('qr'); if (q) q.remove(); }
