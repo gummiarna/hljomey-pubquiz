@@ -31,6 +31,10 @@
     $('joinBtn').disabled = true;
     try {
       const code = $('codeIn').value.trim().toUpperCase();
+      // Er þetta gítarpartý? Þá þarf ekki nafn: beint á textann.
+      try {
+        if (await rpc('gitar_find', { p_code: code })) { location.href = 'gitar.html?k=' + encodeURIComponent(code); return; }
+      } catch (err) { /* gitar.sql ekki uppsett: halda áfram */ }
       // Er þetta bingókóði? Þá er farið á bingósíðuna.
       try {
         const f = await rpc('find_game', { p_code: code });

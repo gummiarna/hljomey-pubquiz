@@ -1,9 +1,22 @@
-# Hljómey Pöbbkviss og Tónlistarbingó – uppsetning skref fyrir skref
+# Hljómey Pöbbkviss, Tónlistarbingó og Gítarpartý – uppsetning skref fyrir skref
 
-Leikirnir tveir, Pöbbkviss og Tónlistarbingó, eru settir upp saman. Þeir samanstanda af tveimur hlutum:
+Leikirnir þrír, Pöbbkviss, Tónlistarbingó og Gítarpartý, eru settir upp saman. Þeir samanstanda af tveimur hlutum:
 
 - **Supabase** (ókeypis): gagnagrunnur og rauntími sem tengir síma og stóra skjáinn.
-- **Vefsíðan** (13 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+- **Vefsíðan** (15 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+
+---
+
+## Uppfærsla: Gítarpartý bætt við (október 2026)
+
+Ef Pöbbkvissið og bingóið eru þegar uppsett á hljomey.is þarftu aðeins þetta (um 10 mínútur):
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald `gitar.sql` → **Run**. Notar sama PIN og hinir leikirnir.
+2. **Bluehost**: cPanel → **File Manager** → `public_html/pubquiz` → **Upload** og hladdu upp þessum 6 skrám úr `web`. Veldu að skrifa yfir þær sem eru til fyrir:
+   - Nýjar: `gitar.html`, `gitar-core.js`
+   - Breyttar: `index.html`, `player.js`, `stjorn.html`, `bingo-stjorn.html`
+3. **Ekki** hlaða upp `config.js`. Útgáfan á vefnum er með þínum Supabase-lyklum og á að vera óbreytt.
+4. Opnaðu **hljomey.is/pubquiz/gitar.html**, ýttu á **Byrja partý** og skannaðu QR-kóðann með símanum. Sjáirðu gömlu síðuna, endurhlaðaðu með Ctrl+F5.
 
 Áætlaður tími: 30–45 mínútur.
 
@@ -27,8 +40,9 @@ Leikirnir tveir, Pöbbkviss og Tónlistarbingó, eru settir upp saman. Þeir sam
 4. Afritaðu allt innihald `setup.sql`, límdu það inn og smelltu á **Run**.
 5. Þú átt að sjá **Success. No rows returned**.
 6. Smelltu aftur á **New query**, límdu inn allt innihald `bingo.sql` og smelltu á **Run**. Þetta bætir bingóinu við og notar sama PIN.
+7. Gerðu það sama við `gitar.sql`. Þetta bætir Gítarpartýinu við og notar líka sama PIN.
 
-Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql`.
+Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql` og `gitar.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
 
 Viltu breyta PIN-inu síðar? Keyrðu þessa línu í SQL Editor:
 
@@ -55,8 +69,8 @@ SUPABASE_ANON_KEY: 'sb_publishable_...',
 1. Skráðu þig inn á Bluehost → **Hosting** → **cPanel** (heitir **Advanced** í eldra viðmóti) → **File Manager**.
 2. Opnaðu möppuna **public_html** (þar er WordPress).
 3. Smelltu á **+ Folder** og búðu til möppuna **`pubquiz`**.
-4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 13 skránum úr `web`:
-   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`
+4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 15 skránum úr `web`:
+   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `gitar.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`, `gitar-core.js`
 5. Þetta hefur engin áhrif á WordPress eða Elementor. Mappan hefur einfaldlega forgang á slóðinni /pubquiz.
 
 Slóðirnar verða:
@@ -66,6 +80,7 @@ Slóðirnar verða:
 | Þátttakendur (sláðu inn kóða, virkar fyrir báða leiki) | **hljomey.is/pubquiz** |
 | Stjórnandi Pöbbkviss | **hljomey.is/pubquiz/stjorn.html** |
 | Stjórnandi Tónlistarbingós | **hljomey.is/pubquiz/bingo-stjorn.html** |
+| Spilari í Gítarpartýi | **hljomey.is/pubquiz/gitar.html** |
 
 Efst á stjórnandasíðunni er hnappur til að skipta á milli leikjanna. QR-kóðinn vísar beint á réttan leik.
 
@@ -113,6 +128,28 @@ Efst á stjórnandasíðunni er hnappur til að skipta á milli leikjanna. QR-k�
 - Ef fleiri kalla BINGÓ áður en þú heldur áfram vinna allir.
 - **Hlé** stöðvar sjálfvirku spilunina, t.d. á meðan vinningar eru afhentir.
 - Deezer-forskoðanir eru 30 sekúndur, svo bútur getur mest verið 30 sek.
+
+## Gítarpartý
+
+Spilarinn fær lögin með hljómum, og allir sem skanna QR-kóðann fylgjast með textanum í símanum. Engin tónlist er spiluð af netinu, svo Deezer kemur ekki við sögu.
+
+**Söngbókin**
+
+1. Opnaðu **hljomey.is/pubquiz/gitar.html** og smelltu á **Breyta söngbók**. Sláðu inn PIN-ið.
+2. Smelltu á **Nýtt lag**, settu inn heiti og flytjanda og límdu textann með hljómum.
+3. Hljómur fer í hornklofa beint á undan atkvæðinu: `[Am]Sofðu unga [E7]ástin mín`. Auð lína skilur á milli erinda, og lína eins og `Viðlag:` verður fyrirsögn.
+4. Lag af gítarsíðu með **hljómum fyrir ofan textann** má líma beint inn, því er breytt sjálfkrafa. Skoðaðu **Forskoðun** og vistaðu.
+5. Örvarnar raða söngbókinni.
+
+**Í partýinu**
+
+1. Á **gitar.html**: hakaðu við lögin fyrir kvöldið og ýttu á **Byrja partý**. QR-kóði og fjögurra stafa kóði birtast.
+2. Gestir skanna QR-kóðann, eða slá kóðann inn á **hljomey.is/pubquiz** (ekkert nafn þarf).
+3. Þegar þú flettir á næsta lag fylgja allir símar með. Gestir sjá aðeins textann nema þeir kveiki á **Hljómar**.
+4. **− / +** færa lagið um hálftón (líka hljómana í símum gesta). **☰** sýnir lagalistann. Undir **Öll lög** geturðu bætt við lagi úr söngbókinni sem var ekki valið.
+5. QR-takkinn efst sýnir kóðann aftur í fullri stærð. Örvalyklar og fótstig (síðuflettarar) fletta á milli laga.
+6. Ef síminn eða tölvan endurræsist: opnaðu gitar.html aftur og veldu **Halda áfram**.
+7. **Prenta valin lög** býr til söngbók með einu lagi á síðu. Í prentglugganum má velja **Vista sem PDF**.
 
 ## Stigagjöf í Pöbbkvissi
 

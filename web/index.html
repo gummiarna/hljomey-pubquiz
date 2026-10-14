@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#15121f">
 <title>Hljómey – Tónlistarleikir</title>
-<meta name="description" content="Pöbbkviss og tónlistarbingó Hljómeyjar. Taktu þátt með símanum.">
+<meta name="description" content="Pöbbkviss, tónlistarbingó og gítarpartý Hljómeyjar. Taktu þátt með símanum.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -72,7 +72,8 @@
   #codeIn::placeholder { letter-spacing: .3em; opacity: .35; }
 
   .sec-title { font-size: clamp(24px, 3.4vw, 34px); font-weight: 900; margin: 46px 0 18px; }
-  .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  @media (max-width: 1000px) { .game-grid { grid-template-columns: 1fr 1fr; } }
   .game { background: var(--card); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
   .game-art { width: 100%; display: block; padding: 14px 14px 0; }
   .game-body { padding: 16px 22px 22px; }
@@ -198,6 +199,39 @@
             </ul>
           </div>
         </article>
+
+        <article class="game">
+          <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
+            <rect x="0" y="0" width="300" height="170" rx="18" fill="#1f1a2e"/>
+            <g transform="translate(22 20)">
+              <rect width="150" height="130" rx="12" fill="#2a2340"/>
+              <g font-family="Rubik, sans-serif" font-weight="900" font-size="14" fill="#ffb938">
+                <text x="14" y="27">Am</text><text x="74" y="27">E7</text>
+                <text x="14" y="67">Dm</text><text x="92" y="67">G</text>
+                <text x="14" y="107">C</text><text x="62" y="107">F</text><text x="108" y="107">E</text>
+              </g>
+              <g fill="#3b3357"><rect x="14" y="34" width="118" height="7" rx="3.5"/><rect x="14" y="74" width="96" height="7" rx="3.5"/><rect x="14" y="114" width="122" height="7" rx="3.5"/></g>
+            </g>
+            <g transform="translate(192 14)">
+              <rect width="86" height="144" rx="16" fill="#15121f" stroke="#3b3357" stroke-width="3"/>
+              <rect x="29" y="9" width="28" height="5" rx="2.5" fill="#3b3357"/>
+              <rect x="12" y="24" width="40" height="14" rx="7" fill="#ffb938"/><circle cx="20" cy="31" r="3" fill="#1b1300"/>
+              <g fill="#b3aacb"><rect x="12" y="50" width="60" height="6" rx="3"/><rect x="12" y="62" width="48" height="6" rx="3"/><rect x="12" y="74" width="56" height="6" rx="3"/></g>
+              <g fill="#b3aacb" opacity=".45"><rect x="12" y="94" width="62" height="6" rx="3"/><rect x="12" y="106" width="42" height="6" rx="3"/><rect x="12" y="118" width="52" height="6" rx="3"/></g>
+            </g>
+            <g transform="translate(172 52)" fill="#e5484d"><circle cx="6" cy="36" r="6.5"/><rect x="10.5" y="4" width="3.2" height="33"/><path d="M13.7 4 q11 4 9 15 q-2-7-9-6.5z"/></g>
+          </svg>
+          <div class="game-body">
+            <h3>Gítarpartý</h3>
+            <p>Spilarinn fær lögin með hljómum og allir hinir syngja með. Textinn birtist í símanum og fylgir laginu sem er spilað.</p>
+            <ul>
+              <li>Sameiginleg söngbók með hljómum</li>
+              <li>Textinn fylgir spilaranum í símanum</li>
+              <li>Hljómar af eða á með einum takka</li>
+              <li>Tónflutningur og prentvæn söngbók</li>
+            </ul>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -215,7 +249,7 @@
 
     <footer class="land-foot">
       <span>Hljómey</span>
-      <span>Stjórnandi? <a href="stjorn.html">Pöbbkviss</a> · <a href="bingo-stjorn.html">Tónlistarbingó</a></span>
+      <span>Stjórnandi? <a href="stjorn.html">Pöbbkviss</a> · <a href="bingo-stjorn.html">Tónlistarbingó</a> · <a href="gitar.html">Gítarpartý</a></span>
     </footer>
   </div>
 
