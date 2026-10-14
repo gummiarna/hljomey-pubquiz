@@ -9,10 +9,10 @@ Leikirnir þrír, Pöbbkviss, Tónlistarbingó og Gítarpartý, eru settir upp s
 
 ## Uppfærsla: vistuð þemu í Pöbbkvissi og bingói (október 2026)
 
-Deezer-lagalistar sem þú sækir vistast og birtast efst í **1. Þema** svo þú getur valið þá aftur með einum smelli, í kvissinu og bingóinu.
+Við hliðina á **Sækja lög** er hnappurinn **☆ Vista lagalista** (eða **Vista leit** / **Vista flytjendur**). Límdu slóðina og smelltu á hann. Það þarf ekki að sækja lögin eða spila leikinn fyrst. Í fyrsta skipti biður hann um PIN stjórnanda og man það svo. Vistaðir lagalistar birtast efst í **1. Þema** og eru valdir aftur með einum smelli, bæði í kvissinu og bingóinu. Hnappurinn sýnir **★ Vistað** þegar slóðin er þegar geymd.
 
-1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald `themes.sql` → **Run**.
-2. **Bluehost**: hladdu upp í `public_html/pubquiz` og skrifaðu yfir: `themes.js` (ný), `deezer.js`, `host.js`, `bingo-host.js`, `stjorn.html`, `bingo-stjorn.html`.
+1. **Supabase** (aðeins einu sinni): SQL Editor → **New query** → límdu inn allt innihald `themes.sql` → **Run**.
+2. **Bluehost**: hladdu upp í `public_html/pubquiz` og skrifaðu yfir: `themes.js`, `deezer.js`, `host.js`, `bingo-host.js`, `stjorn.html`, `bingo-stjorn.html`.
 3. Ctrl+F5 á stjórnendasíðunni.
 
 ---

@@ -40,17 +40,30 @@
   .th-card .ac span { width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; color: var(--muted); font-size: 15px; cursor: pointer; }
   .th-card .ac span:hover { background: var(--card); color: var(--text); }
   .th-empty { color: var(--muted); font-size: 14px; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 12px; }
-  #themeSave { margin-top: 10px; font-size: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; min-height: 0; }
+  #themeSave { font-size: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  #themeSave:not(:empty) { margin-top: 12px; }
   #themeSave .ok { color: var(--good, #2fbf71); }
+  #themeSave .bad { color: #ffb3bb; }
+  #themeSave input { flex: 0 1 170px; min-width: 96px; width: auto; padding: 8px 12px; }
+  #themeSaveBtn { white-space: nowrap; }
+  #themeSaveBtn.saved { border-color: var(--accent); color: var(--accent); }
+  #themeSaveBtn.nudge { animation: thNudge 1.6s ease-in-out 2; border-color: var(--accent); }
+  @keyframes thNudge { 50% { box-shadow: 0 0 0 4px rgba(255,185,56,.25); } }
   @media (hover: none) { .th-card .ac { opacity: 1; } }
   `;
   document.head.appendChild(css);
 
-  // Stöðulína fyrir vistun, á eftir „Fann … lög"
+  // „☆ Vista lagalista" við hliðina á „Sækja lög", og stöðulína beint undir
+  const saveBtn = document.createElement('button');
+  saveBtn.type = 'button'; saveBtn.id = 'themeSaveBtn'; saveBtn.className = 'btn ghost';
+  const fetchBtn = $('fetchBtn');
+  if (fetchBtn) fetchBtn.insertAdjacentElement('afterend', saveBtn);
   const saveLine = document.createElement('div');
   saveLine.id = 'themeSave';
-  const poolInfo = $('poolInfo');
-  if (poolInfo) poolInfo.insertAdjacentElement('afterend', saveLine);
+  const row = fetchBtn && fetchBtn.closest('.row');
+  if (row) row.insertAdjacentElement('afterend', saveLine);
+  else if ($('poolInfo')) $('poolInfo').insertAdjacentElement('afterend', saveLine);
+  let lastFetch = null;   // { key, pool } – síðast sóttu lögin (fyrir mynd og fjölda)
 
   function pin() { return ($('pin') && $('pin').value.trim()) || store.get('pq_pin') || ''; }
   function askPin() {
@@ -76,13 +89,14 @@
 
   // ---------- birting ----------
   function render() {
+    syncBtn();
     if (missing) {
       box.innerHTML = '<div class="th-head"><b>Vistuð þemu</b></div><div class="th-empty">Keyrðu <b>themes.sql</b> í Supabase til að geta vistað lagalista og þemu.</div>';
       return;
     }
     if (!ready) { box.innerHTML = ''; return; }
     if (!list.length) {
-      box.innerHTML = '<div class="th-head"><b>Vistuð þemu</b></div><div class="th-empty">Deezer-lagalistar sem þú sækir vistast hér, svo þú getir valið þá aftur með einum smelli.</div>';
+      box.innerHTML = '<div class="th-head"><b>Vistuð þemu</b></div><div class="th-empty">Límdu slóð á Deezer-lagalista hér fyrir neðan og smelltu á <b>☆ Vista lagalista</b>. Þá birtist hann hér og þú velur hann aftur með einum smelli.</div>';
       return;
     }
     const shown = showAll ? list : list.slice(0, 8);
@@ -111,74 +125,139 @@
   }
 
   // ---------- aðgerðir ----------
+  async function save(kind, value, meta, p) {
+    await rpc('save_theme', {
+      p_pin: p, p_kind: kind, p_value: canon(kind, value),
+      p_name: meta.name || '', p_cover: meta.cover || '', p_count: meta.count || null
+    });
+    store.set('pq_pin', p);
+    if ($('pin') && !$('pin').value) $('pin').value = p;   // þarf þá ekki að slá PIN aftur inn í skrefi 3
+    await load();
+  }
+
+  function status(html, cls) {
+    saveLine.innerHTML = html ? '<span class="' + (cls || 'ok') + '">' + html + '</span>' : '';
+  }
+
+  // Hvað er í reitunum núna?
+  function current() {
+    const kind = $('kind') ? $('kind').value : '';
+    const raw = kind === 'chart' ? '' : ($('value') ? $('value').value.trim() : '');
+    return { kind, raw };
+  }
+  const LABEL = { playlist: 'Vista lagalista', search: 'Vista leit', artists: 'Vista flytjendur' };
+  function isSaved(kind, raw) { const v = canon(kind, raw); return list.some(t => t.kind === kind && t.value === v); }
+
+  function syncBtn() {
+    const { kind, raw } = current();
+    saveBtn.hidden = missing || !LABEL[kind];
+    if (saveBtn.hidden) return;
+    const valid = kind === 'playlist' ? !!(window.PQDeezer && PQDeezer.playlistId(raw)) : !!raw;
+    const saved = valid && isSaved(kind, raw);
+    saveBtn.classList.toggle('saved', saved);
+    if (saved) saveBtn.classList.remove('nudge');
+    saveBtn.textContent = saved ? '★ Vistað' : '☆ ' + LABEL[kind];
+    saveBtn.disabled = !valid || saveBtn.dataset.busy === '1';
+    saveBtn.title = !valid ? (kind === 'playlist' ? 'Límdu fyrst inn slóð á Deezer-lagalista' : 'Skrifaðu fyrst inn þemað')
+      : saved ? 'Þegar vistað undir Vistuð þemu' : 'Geyma undir Vistuð þemu svo þú getir valið það aftur';
+  }
+
+  // Heiti, mynd og fjöldi laga
+  async function metaFor(kind, raw) {
+    const k = keyOf(kind, raw);
+    const pool = lastFetch && lastFetch.key === k ? lastFetch.pool : null;
+    let meta = { name: raw, cover: (pool && pool[0] && pool[0].cover) || '', count: pool ? pool.length : null };
+    if (kind === 'playlist') {
+      try {
+        const inf = await PQDeezer.playlistInfo(raw);
+        meta = { name: (inf && inf.title) || 'Deezer-lagalisti', cover: (inf && inf.cover) || meta.cover, count: (inf && inf.count) || meta.count };
+      } catch (e) {
+        if (/^Deezer:/.test(e.message)) { const err = new Error('Deezer fann ekki þennan lagalista. Er hann opinber (public)?'); err.fatal = true; throw err; }
+        meta.name = 'Deezer-lagalisti';
+      }
+    }
+    return meta;
+  }
+
+  function busy(on) { saveBtn.dataset.busy = on ? '1' : ''; syncBtn(); }
+
+  // Smellt á „☆ Vista lagalista"
+  async function onSave() {
+    const { kind, raw } = current();
+    if (!LABEL[kind] || !raw) return;
+    if (isSaved(kind, raw)) { status('Þetta er þegar vistað undir Vistuð þemu, efst á síðunni.'); return; }
+    busy(true); status('Sæki upplýsingar…', 'muted');
+    let meta;
+    try { meta = await metaFor(kind, raw); }
+    catch (e) { busy(false); status(esc(e.message), 'bad'); return; }
+    const p = pin();
+    if (p) {
+      try { await save(kind, raw, meta, p); busy(false); done(meta); return; }
+      catch (e) { if (e.code !== 'rangt_pin') { busy(false); status(esc(e.message), 'bad'); return; } }
+    }
+    busy(false);
+    askPinInline(kind, raw, meta, p ? 'Vistaða PIN-númerið passar ekki.' : '');
+  }
+
+  function done(meta) {
+    status('✓ Vistað: „' + esc(meta.name) + '“. Þú finnur það efst undir Vistuð þemu.');
+  }
+
+  // PIN beðið um á staðnum (í stað sprettiglugga)
+  function askPinInline(kind, raw, meta, note) {
+    saveLine.innerHTML = '';
+    const lab = document.createElement('span'); lab.className = note ? 'bad' : 'muted';
+    lab.textContent = note ? note + ' Sláðu inn PIN:' : 'PIN stjórnanda til að vista:';
+    const inp = document.createElement('input'); inp.type = 'password'; inp.autocomplete = 'off'; inp.placeholder = 'PIN';
+    const ok = document.createElement('button'); ok.type = 'button'; ok.className = 'btn small'; ok.textContent = 'Vista';
+    const no = document.createElement('button'); no.type = 'button'; no.className = 'btn small ghost'; no.textContent = 'Hætta við';
+    saveLine.append(lab, inp, ok, no);
+    inp.focus();
+    const go = async () => {
+      const p = inp.value.trim(); if (!p) { inp.focus(); return; }
+      ok.disabled = true; busy(true);
+      try { await save(kind, raw, meta, p); busy(false); done(meta); }
+      catch (e) {
+        busy(false); ok.disabled = false;
+        lab.className = 'bad'; lab.textContent = e.code === 'rangt_pin' ? 'Rangt PIN-númer. Reyndu aftur:' : e.message;
+        inp.select();
+      }
+    };
+    ok.onclick = go; no.onclick = () => status('');
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } if (e.key === 'Escape') status(''); });
+  }
+
+  // withPin fyrir endurnefna/eyða
   async function withPin(fn) {
     let p = pin();
     if (!p) { p = askPin(); if (!p) return false; }
-    try {
-      await fn(p);
-      store.set('pq_pin', p);
-      return true;
-    } catch (e) {
-      if (e.code === 'rangt_pin') {
-        const p2 = askPin(); if (!p2) { status(e.message, true); return false; }
-        await fn(p2); store.set('pq_pin', p2); return true;
-      }
+    try { await fn(p); store.set('pq_pin', p); return true; }
+    catch (e) {
+      if (e.code === 'rangt_pin') { const p2 = askPin(); if (!p2) throw e; await fn(p2); store.set('pq_pin', p2); return true; }
       throw e;
     }
   }
 
-  async function save(kind, value, meta) {
-    const done = await withPin(p => rpc('save_theme', {
-      p_pin: p, p_kind: kind, p_value: canon(kind, value),
-      p_name: meta.name || '', p_cover: meta.cover || '', p_count: meta.count || null
-    }));
-    if (done) await load();
-    return done;
-  }
-
-  function status(html, isErr) {
-    saveLine.innerHTML = html ? '<span class="' + (isErr ? 'err-inline' : 'ok') + '" style="' + (isErr ? 'color:#ffb3bb' : '') + '">' + html + '</span>' : '';
-  }
-
-  function offer(kind, value, meta, label) {
-    saveLine.innerHTML = '';
-    const b = document.createElement('button');
-    b.type = 'button'; b.className = 'btn small ghost'; b.textContent = '☆ ' + label;
-    b.onclick = async () => {
-      b.disabled = true;
-      try { if (await save(kind, value, meta)) status('✓ Vistað undir Vistuð þemu.'); else b.disabled = false; }
-      catch (e) { b.disabled = false; status(esc(e.message), true); saveLine.prepend(b); }
-    };
-    saveLine.appendChild(b);
-  }
-
   // Kallað af host.js / bingo-host.js eftir að lög hafa verið sótt
   async function afterFetch(kind, rawValue, pool) {
-    saveLine.innerHTML = '';
-    if (kind === 'chart' || !String(rawValue || '').trim()) { activeKey = ''; render(); return; }
+    if (kind === 'chart' || !String(rawValue || '').trim()) { activeKey = ''; lastFetch = null; render(); return; }
     activeKey = keyOf(kind, rawValue);
+    lastFetch = { key: activeKey, pool };
+    if (!/^(✓|Sæki)/.test(saveLine.textContent)) status('');
     render();
     if (missing) return;
     const value = canon(kind, rawValue);
-    const existing = list.find(t => t.kind === kind && t.value === value);
-    let meta = { name: String(rawValue).trim(), cover: (pool && pool[0] && pool[0].cover) || '', count: pool ? pool.length : null };
-    if (kind === 'playlist') {
-      try {
-        const inf = await PQDeezer.playlistInfo(value);
-        if (inf) meta = { name: inf.title || 'Deezer-lagalisti', cover: inf.cover || meta.cover, count: inf.count || meta.count };
-      } catch (e) { meta.name = 'Deezer-lagalisti'; }
-    }
-    if (existing) {
+    if (list.some(t => t.kind === kind && t.value === value)) {
       // Þegar vistað: merkja sem nýlega notað (hljóðlega, ef PIN er þekkt)
-      if (pin()) { try { await rpc('save_theme', { p_pin: pin(), p_kind: kind, p_value: value, p_name: '', p_cover: meta.cover, p_count: meta.count }); load(); } catch (e) {} }
-      return;
+      if (pin()) { try { await rpc('save_theme', { p_pin: pin(), p_kind: kind, p_value: value, p_name: '', p_cover: '', p_count: pool ? pool.length : null }); load(); } catch (e) {} }
+    } else if (LABEL[kind]) {
+      saveBtn.classList.add('nudge');   // minna á að hægt er að vista
     }
-    if (kind === 'playlist' && pin()) {
-      try { await save(kind, value, meta); status('✓ Lagalistinn „' + esc(meta.name) + '“ er vistaður undir Vistuð þemu.'); return; }
-      catch (e) { /* bjóða handvirka vistun hér fyrir neðan */ }
-    }
-    offer(kind, value, meta, kind === 'playlist' ? 'Vista lagalistann' : 'Vista þemað');
   }
+
+  saveBtn.addEventListener('click', onSave);
+  if ($('value')) $('value').addEventListener('input', () => { saveBtn.classList.remove('nudge'); if (!/^Sæki/.test(saveLine.textContent)) status(''); syncBtn(); });
+  if ($('kind')) $('kind').addEventListener('change', () => { status(''); syncBtn(); });
 
   box.addEventListener('click', async e => {
     if (e.target.closest('[data-th-all]')) { showAll = !showAll; render(); return; }
