@@ -304,7 +304,8 @@ function errMsg(e) {
   if (/ogildur_spilari|stýrir ekki/.test(m)) return 'Þú stýrir ekki þessu partýi lengur.';
   if (/engin_log/.test(m)) return 'Veldu a.m.k. eitt lag.';
   if (/vantar_heiti/.test(m)) return 'Lagið þarf heiti.';
-  if (/gitar_|does not exist|schema cache/.test(m)) return 'Gítarpartý er ekki uppsett í Supabase. Keyrðu gitar.sql.';
+  if (/relation "?(public\.)?gitar_\w+"? does not exist|Could not find the table/.test(m)) return 'Gítarpartý er ekki uppsett í Supabase. Keyrðu gitar.sql.';
+  if (/Could not find the function/.test(m)) return 'Vefsíðan og gagnagrunnurinn passa ekki saman: ' + m;
   if (/Failed to fetch|NetworkError|network/i.test(m)) return 'Engin nettenging — reyndu aftur';
   return m || 'Eitthvað fór úrskeiðis';
 }
@@ -333,10 +334,10 @@ function supabaseData() {
   return {
     listSongs: function () { return sb.from('gitar_songs').select(cols).order('sort_order').order('title').then(un); },
     songsByIds: function (ids) { return ids.length ? sb.from('gitar_songs').select(cols).in('id', ids).then(un) : Promise.resolve([]); },
-    check: function (p) { return sb.rpc('gitar_check', { p_pass: p }).then(un); },
-    saveSong: function (p, s) { return sb.rpc('gitar_save_song', { p_pass: p, p_id: s.id || null, p_title: s.title, p_artist: s.artist || '', p_body: s.body || '', p_key: s.song_key || '', p_capo: s.capo || 0 }).then(un); },
-    deleteSong: function (p, id) { return sb.rpc('gitar_delete_song', { p_pass: p, p_id: id }).then(un); },
-    reorder: function (p, ids) { return sb.rpc('gitar_reorder', { p_pass: p, p_ids: ids }).then(un); },
+    check: function (p) { return sb.rpc('gitar_check', { p_pin: p }).then(un); },
+    saveSong: function (p, s) { return sb.rpc('gitar_save_song', { p_pin: p, p_id: s.id || null, p_title: s.title, p_artist: s.artist || '', p_body: s.body || '', p_key: s.song_key || '', p_capo: s.capo || 0 }).then(un); },
+    deleteSong: function (p, id) { return sb.rpc('gitar_delete_song', { p_pin: p, p_id: id }).then(un); },
+    reorder: function (p, ids) { return sb.rpc('gitar_reorder', { p_pin: p, p_ids: ids }).then(un); },
     start: function (ids) { return sb.rpc('gitar_start', { p_song_ids: ids, p_event_tag: tag }).then(un); },
     set: function (code, token, song, tr, ids) { return sb.rpc('gitar_set', { p_code: code, p_token: token, p_song: song, p_tr: tr, p_song_ids: ids || null }).then(un); },
     isHost: function (code, token) { return sb.rpc('gitar_is_host', { p_code: code, p_token: token }).then(un); },
