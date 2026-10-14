@@ -261,7 +261,7 @@ a{color:var(--accent)}
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="config.js"></script>
 <script src="common.js"></script>
-<script src="gitar-core.js"></script>
+<script src="gitar-core.js?v=2026-10-14b"></script>
 <script>
 (function () {
 'use strict';
@@ -917,7 +917,7 @@ function renderImport() {
   IMP = null;
   app.innerHTML =
     '<header class="bar"><button class="ib" data-act="imp-back" aria-label="Til baka">' + I.back + '</button><div class="t"><b>Flytja inn lög</b><small>Úr PDF-söngbók</small></div></header>' +
-    '<div class="wrap" style="padding-top:18px"><label class="imp-drop" id="drop">' + I.upload.replace('<svg', '<svg style="width:36px;height:36px;color:var(--accent)"') +
+    '<div class="wrap" style="padding-top:18px"><label class="imp-drop" id="drop">' + I.upload.replace('<svg', '<svg style="width:40px;height:40px;stroke:var(--accent);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"') +
       '<b style="font-size:18px">Veldu PDF-söngbók</b>' +
       '<p>T.d. söngbók sem þú bjóst til á guitarparty.com. Skráin er lesin í vafranum þínum, hljómarnir settir á rétt atkvæði og þú velur hvaða lög fara í söngbókina.</p>' +
       '<span class="btn primary">Velja skrá</span><input type="file" accept="application/pdf,.pdf" data-inp="pdf" hidden></label>' +
@@ -930,6 +930,10 @@ function renderImport() {
 function importFile(file) {
   var out = document.getElementById('impout');
   out.innerHTML = '<div class="center" style="min-height:30vh"><div class="spin"></div><p>Les ' + esc(file.name) + '…</p></div>';
+  if (typeof G.fromPdfPages !== 'function') {
+    out.innerHTML = '<div class="empty"><b>Gömul útgáfa af gitar-core.js</b>Hladdu nýju gitar-core.js upp í pubquiz-möppuna og endurhlaðaðu síðuna.</div>';
+    return;
+  }
   readPdf(file).then(function (pages) {
     var songs = G.fromPdfPages(pages, measure);
     var have = {};
