@@ -139,18 +139,19 @@ Spilarinn fær lögin með hljómum, og allir sem skanna QR-kóðann fylgjast me
 2. Smelltu á **Nýtt lag**, settu inn heiti og flytjanda og límdu textann með hljómum.
 3. Hljómur fer í hornklofa beint á undan atkvæðinu: `[Am]Sofðu unga [E7]ástin mín`. Auð lína skilur á milli erinda, og lína eins og `Viðlag:` verður fyrirsögn.
 4. Lag af gítarsíðu með **hljómum fyrir ofan textann** má líma beint inn, því er breytt sjálfkrafa. Skoðaðu **Forskoðun** og vistaðu.
-5. Örvarnar raða söngbókinni.
+5. Örvarnar raða söngbókinni. **A–Ö** efst raðar allri bókinni í einu: í stafrófsröð, eða íslensk lög fyrst og svo erlend.
+   - Hvert lag er merkt **ÍSL** eða **ERL**. Kerfið greinir það sjálft út frá textanum (ð, þ, æ og kommustöfum). Ef það misgreinir lag velurðu flokkinn undir **Flokkur** í lagaritlinum. Handvalinn flokkur sést í gulu.
 6. **Lag af gitargrip.is (guitarparty.com)**: opnaðu lagið, veldu allt (Ctrl+A) og afritaðu (Ctrl+C). Smelltu á **Nýtt lag** og límdu inn í textareitinn. Hljómarnir lenda á nákvæmlega sama atkvæði og á síðunni, og heiti og höfundar fyllast út sjálfkrafa.
 7. **Lag af Ultimate Guitar eða annarri gítarsíðu**: opnaðu lagið þar, veldu textann með hljómunum og afritaðu (Ctrl+C). Smelltu á **Nýtt lag** og límdu inn. Hljómunum er breytt sjálfkrafa, gítartabs fjarlægð, og Capo og Key sett í réttu reitina. [Verse]/[Chorus] verða Erindi/Viðlag. Skrifaðu svo heiti lagsins og vistaðu.
 8. **Heil söngbók í einu**: smelltu á **Flytja inn** og veldu PDF-söngbók (t.d. af guitarparty.com). Lögin eru lesin í vafranum, líka síður í tveimur dálkum, hljómarnir settir á rétt atkvæði og viðlög merkt. Taktu hak af lögum sem þú vilt sleppa og smelltu á **Flytja inn**. Lög sem eru þegar í söngbókinni eru ekki valin. Hakirðu við þau er gömlu útgáfunni **skipt út**, svo þú getur flutt sömu bók inn aftur án þess að fá tvöföld lög.
 
 **Í partýinu**
 
-1. Á **gitar.html**: hakaðu við lögin fyrir kvöldið og ýttu á **Byrja partý**. QR-kóði og fjögurra stafa kóði birtast.
+1. Á **gitar.html**: hakaðu við lögin fyrir kvöldið og ýttu á **Byrja partý**. **Öll / Íslensk / Erlend** sía listann og **Röð / A–Ö** raðar honum með upphafsstöfum. „Velja“ á við lögin sem sjást, og partýið og prentaða söngbókin fylgja röðinni sem þú velur. QR-kóði og fjögurra stafa kóði birtast.
 2. Gestir skanna QR-kóðann, eða slá kóðann inn á **hljomey.is/pubquiz** (ekkert nafn þarf).
 3. Þegar þú flettir á næsta lag fylgja allir símar með. Gestir sjá aðeins textann nema þeir kveiki á **Hljómar**.
 4. **− / +** færa lagið um hálftón (líka hljómana í símum gesta).
-5. **Velja lag utan raðar**: ýttu á heiti lagsins efst (eða ☰). Leitaðu, eða raðaðu eftir stafrófi með **A–Ö**. ✓ merkir lög sem búið er að spila. Undir **Öll lög** geturðu valið lag úr söngbókinni sem var ekki á listanum.
+5. **Velja lag utan raðar**: ýttu á heiti lagsins efst (eða ☰). Leitaðu, síaðu eftir **Íslensk / Erlend**, eða raðaðu eftir stafrófi með **A–Ö**. ✓ merkir lög sem búið er að spila. Undir **Öll lög** geturðu valið lag úr söngbókinni sem var ekki á listanum.
 6. **Sjálfvirkt skrun**: hringlaga takkinn niðri til hægri. Hver smellur hækkar hraðann 1 → 2 → 3 → af. Skrunið stoppar á meðan þú snertir skjáinn, á enda lagsins og þegar skipt er um lag. Gestir hafa sama takka í sínum síma. Við tölvu: **S** skiptir um hraða og **L** opnar lagalistann.
 7. QR-takkinn efst sýnir kóðann aftur í fullri stærð. Örvalyklar og fótstig (síðuflettarar) fletta á milli laga.
 8. Ef síminn eða tölvan endurræsist: opnaðu gitar.html aftur og veldu **Halda áfram**.

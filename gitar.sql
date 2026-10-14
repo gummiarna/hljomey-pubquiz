@@ -20,6 +20,9 @@ create table if not exists public.gitar_songs (
   updated_at  timestamptz not null default now()
 );
 
+-- Flokkur: 'is' (íslenskt) eða 'erl' (erlent); tómt = greint sjálfkrafa út frá textanum
+alter table public.gitar_songs add column if not exists lang text check (lang in ('is', 'erl'));
+
 -- Partý í gangi: hvaða lag spilarinn er á. Allir mega lesa (símarnir).
 create table if not exists public.gitar_sessions (
   code          text primary key,
@@ -83,24 +86,27 @@ begin
   return true;
 end $$;
 
+-- (eldri útgáfa án flokks fjarlægð svo aðeins ein útgáfa sé til)
+drop function if exists public.gitar_save_song(text, uuid, text, text, text, text, int);
+
 create or replace function public.gitar_save_song(
-  p_pin text, p_id uuid, p_title text, p_artist text, p_body text, p_key text, p_capo int)
+  p_pin text, p_id uuid, p_title text, p_artist text, p_body text, p_key text, p_capo int, p_lang text default null)
 returns uuid language plpgsql security definer set search_path = public as $$
-declare v_id uuid;
+declare v_id uuid; v_lang text := case when p_lang in ('is', 'erl') then p_lang else null end;
 begin
   if not _gitar_pin_ok(p_pin) then raise exception 'rangt_pin'; end if;
   if length(trim(coalesce(p_title, ''))) < 1 then raise exception 'vantar_heiti'; end if;
   if p_id is null then
-    insert into gitar_songs (title, artist, body, song_key, capo, sort_order)
+    insert into gitar_songs (title, artist, body, song_key, capo, lang, sort_order)
     values (trim(p_title), coalesce(trim(p_artist), ''), coalesce(p_body, ''), coalesce(trim(p_key), ''),
-            greatest(0, least(12, coalesce(p_capo, 0))),
+            greatest(0, least(12, coalesce(p_capo, 0))), v_lang,
             coalesce((select max(sort_order) + 1 from gitar_songs), 0))
     returning id into v_id;
   else
     update gitar_songs
        set title = trim(p_title), artist = coalesce(trim(p_artist), ''), body = coalesce(p_body, ''),
            song_key = coalesce(trim(p_key), ''), capo = greatest(0, least(12, coalesce(p_capo, 0))),
-           updated_at = now()
+           lang = v_lang, updated_at = now()
      where id = p_id
     returning id into v_id;
   end if;
@@ -193,7 +199,7 @@ end $$;
 revoke all on public.gitar_songs, public.gitar_sessions, public.gitar_hosts from anon, authenticated;
 revoke all on function
   public._gitar_pin_ok(text), public._code_taken(text),
-  public.gitar_check(text), public.gitar_save_song(text, uuid, text, text, text, text, int),
+  public.gitar_check(text), public.gitar_save_song(text, uuid, text, text, text, text, int, text),
   public.gitar_delete_song(text, uuid), public.gitar_reorder(text, uuid[]),
   public.gitar_start(uuid[], text), public.gitar_set(text, uuid, uuid, int, uuid[]),
   public.gitar_is_host(text, uuid), public.gitar_find(text)
@@ -202,7 +208,7 @@ from public, anon, authenticated;
 grant select on public.gitar_songs, public.gitar_sessions to anon, authenticated;
 grant execute on function
   public.gitar_check(text),
-  public.gitar_save_song(text, uuid, text, text, text, text, int),
+  public.gitar_save_song(text, uuid, text, text, text, text, int, text),
   public.gitar_delete_song(text, uuid),
   public.gitar_reorder(text, uuid[]),
   public.gitar_start(uuid[], text),

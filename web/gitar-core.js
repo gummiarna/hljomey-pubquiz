@@ -655,7 +655,31 @@
     return { title: t ? t.textContent.replace(/\s+/g, ' ').trim() : '', artist: a ? creditsToArtist(a.textContent.replace(/\s+/g, ' ')) : '', body: body };
   }
 
+  // ---------- Íslenskt eða erlent? ----------
+  // Greint út frá textanum: ð/þ eru séríslensk, æ og kommustafir algengir; ø/å/ä/ü/ñ benda annað.
+  function detectLang(song) {
+    var t = ((song && song.title) || '') + ' ' + ((song && song.body) || '');
+    t = t.replace(/\[[^\]]*\]|\{[^}]*\}/g, ' ');
+    var letters = (t.match(/[a-záðéíóúýþæöøåäüñç]/gi) || []).length;
+    if (!letters) return 'is';
+    var strong = (t.match(/[ðþ]/gi) || []).length;
+    var weak = (t.match(/[áéíóúýæö]/gi) || []).length;
+    var other = (t.match(/[øåäüñç]/gi) || []).length;
+    var score = (strong * 3 + weak - other * 3) / letters;
+    return score > 0.02 ? 'is' : 'erl';
+  }
+  function songLang(song) { return (song && (song.lang === 'is' || song.lang === 'erl')) ? song.lang : detectLang(song); }
+
+  // Stafrófsröð og fyrirsagnarstafur (íslensk röð: A Á B D Ð E É … Þ Æ Ö)
+  function titleKey(t) { return String(t || '').replace(/^[^0-9A-Za-zÀ-ÿĀ-ž]+/, ''); }
+  function compareTitles(a, b) { return titleKey(a).localeCompare(titleKey(b), 'is', { sensitivity: 'base' }); }
+  function initialOf(t) { var c = titleKey(t).charAt(0).toUpperCase(); return /[0-9]/.test(c) || !c ? '#' : c; }
+
   var api = {
+    detectLang: detectLang,
+    songLang: songLang,
+    compareTitles: compareTitles,
+    initialOf: initialOf,
     fromChordDom: fromChordDom,
     fromPdfPages: fromPdfPages,
     creditsToArtist: creditsToArtist,

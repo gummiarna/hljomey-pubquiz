@@ -104,6 +104,17 @@ a{color:var(--accent)}
 .bar .t.tap{background:none;border:0;text-align:left;padding:0;cursor:pointer}
 .bar .t.tap b::after{content:" ▾";color:var(--muted);font-weight:500;font-size:.8em}
 .row .played{color:var(--muted);font-size:13px;margin-right:6px}
+.chiprow{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{height:34px;padding:0 13px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--muted);font-weight:500;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.chip i{font-style:normal;opacity:.7;font-size:12px}
+.drawer .chips{padding:0 12px 10px}
+.letter{font-size:13px;font-weight:900;color:var(--accent);letter-spacing:.06em;padding:14px 12px 4px;border-bottom:1px solid var(--line);margin:0 0 4px}
+.drawer .letter{padding:12px 10px 4px}
+.langtag{font-size:10.5px;font-weight:700;letter-spacing:.06em;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 5px;margin-left:6px;vertical-align:1px;white-space:nowrap}
+.langtag.set{color:var(--accent);border-color:var(--accent)}
+@media (max-width:440px){.btn.sq{padding:0 13px;min-width:46px}}
 .sortbtn{height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:transparent;font-weight:700;font-size:13px;color:var(--muted)}
 .banner{position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:21;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 16px;border-radius:20px;background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:560px;margin:0 auto}
 .banner p{margin:0;flex:1;font-size:14px;line-height:1.3}
@@ -185,7 +196,8 @@ a{color:var(--accent)}
 .field label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px}
 .field input,.field textarea,.field select{width:100%;border-radius:10px;border:1px solid var(--line);background:var(--panel2);padding:11px 12px;outline:none}
 .field textarea{min-height:46vh;font-family:"JetBrains Mono",ui-monospace,monospace;font-size:14px;line-height:1.55;resize:vertical;white-space:pre;overflow:auto}
-.cols{display:grid;grid-template-columns:1fr 110px 90px;gap:10px}
+.cols{display:grid;grid-template-columns:1fr 110px 90px 170px;gap:10px}
+@media (max-width:700px){.cols{grid-template-columns:1fr 1fr}}
 .help{font-size:13px;color:var(--muted);line-height:1.5;margin:6px 0 0}
 .help code{font-family:"JetBrains Mono",monospace;color:var(--chord);font-size:12.5px}
 .editgrid{display:grid;gap:18px}
@@ -271,7 +283,7 @@ a{color:var(--accent)}
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="config.js"></script>
 <script src="common.js"></script>
-<script src="gitar-core.js?v=2026-10-14f"></script>
+<script src="gitar-core.js?v=2026-10-14g"></script>
 <script>
 (function () {
 'use strict';
@@ -352,13 +364,21 @@ function supabaseData() {
   if (!pq || !pq.client || !pq.cfg || /XXXXXXXX/.test(pq.cfg.SUPABASE_URL || 'XXXXXXXX')) return null;
   var sb = pq.client;
   var tag = pq.cfg.EVENT_TAG || null;
-  var cols = 'id,title,artist,body,song_key,capo,sort_order';
+  var cols = '*';   // allir dálkar (líka „lang" ef gitar.sql er uppfært)
   function un(r) { if (r.error) throw r.error; return r.data; }
   return {
     listSongs: function () { return sb.from('gitar_songs').select(cols).order('sort_order').order('title').then(un); },
     songsByIds: function (ids) { return ids.length ? sb.from('gitar_songs').select(cols).in('id', ids).then(un) : Promise.resolve([]); },
     check: function (p) { return sb.rpc('gitar_check', { p_pin: p }).then(un); },
-    saveSong: function (p, s) { return sb.rpc('gitar_save_song', { p_pin: p, p_id: s.id || null, p_title: s.title, p_artist: s.artist || '', p_body: s.body || '', p_key: s.song_key || '', p_capo: s.capo || 0 }).then(un); },
+    saveSong: function (p, s) {
+      var args = { p_pin: p, p_id: s.id || null, p_title: s.title, p_artist: s.artist || '', p_body: s.body || '', p_key: s.song_key || '', p_capo: s.capo || 0 };
+      var withLang = Object.assign({ p_lang: s.lang || null }, args);
+      return sb.rpc('gitar_save_song', withLang).then(un).catch(function (e) {
+        // Gagnagrunnur án flokka (gitar.sql ekki uppfært): vista án flokks
+        if (/Could not find the function|p_lang/i.test((e && e.message) || '')) { S.noLang = true; return sb.rpc('gitar_save_song', args).then(un); }
+        throw e;
+      });
+    },
     deleteSong: function (p, id) { return sb.rpc('gitar_delete_song', { p_pin: p, p_id: id }).then(un); },
     reorder: function (p, ids) { return sb.rpc('gitar_reorder', { p_pin: p, p_ids: ids }).then(un); },
     start: function (ids) { return sb.rpc('gitar_start', { p_song_ids: ids, p_event_tag: tag }).then(un); },
@@ -400,6 +420,7 @@ var S = {
   drawerTab: 'set',
   q: '',
   sort: LS.get('sort', 'order'),
+  langf: LS.get('langf', 'all'),
   played: {}
 };
 
@@ -498,6 +519,49 @@ document.addEventListener('touchstart', function () { SCR.hold = true; }, { pass
 document.addEventListener('touchend', function () { SCR.hold = false; SCR.y = window.scrollY; }, { passive: true });
 document.addEventListener('touchcancel', function () { SCR.hold = false; SCR.y = window.scrollY; }, { passive: true });
 
+// ---------- Flokkar og röðun ----------
+var LANGN = { is: 'Íslenskt', erl: 'Erlent' };
+function langOf(s) {
+  if (s._lgB !== s.body || s._lgL !== s.lang) { s._lg = G.songLang(s); s._lgB = s.body; s._lgL = s.lang; }
+  return s._lg;
+}
+// Sía eftir flokki og leit, raða eftir stafrófi eða röð söngbókar
+function viewList(songs) {
+  var q = S.q.trim().toLowerCase();
+  var out = songs.filter(function (s) {
+    if (!s) return false;
+    if (S.langf !== 'all' && langOf(s) !== S.langf) return false;
+    return !q || (s.title + ' ' + (s.artist || '')).toLowerCase().indexOf(q) !== -1;
+  });
+  if (S.sort === 'abc') out = out.slice().sort(function (a, b) { return G.compareTitles(a.title, b.title); });
+  return out;
+}
+function sortedAll(songs) {
+  return S.sort === 'abc' ? songs.slice().sort(function (a, b) { return G.compareTitles(a.title, b.title); }) : songs.slice();
+}
+function withLetters(list, rowFn) {
+  var last = null;
+  return list.map(function (s, i) {
+    var h = '';
+    if (S.sort === 'abc') { var L = G.initialOf(s.title); if (L !== last) { h = '<div class="letter">' + esc(L) + '</div>'; last = L; } }
+    return h + rowFn(s, i);
+  }).join('');
+}
+function langChips(songs) {
+  var nis = songs.filter(function (s) { return s && langOf(s) === 'is'; }).length;
+  var all = songs.filter(Boolean).length;
+  return '<div class="chips" role="group" aria-label="Flokkur">' +
+    [['all', 'Öll', all], ['is', 'Íslensk', nis], ['erl', 'Erlend', all - nis]].map(function (o) {
+      return '<button class="chip' + (S.langf === o[0] ? ' on' : '') + '" data-act="langf" data-v="' + o[0] + '">' + o[1] + ' <i>' + o[2] + '</i></button>';
+    }).join('') + '</div>';
+}
+function sortChips() {
+  return '<div class="chips" role="group" aria-label="Röðun">' +
+    [['order', 'Röð'], ['abc', 'A–Ö']].map(function (o) {
+      return '<button class="chip' + (S.sort === o[0] ? ' on' : '') + '" data-act="sortv" data-v="' + o[0] + '">' + o[1] + '</button>';
+    }).join('') + '</div>';
+}
+
 // ---------- Skúffa (lagalisti) ----------
 function openDrawer() { renderDrawer(); drawer.classList.add('open'); scrim.classList.add('open'); var s = drawer.querySelector('.search'); if (s && matchMedia('(pointer:fine)').matches) s.focus(); var c = drawer.querySelector('.row.cur'); if (c) c.scrollIntoView({ block: 'center' }); }
 function closeDrawer() { drawer.classList.remove('open'); if (!sheet.classList.contains('open')) scrim.classList.remove('open'); }
@@ -508,12 +572,9 @@ scrim.addEventListener('click', function () { closeDrawer(); closeSheet(); });
 function renderDrawer() {
   var host = S.view === 'host';
   var tab = host ? S.drawerTab : 'set';
-  var ids = tab === 'set' ? S.setlist.slice() : S.book.map(function (s) { return s.id; });
-  if (S.sort === 'abc') ids.sort(function (a, b) { return ((S.songs[a] || {}).title || '').localeCompare((S.songs[b] || {}).title || '', 'is'); });
-  var q = S.q.trim().toLowerCase();
-  var rows = ids.map(function (id, i) {
-    var s = S.songs[id]; if (!s) return '';
-    if (q && (s.title + ' ' + (s.artist || '')).toLowerCase().indexOf(q) === -1) return '';
+  var pool = (tab === 'set' ? S.setlist : S.book.map(function (s) { return s.id; })).map(function (id) { return S.songs[id]; }).filter(Boolean);
+  var rows = withLetters(viewList(pool), function (s) {
+    var id = s.id;
     var inSet = S.setlist.indexOf(id) !== -1;
     var cls = 'row' + (id === S.cur ? ' cur' : '') + (S.view === 'sing' && id === S.hostSong ? ' now' : '');
     var right = '';
@@ -521,10 +582,11 @@ function renderDrawer() {
     else if (tab === 'all' && !inSet) right = '<span class="tag">+ Bæta við</span>';
     else if (host) right = (S.played[id] && id !== S.cur ? '<span class="played" title="Búið að spila">✓</span>' : '') + '<span class="k">' + esc(G.songKey(parsed(s), 0)) + '</span>';
     return '<button class="' + cls + '" data-act="pick" data-id="' + id + '"><span class="n">' + (tab === 'set' ? (S.setlist.indexOf(id) + 1) : (inSet ? '✓' : '')) + '</span><span class="m"><b>' + esc(s.title) + '</b>' + (s.artist ? '<small>' + esc(s.artist) + '</small>' : '') + '</span>' + right + '</button>';
-  }).join('');
+  });
   drawer.innerHTML =
     '<header><h2>' + (host ? 'Lög' : 'Lagalisti') + '</h2><button class="sortbtn" data-act="sort" title="Raða">' + (S.sort === 'abc' ? 'A–Ö' : 'Röð') + '</button><button class="ib" data-act="close-drawer" aria-label="Loka">' + I.x + '</button></header>' +
     (host ? '<div class="tabs"><button data-act="dtab" data-tab="set" class="' + (tab === 'set' ? 'on' : '') + '">Í kvöld (' + S.setlist.length + ')</button><button data-act="dtab" data-tab="all" class="' + (tab === 'all' ? 'on' : '') + '">Öll lög (' + S.book.length + ')</button></div>' : '') +
+    langChips(pool) +
     '<input class="search" type="search" placeholder="Leita að lagi…" value="' + esc(S.q) + '" data-inp="q" aria-label="Leita">' +
     '<div class="list">' + (rows || '<div class="empty">Ekkert lag fannst</div>') + '</div>';
 }
@@ -578,9 +640,9 @@ function renderStart() {
   var last = LS.get('host', null);
   var resume = last && last.code && (Date.now() - last.t < 12 * 3600e3)
     ? '<div class="card resume"><p>Partý <b class="code">' + esc(last.code) + '</b> er enn í gangi.</p><button class="btn primary" data-act="resume">Halda áfram</button></div>' : '';
-  var q = S.q.trim().toLowerCase();
-  var list = S.book.filter(function (s) { return !q || (s.title + ' ' + (s.artist || '')).toLowerCase().indexOf(q) !== -1; });
+  var list = viewList(S.book);
   var n = S.book.filter(function (s) { return S.sel.has(s.id); }).length;
+  var allVisSel = list.length && list.every(function (s) { return S.sel.has(s.id); });
   app.innerHTML =
     '<div class="wrap">' +
       '<div class="topline"><div class="brand">Hljómey <span>Gítarpartý</span></div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a class="on" href="gitar.html">Gítarpartý</a></nav></div>' +
@@ -588,11 +650,12 @@ function renderStart() {
       resume +
       '<div class="card join"><div style="flex:1;min-width:0"><label for="jc">Ertu að syngja með? Sláðu inn kóðann</label><div style="display:flex;gap:8px"><input id="jc" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD" data-inp="code"><button class="btn primary" data-act="join">Syngja</button></div></div></div>' +
       '<div class="sechead"><h2>Söngbókin</h2><span class="muted">' + n + ' af ' + S.book.length + ' valin</span>' +
-        '<button class="linkbtn" data-act="selall">' + (n === S.book.length ? 'Afvelja öll' : 'Velja öll') + '</button></div>' +
+        '<button class="linkbtn" data-act="selall">' + (allVisSel ? 'Afvelja' : 'Velja') + (S.langf === 'is' ? ' íslensk' : S.langf === 'erl' ? ' erlend' : ' öll') + '</button></div>' +
+      (S.book.length ? '<div class="chiprow">' + langChips(S.book) + sortChips() + '</div>' : '') +
       (S.book.length > 8 ? '<input class="search" style="margin:0 0 10px;width:100%" type="search" placeholder="Leita…" value="' + esc(S.q) + '" data-inp="startq">' : '') +
-      (S.book.length ? '<div id="picks">' + list.map(function (s) {
+      (S.book.length ? '<div id="picks">' + (withLetters(list, function (s) {
         return '<label class="pick"><input type="checkbox" data-sel="' + s.id + '"' + (S.sel.has(s.id) ? ' checked' : '') + '><span class="m"><b>' + esc(s.title) + '</b>' + (s.artist ? '<small>' + esc(s.artist) + '</small>' : '') + '</span><span class="k mono" style="color:var(--chord);font-size:12px;font-weight:700">' + esc(G.songKey(parsed(s), 0)) + '</span></label>';
-      }).join('') + '</div>' : '<div class="empty"><b>Söngbókin er tóm</b>Bættu við lögum undir „Breyta söngbók“.</div>') +
+      }) || '<div class="empty">Ekkert lag í þessum flokki</div>') + '</div>' : '<div class="empty"><b>Söngbókin er tóm</b>Bættu við lögum undir „Breyta söngbók“.</div>') +
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:22px">' +
         '<button class="btn" data-act="print"' + (n ? '' : ' disabled') + '>' + I.print + 'Prenta valin lög</button>' +
         '<button class="btn" data-act="book">' + I.book + 'Breyta söngbók</button>' +
@@ -601,7 +664,7 @@ function renderStart() {
     '<div class="footer-cta"><div class="in"><button class="btn primary big" data-act="start"' + (n ? '' : ' disabled') + '>' + I.guitar + 'Byrja partý' + (n ? ' · ' + n + ' lög' : '') + '</button></div></div>';
 }
 function startParty() {
-  var ids = S.book.filter(function (s) { return S.sel.has(s.id); }).map(function (s) { return s.id; });
+  var ids = sortedAll(S.book).filter(function (s) { return S.sel.has(s.id); }).map(function (s) { return s.id; });
   if (!ids.length) return;
   var btn = app.querySelector('[data-act=start]'); if (btn) { btn.disabled = true; btn.textContent = 'Ræsi partý…'; }
   D.start(ids).then(function (r) {
@@ -847,17 +910,34 @@ function renderBook() {
   S.view = 'book';
   app.innerHTML =
     '<header class="bar"><button class="ib" data-act="home" aria-label="Til baka">' + I.back + '</button><div class="t"><b>Söngbókin</b><small>' + S.book.length + ' lög</small></div>' +
-    '<button class="btn" data-act="import" title="Flytja inn úr PDF">' + I.upload + '<span class="hide-sm">Flytja inn</span></button>' +
-    '<button class="btn primary" data-act="new">' + I.plus + 'Nýtt lag</button></header>' +
+    '<button class="btn sq" data-act="booksort" title="Raða söngbók" aria-label="Raða söngbók">A–Ö</button>' +
+    '<button class="btn sq" data-act="import" title="Flytja inn úr PDF" aria-label="Flytja inn">' + I.upload + '<span class="hide-sm">Flytja inn</span></button>' +
+    '<button class="btn primary sq" data-act="new" aria-label="Nýtt lag">' + I.plus + '<span class="hide-sm">Nýtt lag</span></button></header>' +
     '<div class="wrap" style="padding-top:8px">' +
     (S.book.length ? S.book.map(function (s, i) {
-      return '<div class="brow"><div class="m"><b>' + esc(s.title) + '</b><small>' + esc(s.artist || '') + (s.song_key ? ' · ' + esc(s.song_key) : '') + '</small></div>' +
+      return '<div class="brow"><div class="m"><b>' + esc(s.title) + '<span class="langtag' + (s.lang ? ' set' : '') + '" title="' + (s.lang ? 'Valið handvirkt' : 'Greint sjálfkrafa') + '">' + (langOf(s) === 'is' ? 'ÍSL' : 'ERL') + '</span></b><small>' + esc(s.artist || '') + (s.song_key ? ' · ' + esc(s.song_key) : '') + '</small></div>' +
         '<button class="ib" data-act="mv" data-d="-1" data-id="' + s.id + '" aria-label="Færa upp"' + (i === 0 ? ' disabled style="opacity:.3"' : '') + '>' + I.up + '</button>' +
         '<button class="ib" data-act="mv" data-d="1" data-id="' + s.id + '" aria-label="Færa niður"' + (i === S.book.length - 1 ? ' disabled style="opacity:.3"' : '') + '>' + I.down + '</button>' +
         '<button class="ib" data-act="edit" data-id="' + s.id + '" aria-label="Breyta">' + I.edit + '</button></div>';
     }).join('') : '<div class="empty"><b>Engin lög enn</b>Smelltu á „Nýtt lag“ til að byrja.</div>') +
     '</div>';
 }
+function openBookSort() {
+  openSheet('<h3>Raða söngbókinni</h3>' +
+    '<p class="help" style="margin:-6px 0 12px">Breytir röðinni varanlega. Þú getur alltaf fært einstök lög til með örvunum.</p>' +
+    '<div style="display:grid;gap:8px">' +
+    '<button class="btn" data-act="booksort-do" data-v="abc">Stafrófsröð, A–Ö</button>' +
+    '<button class="btn" data-act="booksort-do" data-v="is-first">Íslensk fyrst, svo erlend (hvor hluti A–Ö)</button>' +
+    '<button class="btn" data-act="booksort-do" data-v="erl-first">Erlend fyrst, svo íslensk (hvor hluti A–Ö)</button>' +
+    '<button class="btn ghost" data-act="close-sheet">Hætta við</button></div>');
+}
+function bookSortDo(mode) {
+  var rank = function (s) { if (mode === 'abc') return 0; var l = langOf(s); return (mode === 'is-first') === (l === 'is') ? 0 : 1; };
+  S.book.sort(function (a, b) { return rank(a) - rank(b) || G.compareTitles(a.title, b.title); });
+  closeSheet(); renderBook();
+  D.reorder(S.pass, S.book.map(function (s) { return s.id; })).then(function () { toast('Söngbókinni raðað'); }).catch(function (e) { toast(errMsg(e)); });
+}
+
 var reorderT = null;
 function moveSong(id, d) {
   var i = S.book.findIndex(function (s) { return s.id === id; });
@@ -875,7 +955,7 @@ var ED = null;
 function renderEdit(id) {
   S.view = 'edit';
   var s = id ? S.songs[id] : null;
-  ED = { id: id || null, title: s ? s.title : '', artist: s ? s.artist : '', song_key: s ? s.song_key : '', capo: s ? s.capo : 0, body: s ? s.body : '', tab: 'text', chords: true, dirty: false };
+  ED = { id: id || null, title: s ? s.title : '', artist: s ? s.artist : '', song_key: s ? s.song_key : '', capo: s ? s.capo : 0, body: s ? s.body : '', lang: s && s.lang ? s.lang : '', tab: 'text', chords: true, dirty: false };
   app.innerHTML =
     '<header class="bar"><button class="ib" data-act="book-back" aria-label="Til baka">' + I.back + '</button><div class="t"><b>' + (id ? 'Breyta lagi' : 'Nýtt lag') + '</b></div>' +
     '<button class="btn primary" data-act="save">Vista</button></header>' +
@@ -888,6 +968,7 @@ function renderEdit(id) {
             '<div class="field"><label for="f-artist">Flytjandi / höfundar</label><input id="f-artist" data-ed="artist" value="' + esc(ED.artist) + '"></div>' +
             '<div class="field"><label for="f-key">Tóntegund</label><input id="f-key" data-ed="song_key" value="' + esc(ED.song_key) + '" placeholder="Sjálfv."></div>' +
             '<div class="field"><label for="f-capo">Capó</label><select id="f-capo" data-ed="capo">' + Array.apply(null, Array(13)).map(function (_, n) { return '<option value="' + n + '"' + (n === (ED.capo || 0) ? ' selected' : '') + '>' + (n || '—') + '</option>'; }).join('') + '</select></div>' +
+            '<div class="field"><label for="f-lang">Flokkur</label><select id="f-lang" data-ed="lang"><option value="" id="f-lang-auto"' + (!ED.lang ? ' selected' : '') + '>Sjálfvirkt</option><option value="is"' + (ED.lang === 'is' ? ' selected' : '') + '>Íslenskt</option><option value="erl"' + (ED.lang === 'erl' ? ' selected' : '') + '>Erlent</option></select></div>' +
           '</div>' +
           '<div class="field"><label for="f-body">Texti með hljómum</label><textarea id="f-body" data-ed="body" spellcheck="false" placeholder="[Am]Sofðu unga [E7]ástin mín,&#10;[Am]úti regnið [E7]græt[Am]ur.&#10;&#10;Viðlag:&#10;…">' + esc(ED.body) + '</textarea>' +
             '<div id="conv"></div>' +
@@ -901,6 +982,8 @@ function renderEdit(id) {
 }
 function updatePreview() {
   var pv = document.getElementById('pv'); if (!pv) return;
+  var la = document.getElementById('f-lang-auto');
+  if (la) la.textContent = 'Sjálfvirkt: ' + LANGN[G.detectLang({ title: ED.title, body: ED.body })];
   var tmp = { title: ED.title || 'Heiti lags', artist: ED.artist, body: ED.body, song_key: ED.song_key, capo: +ED.capo || 0 };
   var p = parsed(tmp);
   if (ED.song_key) p.meta.key = ED.song_key;
@@ -927,7 +1010,7 @@ function saveSong() {
   var btn = app.querySelector('[data-act=save]'); btn.disabled = true; btn.textContent = 'Vista…';
   D.saveSong(S.pass, ED).then(function () {
     ED.dirty = false;
-    toast('Lagið er vistað');
+    toast(S.noLang && ED.lang ? 'Vistað, en flokkurinn vistast ekki fyrr en gitar.sql hefur verið keyrt aftur' : 'Lagið er vistað');
     viewBook();
   }).catch(function (e) {
     btn.disabled = false; btn.textContent = 'Vista';
@@ -1061,7 +1144,7 @@ function runImport() {
 // ================= PRENTUN =================
 function viewPrint() {
   S.view = 'print';
-  var ids = S.book.filter(function (s) { return S.sel.has(s.id); }).map(function (s) { return s.id; });
+  var ids = sortedAll(S.book).filter(function (s) { return S.sel.has(s.id); }).map(function (s) { return s.id; });
   app.innerHTML =
     '<header class="bar"><button class="ib" data-act="home" aria-label="Til baka">' + I.back + '</button><div class="t"><b>Söngbók til prentunar</b><small>' + ids.length + ' lög · eitt lag á síðu</small></div>' +
     '<button class="btn primary" data-act="doprint">' + I.print + 'Prenta</button></header>' +
@@ -1121,10 +1204,21 @@ document.addEventListener('click', function (e) {
       break;
     case 'rejoin': joinParty(S.code || params.get('k')); break;
     case 'selall':
-      var all = S.sel.size === S.book.length;
-      S.sel = new Set(all ? [] : S.book.map(function (s) { return s.id; }));
+      var vis = viewList(S.book);
+      var allSel = vis.length && vis.every(function (s) { return S.sel.has(s.id); });
+      vis.forEach(function (s) { if (allSel) S.sel.delete(s.id); else S.sel.add(s.id); });
       LS.set('sel', Array.from(S.sel)); renderStart();
       break;
+    case 'langf':
+      S.langf = b.dataset.v; LS.set('langf', S.langf);
+      if (drawer.classList.contains('open')) renderDrawer(); else if (S.view === 'start') renderStart();
+      break;
+    case 'sortv':
+      S.sort = b.dataset.v; LS.set('sort', S.sort);
+      if (S.view === 'start') renderStart();
+      break;
+    case 'booksort': openBookSort(); break;
+    case 'booksort-do': bookSortDo(b.dataset.v); break;
     case 'start': startParty(); break;
     case 'print': viewPrint(); break;
     case 'doprint': window.print(); break;
@@ -1178,6 +1272,7 @@ document.addEventListener('change', function (e) {
     var gb = app.querySelector('[data-act=imp-go]'); if (gb) { gb.disabled = !nn; gb.innerHTML = I.upload + 'Flytja inn ' + nn + ' lög'; }
     var mh = app.querySelector('.sechead .muted'); if (mh) mh.textContent = nn + ' valin';
   }
+  if (t.dataset.ed === 'lang' && ED) { ED.lang = t.value; ED.dirty = true; }
   if (t.dataset.ed === 'capo') { ED.capo = +t.value; ED.dirty = true; updatePreview(); }
 });
 document.addEventListener('input', function (e) {
