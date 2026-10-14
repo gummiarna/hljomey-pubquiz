@@ -324,7 +324,199 @@
     return list;
   }
 
+  // ---------- Innflutningur úr PDF (t.d. söngbók af guitarparty.com) ----------
+  // pages: [{ items: [{ str, x, y, w, size, font }] }] — staðsetningar úr pdf.js (y vex upp á við)
+  // measure(str, size): breidd strengs í punktum (canvas í vafra) — notað til að finna
+  // nákvæmlega yfir hvaða staf hver hljómur á heima.
+  function fromPdfPages(pages, measure) {
+    measure = measure || function (s, size) { return s.length * size * 0.5; };
+    var CREDIT = /^(song by|lyrics by|music by|words by|artists?|lag|texti|lag og texti)\s*:/i;
+
+    // Hvaða letur er notað fyrir hljóma? Það sem hefur hæst hlutfall hljóma.
+    var fontStat = {};
+    pages.forEach(function (pg) { pg.items.forEach(function (it) {
+      var t = it.str.trim(); if (!t) return;
+      var f = fontStat[it.font] || (fontStat[it.font] = { n: 0, c: 0 });
+      f.n++; if (t.split(/\s+/).every(function (x) { return isChord(x) || NEUTRAL_RE.test(x); })) f.c++;
+    }); });
+    var chordFont = null, best = 0;
+    Object.keys(fontStat).forEach(function (f) { var s = fontStat[f]; var r = s.c / s.n; if (s.n >= 5 && r > best) { best = r; chordFont = f; } });
+    if (best < 0.6) chordFont = null;
+
+    // Leturstærð texta = algengasta stærð
+    var sizeCount = {};
+    pages.forEach(function (pg) { pg.items.forEach(function (it) { if (it.str.trim()) { var k = Math.round(it.size); sizeCount[k] = (sizeCount[k] || 0) + it.str.length; } }); });
+    var bodySize = +Object.keys(sizeCount).sort(function (a, b) { return sizeCount[b] - sizeCount[a]; })[0] || 11;
+
+    function lines(pg) {
+      var its = pg.items.filter(function (it) { return it.str.trim(); }).slice().sort(function (a, b) { return b.y - a.y || a.x - b.x; });
+      var out = [];
+      its.forEach(function (it) {
+        var L = out.length && Math.abs(out[out.length - 1].y - it.y) < 2 ? out[out.length - 1] : null;
+        if (!L) { L = { y: it.y, items: [] }; out.push(L); }
+        L.items.push(it);
+      });
+      out.forEach(function (L) {
+        L.items.sort(function (a, b) { return a.x - b.x; });
+        L.x = L.items[0].x;
+        L.size = Math.max.apply(null, L.items.map(function (i) { return i.size; }));
+        L.text = L.items.map(function (i) { return i.str; }).join(' ').replace(/\s+/g, ' ').trim();
+        L.chords = !!chordFont && L.items.every(function (i) { return i.font === chordFont; });
+        if (!chordFont) L.chords = isChordLine(L.text);
+      });
+      return out;
+    }
+
+    // Stafir textalínu með x-staðsetningu hvers stafs
+    function charsOf(L) {
+      var chars = [];
+      L.items.forEach(function (it, k) {
+        var s = it.str;
+        var natural = measure(s, it.size) || 1;
+        var scale = it.w > 0 ? it.w / natural : 1;
+        if (k > 0 && chars.length) {
+          var prev = chars[chars.length - 1];
+          var gap = it.x - prev.end;
+          if (gap > it.size * 0.15 && prev.c !== ' ') chars.push({ c: ' ', x: prev.end, end: it.x });
+        }
+        for (var i = 0; i < s.length; i++) {
+          var x0 = it.x + measure(s.slice(0, i), it.size) * scale;
+          var x1 = it.x + measure(s.slice(0, i + 1), it.size) * scale;
+          chars.push({ c: s.charAt(i), x: x0, end: x1 });
+        }
+      });
+      return chars;
+    }
+
+    function chordTokens(L) {
+      var toks = [];
+      L.items.forEach(function (it) {
+        var s = it.str, re = /\S+/g, m;
+        var natural = measure(s, it.size) || 1, scale = it.w > 0 ? it.w / natural : 1;
+        while ((m = re.exec(s))) toks.push({ t: m[0], x: it.x + measure(s.slice(0, m.index), it.size) * scale });
+      });
+      return toks;
+    }
+
+    function merge(chL, lyL) {
+      var chars = charsOf(lyL);
+      var toks = chordTokens(chL);
+      var marks = {}, tail = [], extra = [];
+      toks.forEach(function (tk) {
+        var t = tk.t.replace(/^\(|\)$/g, '');
+        if (!isChord(t)) { if (!/^\|+$/.test(tk.t)) extra.push(tk.t); return; }
+        var idx = -1;
+        for (var i = 0; i < chars.length; i++) {
+          var mid = (chars[i].x + chars[i].end) / 2;
+          if (tk.x < mid) { idx = i; break; }
+        }
+        if (idx === -1) tail.push(t);
+        else marks[idx] = (marks[idx] || '') + '[' + t + ']';
+      });
+      var s = '';
+      chars.forEach(function (ch, i) { if (marks[i]) s += marks[i]; s += ch.c; });
+      if (tail.length) s += ' ' + tail.map(function (t) { return '[' + t + ']'; }).join(' ');
+      if (extra.length) s += ' ' + extra.join(' ');
+      return s.replace(/\s+$/, '');
+    }
+
+    function chordOnly(L) {
+      return chordTokens(L).map(function (tk) {
+        var t = tk.t.replace(/^\(|\)$/g, '');
+        return isChord(t) ? '[' + t + ']' : tk.t;
+      }).join(' ');
+    }
+
+    var songs = [], cur = null;
+    var stepGuess = bodySize * 1.0;
+
+    pages.forEach(function (pg, pi) {
+      var ls = lines(pg);
+      if (!ls.length) return;
+      // Haus og fótur (síðutal, „generated at …") og efnisyfirlit
+      var isToc = ls.some(function (L) { return /table of contents|efnisyfirlit/i.test(L.text); }) ||
+                  ls.filter(function (L) { return /(\.\s*){5,}\d+\s*$/.test(L.text); }).length > 3;
+      if (isToc) return;
+      ls = ls.filter(function (L) {
+        if (/guitarparty\.com|songbook was generated/i.test(L.text)) return false;
+        return !(L.size < bodySize - 1.5 && /^(bls\.?\s*\d+|\d+|síða \d+)$/i.test(L.text));
+      });
+
+      var baseX = Math.min.apply(null, ls.map(function (L) { return L.x; }));
+      var prevY = null, block = null;
+
+      function addLine(text, indented) {
+        if (!cur) return;
+        if (!block) { block = { lines: [], indented: true }; cur.blocks.push(block); }
+        block.lines.push(text);
+        if (!indented) block.indented = false;
+      }
+      function newBlock() { block = null; }
+
+      for (var i = 0; i < ls.length; i++) {
+        var L = ls[i];
+        // Titill: stórt letur
+        if (L.size >= bodySize * 1.45) {
+          var next = ls[i + 1];
+          if (cur && !cur.blocks.length && !cur.title) { cur.title = L.text; continue; }
+          cur = { title: L.text, artist: '', blocks: [] };
+          songs.push(cur); block = null; prevY = null;
+          if (next && CREDIT.test(next.text)) { cur.credits = next.text; i++; prevY = next.y; }
+          else prevY = L.y;
+          continue;
+        }
+        if (!cur) continue; // forsíða o.þ.h.
+        if (CREDIT.test(L.text) && !cur.blocks.length && !cur.credits) { cur.credits = L.text; prevY = L.y; continue; }
+
+        // Auð lína milli erinda: stórt bil
+        if (prevY !== null && (prevY - L.y) > stepGuess * 1.6) newBlock();
+        if (prevY === null) newBlock(); // ný síða = nýtt erindi
+        var indented = L.x > baseX + bodySize * 0.8;
+
+        if (L.chords) {
+          var nx = ls[i + 1];
+          var close = nx && !nx.chords && nx.size < bodySize * 1.45 && (L.y - nx.y) < stepGuess * 1.6 && !CREDIT.test(nx.text);
+          if (close) { addLine(merge(L, nx), indented); prevY = nx.y; i++; continue; }
+          addLine(chordOnly(L), indented);
+        } else {
+          addLine(L.text, indented);
+        }
+        prevY = L.y;
+      }
+    });
+
+    return songs.filter(function (s) { return s.title && s.blocks.length; }).map(function (s) {
+      var out = s.blocks.map(function (b) {
+        var body = b.lines.join('\n');
+        var allChords = b.lines.every(function (l) { return !l.replace(/\[[^\]]*\]/g, '').trim(); });
+        return b.indented && !allChords ? '{soc}\n' + body + '\n{eoc}' : body;
+      }).join('\n\n');
+      return { title: s.title.replace(/\s+/g, ' ').trim(), artist: creditsToArtist(s.credits || ''), body: out };
+    });
+  }
+
+  function creditsToArtist(c) {
+    if (!c) return '';
+    // Skipta eftir merkjum: „Song by:", „Lyrics by:", „Artists:" o.s.frv.
+    var re = /(song by|music by|lyrics by|words by|artists?|lag og texti|lag|texti)\s*:/gi, m, marks = [];
+    while ((m = re.exec(c))) marks.push({ k: m[1].toLowerCase(), s: m.index, e: re.lastIndex });
+    var val = {};
+    marks.forEach(function (mk, i) {
+      var v = c.slice(mk.e, i + 1 < marks.length ? marks[i + 1].s : c.length).replace(/[,\s]+$/, '').replace(/\s*,\s*/g, ', ').trim();
+      var k = /song|music|^lag$/.test(mk.k) ? 'song' : /lyrics|words|texti/.test(mk.k) ? (mk.k === 'lag og texti' ? 'both' : 'words') : 'artists';
+      if (v && !val[k]) val[k] = v;
+    });
+    if (val.both) return val.both.slice(0, 200);
+    var parts = [];
+    if (val.song && val.words && val.song === val.words) parts.push(val.song);
+    else { if (val.song) parts.push('Lag: ' + val.song); if (val.words) parts.push('Texti: ' + val.words); }
+    if (!parts.length && val.artists) parts.push(val.artists);
+    return parts.join(' · ').slice(0, 200);
+  }
+
   var api = {
+    fromPdfPages: fromPdfPages,
+    creditsToArtist: creditsToArtist,
     isChord: isChord,
     isChordLine: isChordLine,
     transposeChord: transposeChord,

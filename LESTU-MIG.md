@@ -140,6 +140,7 @@ Spilarinn fær lögin með hljómum, og allir sem skanna QR-kóðann fylgjast me
 3. Hljómur fer í hornklofa beint á undan atkvæðinu: `[Am]Sofðu unga [E7]ástin mín`. Auð lína skilur á milli erinda, og lína eins og `Viðlag:` verður fyrirsögn.
 4. Lag af gítarsíðu með **hljómum fyrir ofan textann** má líma beint inn, því er breytt sjálfkrafa. Skoðaðu **Forskoðun** og vistaðu.
 5. Örvarnar raða söngbókinni.
+6. **Heil söngbók í einu**: smelltu á **Flytja inn** og veldu PDF-söngbók (t.d. af guitarparty.com). Lögin eru lesin í vafranum, hljómarnir settir á rétt atkvæði og viðlög merkt. Taktu hak af lögum sem þú vilt sleppa og smelltu á **Flytja inn**. Lög sem eru þegar í söngbókinni eru ekki valin sjálfkrafa.
 
 **Í partýinu**
 

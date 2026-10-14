@@ -188,6 +188,17 @@ a{color:var(--accent)}
 @media (max-width:979px){ .editgrid[data-tab="text"] .preview{display:none} .editgrid[data-tab="preview"] .src{display:none} }
 .preview{border:1px solid var(--line);border-radius:20px;background:var(--panel2)}
 .preview .song{padding:18px 18px 28px;font-size:18px}
+.hide-sm{display:inline}
+@media (max-width:440px){.hide-sm{display:none}}
+.imp-drop{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:28px 18px;border:2px dashed var(--line);border-radius:20px;background:var(--panel)}
+.imp-drop.over{border-color:var(--accent)}
+.imp-drop p{margin:0;color:var(--muted);max-width:44ch;line-height:1.5}
+.imp-row{border-bottom:1px solid var(--line)}
+.imp-row .pick{min-height:56px}
+.imp-row .tag{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.imp-row .lb{background:none;border:0;color:var(--accent);font-weight:500;font-size:14px;padding:6px 8px}
+.imp-prev{padding:0 12px 16px 46px}
+.imp-prev .song{padding:0;font-size:16px}
 .convert{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--accent);font-size:14px;margin-top:8px}
 .convert p{margin:0;flex:1}
 
@@ -288,6 +299,7 @@ var I = {
   print: '<svg viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a1 1 0 0 1-1 1h-2"/><rect x="7" y="14" width="10" height="6" rx="1"/></svg>',
   book: '<svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>',
   guitar: '<svg viewBox="0 0 24 24"><path d="M19.5 4.5l-6 6"/><path d="M18 3l3 3"/><path d="M11.5 9.6c-1.6-.8-3.6-.6-4.8.6-.7.7-.9 1.6-1 2.4-.1.7-.6 1.1-1.3 1.3-.9.2-1.6.6-2 1.2-1 1.6-.2 4 1.8 5.6 2 1.6 4.4 1.9 5.6.6.5-.6.8-1.3.9-2.2.1-.7.5-1.2 1.2-1.3.9-.1 1.7-.4 2.4-1 1.2-1.2 1.4-3.2.6-4.8"/><circle cx="9" cy="15" r="1.4"/></svg>',
+  upload: '<svg viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5M5 15v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4"/></svg>',
   sun: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'
 };
 
@@ -771,6 +783,7 @@ function renderBook() {
   S.view = 'book';
   app.innerHTML =
     '<header class="bar"><button class="ib" data-act="home" aria-label="Til baka">' + I.back + '</button><div class="t"><b>Söngbókin</b><small>' + S.book.length + ' lög</small></div>' +
+    '<button class="btn" data-act="import" title="Flytja inn úr PDF">' + I.upload + '<span class="hide-sm">Flytja inn</span></button>' +
     '<button class="btn primary" data-act="new">' + I.plus + 'Nýtt lag</button></header>' +
     '<div class="wrap" style="padding-top:8px">' +
     (S.book.length ? S.book.map(function (s, i) {
@@ -860,6 +873,118 @@ function saveSong() {
   });
 }
 
+// ================= INNFLUTNINGUR ÚR PDF =================
+var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+var IMP = null;
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  return new Promise(function (res, rej) {
+    var sc = document.createElement('script');
+    sc.src = PDFJS + 'pdf.min.js';
+    sc.onload = function () { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; res(window.pdfjsLib); };
+    sc.onerror = function () { rej(new Error('Náði ekki í PDF-lesarann. Athugaðu nettenginguna.')); };
+    document.head.appendChild(sc);
+  });
+}
+var mctx = null, mfont = '';
+function measure(str, size) {
+  if (!mctx) mctx = document.createElement('canvas').getContext('2d');
+  var f = size.toFixed(2) + 'px Helvetica, Arial, "Liberation Sans", sans-serif';
+  if (f !== mfont) { mctx.font = f; mfont = f; }
+  return mctx.measureText(str).width;
+}
+function readPdf(file) {
+  return loadPdfJs().then(function (pdfjs) {
+    return file.arrayBuffer().then(function (buf) { return pdfjs.getDocument({ data: buf }).promise; });
+  }).then(function (doc) {
+    var pages = [], n = 0;
+    function next() {
+      n++;
+      if (n > doc.numPages) return Promise.resolve(pages);
+      return doc.getPage(n).then(function (pg) { return pg.getTextContent(); }).then(function (tc) {
+        pages.push({ items: tc.items.filter(function (i) { return typeof i.str === 'string'; }).map(function (i) {
+          var t = i.transform;
+          return { str: i.str, x: t[4], y: t[5], w: i.width, size: Math.hypot(t[2], t[3]) || Math.abs(t[0]), font: i.fontName };
+        }) });
+        return next();
+      });
+    }
+    return next();
+  });
+}
+function renderImport() {
+  S.view = 'import';
+  IMP = null;
+  app.innerHTML =
+    '<header class="bar"><button class="ib" data-act="imp-back" aria-label="Til baka">' + I.back + '</button><div class="t"><b>Flytja inn lög</b><small>Úr PDF-söngbók</small></div></header>' +
+    '<div class="wrap" style="padding-top:18px"><label class="imp-drop" id="drop">' + I.upload.replace('<svg', '<svg style="width:36px;height:36px;color:var(--accent)"') +
+      '<b style="font-size:18px">Veldu PDF-söngbók</b>' +
+      '<p>T.d. söngbók sem þú bjóst til á guitarparty.com. Skráin er lesin í vafranum þínum, hljómarnir settir á rétt atkvæði og þú velur hvaða lög fara í söngbókina.</p>' +
+      '<span class="btn primary">Velja skrá</span><input type="file" accept="application/pdf,.pdf" data-inp="pdf" hidden></label>' +
+      '<div id="impout"></div></div>';
+  var drop = document.getElementById('drop');
+  ['dragenter', 'dragover'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('over'); }); });
+  ['dragleave', 'drop'].forEach(function (ev) { drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('over'); }); });
+  drop.addEventListener('drop', function (e) { var f = e.dataTransfer.files[0]; if (f) importFile(f); });
+}
+function importFile(file) {
+  var out = document.getElementById('impout');
+  out.innerHTML = '<div class="center" style="min-height:30vh"><div class="spin"></div><p>Les ' + esc(file.name) + '…</p></div>';
+  readPdf(file).then(function (pages) {
+    var songs = G.fromPdfPages(pages, measure);
+    var have = {};
+    S.book.forEach(function (b) { have[b.title.trim().toLowerCase()] = 1; });
+    IMP = songs.map(function (sg, i) {
+      return { i: i, title: sg.title, artist: sg.artist, body: sg.body, exists: !!have[sg.title.trim().toLowerCase()], sel: !have[sg.title.trim().toLowerCase()], open: false };
+    });
+    renderImportList();
+  }).catch(function (e) {
+    out.innerHTML = '<div class="empty"><b>Gat ekki lesið skrána</b>' + esc(e && e.message || '') + '</div>';
+  });
+}
+function renderImportList() {
+  var out = document.getElementById('impout'); if (!out) return;
+  document.getElementById('drop').style.display = 'none';
+  if (!IMP.length) { out.innerHTML = '<div class="empty"><b>Engin lög fundust</b>Þetta lítur ekki út eins og söngbók með hljómum.</div>'; return; }
+  var n = IMP.filter(function (x) { return x.sel; }).length;
+  out.innerHTML =
+    '<div class="sechead"><h2>' + IMP.length + ' lög fundust</h2><span class="muted">' + n + ' valin</span>' +
+    '<button class="linkbtn" data-act="imp-all">' + (n === IMP.length ? 'Afvelja öll' : 'Velja öll') + '</button></div>' +
+    IMP.map(function (x) {
+      return '<div class="imp-row"><label class="pick"><input type="checkbox" data-imp="' + x.i + '"' + (x.sel ? ' checked' : '') + '>' +
+        '<span class="m"><b>' + esc(x.title) + '</b>' + (x.artist ? '<small>' + esc(x.artist) + '</small>' : '') + '</span>' +
+        (x.exists ? '<span class="tag">Er þegar til</span>' : '') +
+        '<button class="lb" data-act="imp-prev" data-i="' + x.i + '">' + (x.open ? 'Fela' : 'Skoða') + '</button></label>' +
+        (x.open ? '<div class="imp-prev"><div class="song chords-on"><div class="gp">' + G.renderSong(G.parseSong(x.body), { chords: true }) + '</div></div></div>' : '') +
+        '</div>';
+    }).join('') +
+    '<div class="footer-cta"><div class="in"><button class="btn primary big" data-act="imp-go"' + (n ? '' : ' disabled') + '>' + I.upload + 'Flytja inn ' + n + ' lög</button></div></div>';
+}
+function runImport() {
+  var list = IMP.filter(function (x) { return x.sel; });
+  var btn = app.querySelector('[data-act=imp-go]');
+  var done = 0, failed = [];
+  app.querySelectorAll('[data-imp]').forEach(function (c) { c.disabled = true; });
+  function step() {
+    if (done + failed.length >= list.length) {
+      toast(done + ' lög flutt inn' + (failed.length ? ', ' + failed.length + ' mistókust' : ''));
+      IMP = null;
+      return viewBook();
+    }
+    var x = list[done + failed.length];
+    btn.disabled = true;
+    btn.textContent = 'Flyt inn ' + (done + failed.length + 1) + ' af ' + list.length + '…';
+    D.saveSong(S.pass, { id: null, title: x.title, artist: x.artist, body: x.body, song_key: '', capo: 0 }).then(function () {
+      done++; step();
+    }).catch(function (e) {
+      var m = errMsg(e);
+      if (m === 'Rangt PIN-númer.') { S.pass = null; SS.set('pass', ''); toast(m); return renderLogin(m); }
+      failed.push(x.title); step();
+    });
+  }
+  step();
+}
+
 // ================= PRENTUN =================
 function viewPrint() {
   S.view = 'print';
@@ -934,6 +1059,14 @@ document.addEventListener('click', function (e) {
       ED = null; renderBook();
       break;
     case 'new': renderEdit(null); break;
+    case 'import': renderImport(); break;
+    case 'imp-back': IMP = null; renderBook(); break;
+    case 'imp-all':
+      var allSel = IMP.every(function (x) { return x.sel; });
+      IMP.forEach(function (x) { x.sel = !allSel; }); renderImportList();
+      break;
+    case 'imp-prev': e.preventDefault(); var it = IMP[+b.dataset.i]; it.open = !it.open; renderImportList(); break;
+    case 'imp-go': runImport(); break;
     case 'edit': renderEdit(b.dataset.id); break;
     case 'mv': moveSong(b.dataset.id, +b.dataset.d); break;
     case 'save': saveSong(); break;
@@ -961,6 +1094,13 @@ document.addEventListener('change', function (e) {
     var st = app.querySelector('[data-act=start]'); if (st) { st.disabled = !n; st.innerHTML = I.guitar + 'Byrja partý' + (n ? ' · ' + n + ' lög' : ''); }
     var pr = app.querySelector('[data-act=print]'); if (pr) pr.disabled = !n;
     var sa = app.querySelector('[data-act=selall]'); if (sa) sa.textContent = n === S.book.length ? 'Afvelja öll' : 'Velja öll';
+  }
+  if (t.dataset.inp === 'pdf' && t.files && t.files[0]) importFile(t.files[0]);
+  if (t.dataset.imp !== undefined && IMP) {
+    IMP[+t.dataset.imp].sel = t.checked;
+    var nn = IMP.filter(function (x) { return x.sel; }).length;
+    var gb = app.querySelector('[data-act=imp-go]'); if (gb) { gb.disabled = !nn; gb.innerHTML = I.upload + 'Flytja inn ' + nn + ' lög'; }
+    var mh = app.querySelector('.sechead .muted'); if (mh) mh.textContent = nn + ' valin';
   }
   if (t.dataset.ed === 'capo') { ED.capo = +t.value; ED.dirty = true; updatePreview(); }
 });
