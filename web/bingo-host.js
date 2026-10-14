@@ -58,6 +58,7 @@
       // Sama lagaheiti má ekki koma tvisvar (annars ruglast spjöldin)
       const seen = new Set(); S.pool = raw.filter(t => { const n = norm(t.title); if (!n || seen.has(n)) return false; seen.add(n); return true; });
       $('poolInfo').textContent = `Fann ${S.pool.length} ólík lög með forskoðun.`;
+      if (window.PQThemes && S.pool.length >= 4) PQThemes.afterFetch(k, k === 'chart' ? $('genre').value : $('value').value, S.pool);
       const need = cardSongs();
       if (S.pool.length < need) showErr('setupErr', `${gridLabel()} spjald þarf a.m.k. ${need} lög (helst ${POT_DEFAULT[gridN()]}). Aðeins ${S.pool.length} fundust – prófaðu víðara þema eða minna spjald.`);
       else pickPot();

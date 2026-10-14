@@ -7,6 +7,16 @@ Leikirnir þrír, Pöbbkviss, Tónlistarbingó og Gítarpartý, eru settir upp s
 
 ---
 
+## Uppfærsla: vistuð þemu í Pöbbkvissi og bingói (október 2026)
+
+Deezer-lagalistar sem þú sækir vistast og birtast efst í **1. Þema** svo þú getur valið þá aftur með einum smelli, í kvissinu og bingóinu.
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald `themes.sql` → **Run**.
+2. **Bluehost**: hladdu upp í `public_html/pubquiz` og skrifaðu yfir: `themes.js` (ný), `deezer.js`, `host.js`, `bingo-host.js`, `stjorn.html`, `bingo-stjorn.html`.
+3. Ctrl+F5 á stjórnendasíðunni.
+
+---
+
 ## Uppfærsla: Gítarpartý bætt við (október 2026)
 
 Ef Pöbbkvissið og bingóið eru þegar uppsett á hljomey.is þarftu aðeins þetta (um 10 mínútur):
@@ -40,9 +50,9 @@ Ef Pöbbkvissið og bingóið eru þegar uppsett á hljomey.is þarftu aðeins �
 4. Afritaðu allt innihald `setup.sql`, límdu það inn og smelltu á **Run**.
 5. Þú átt að sjá **Success. No rows returned**.
 6. Smelltu aftur á **New query**, límdu inn allt innihald `bingo.sql` og smelltu á **Run**. Þetta bætir bingóinu við og notar sama PIN.
-7. Gerðu það sama við `gitar.sql`. Þetta bætir Gítarpartýinu við og notar líka sama PIN.
+7. Gerðu það sama við `gitar.sql` (Gítarpartý) og `themes.sql` (vistuð þemu). Bæði nota sama PIN.
 
-Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql` og `gitar.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
+Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql` og `themes.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
 
 Viltu breyta PIN-inu síðar? Keyrðu þessa línu í SQL Editor:
 
@@ -69,8 +79,8 @@ SUPABASE_ANON_KEY: 'sb_publishable_...',
 1. Skráðu þig inn á Bluehost → **Hosting** → **cPanel** (heitir **Advanced** í eldra viðmóti) → **File Manager**.
 2. Opnaðu möppuna **public_html** (þar er WordPress).
 3. Smelltu á **+ Folder** og búðu til möppuna **`pubquiz`**.
-4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 15 skránum úr `web`:
-   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `gitar.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`, `gitar-core.js`
+4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 16 skránum úr `web`:
+   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `gitar.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `themes.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`, `gitar-core.js`
 5. Þetta hefur engin áhrif á WordPress eða Elementor. Mappan hefur einfaldlega forgang á slóðinni /pubquiz.
 
 Slóðirnar verða:
@@ -91,6 +101,8 @@ Efst á stjórnandasíðunni er hnappur til að skipta á milli leikjanna. QR-k�
 3. Veldu fjölda laga, hlustaðu með ▶, skiptu út lögum með **Skipta**, sláðu inn PIN og smelltu á **Búa til leik**.
 4. Skannaðu QR-kóðann með símanum og skráðu þig.
 5. Ýttu á **Byrja leik** (eða bilstöngina).
+
+**Vistuð þemu**: Deezer-lagalisti sem þú sækir vistast sjálfkrafa og birtist efst í **1. Þema**, með mynd, heiti og fjölda laga, nýjast fyrst. Smelltu á hann næst og lögin eru sótt strax. Leitir og flytjendalistar vistast ekki sjálfkrafa, en þá birtist **☆ Vista þemað** og það þarf einn smell. ✎ endurnefnir og × eyðir. Þemun eru geymd í Supabase, svo þau sjást á hvaða tölvu sem er og eru þau sömu í kvissinu og bingóinu.
 
 Ábendingar um þema:
 

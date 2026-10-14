@@ -88,10 +88,18 @@
     return dedupe(raw.map(toTrack));
   }
 
+  // Heiti, mynd og fjöldi laga í Deezer-lagalista (fyrir vistuð þemu)
+  async function playlistInfo(input) {
+    const id = playlistId(input);
+    if (!id) return null;
+    const d = await dz('/playlist/' + id);
+    return { id, title: (d && d.title) || '', cover: (d && (d.picture_medium || d.picture)) || '', count: (d && d.nb_tracks) || null };
+  }
+
   async function refreshPreview(deezerId) {
     const t = await dz('/track/' + deezerId);
     return t && t.preview;
   }
 
-  window.PQDeezer = { dz, fetchPool, refreshPreview, cleanTitle };
+  window.PQDeezer = { dz, fetchPool, refreshPreview, cleanTitle, playlistId, playlistInfo };
 })();

@@ -51,6 +51,7 @@
       const artists = new Set(S.pool.map(t => t.artist.toLowerCase())).size;
       $('poolInfo').textContent = `Fann ${S.pool.length} lög frá ${artists} flytjendum með forskoðun.`;
       $('pickBtn').disabled = S.pool.length < 4;
+      if (window.PQThemes && S.pool.length >= 4) PQThemes.afterFetch(k, k === 'chart' ? $('genre').value : $('value').value, S.pool);
       if (S.pool.length < 4) showErr('setupErr', 'Of fá lög fundust. Prófaðu víðara þema.');
       else pickRounds();
     } catch (e) { $('poolInfo').textContent = ''; showErr('setupErr', e.message); }
