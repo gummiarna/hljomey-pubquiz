@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#15121f">
-<title>Hljómey – Tónlistarleikir</title>
-<meta name="description" content="Pöbbkviss, tónlistarbingó og gítarpartý Hljómeyjar. Taktu þátt með símanum.">
+<title>Hljómey – Leikir og söngur</title>
+<meta name="description" content="Pöbbkviss, tónlistarbingó, gítarpartý og karaoke Hljómeyjar. Taktu þátt með símanum.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2026-10-15c">
 <style>
   body { min-height: 100dvh; display: flex; flex-direction: column; user-select: none; -webkit-tap-highlight-color: transparent; }
   header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top)); }
@@ -46,7 +46,7 @@
   .conn { position: fixed; bottom: 8px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--muted); }
 
   /* ---------- Forsíða ---------- */
-  body.landing { user-select: auto; }
+  body.landing { user-select: auto; background-repeat: no-repeat; }
   body.landing header { display: none; }
   .landing-wrap { width: 100%; max-width: 1040px; margin: 0 auto; padding-top: max(18px, env(safe-area-inset-top)); }
   .hero { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 24px; padding: 28px 0 8px; }
@@ -75,8 +75,7 @@
   #codeIn::placeholder { letter-spacing: .3em; opacity: .35; }
 
   .sec-title { font-size: clamp(24px, 3.4vw, 34px); font-weight: 900; margin: 46px 0 18px; }
-  .game-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-  @media (max-width: 1000px) { .game-grid { grid-template-columns: 1fr 1fr; } }
+  .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
   .game { background: var(--card); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
   .game-art { width: 100%; display: block; padding: 14px 14px 0; }
   .game-body { padding: 16px 22px 22px; }
@@ -86,11 +85,21 @@
   .game li { padding-left: 26px; position: relative; line-height: 1.4; }
   .game li::before { content: ''; position: absolute; left: 0; top: .35em; width: 14px; height: 14px; border-radius: 4px; background: var(--accent); }
 
-  .step-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; counter-reset: s; }
+  .step-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; counter-reset: s; }
+  @media (max-width: 1000px) { .step-list { grid-template-columns: 1fr 1fr; } }
   .step-list li { background: var(--bg2); border: 1px solid var(--line); border-radius: 18px; padding: 20px; display: flex; flex-direction: column; gap: 6px; position: relative; }
   .step-list li::after { counter-increment: s; content: counter(s); position: absolute; top: 14px; right: 18px; font-size: 38px; font-weight: 900; color: var(--line); }
   .step-list svg { width: 40px; height: 40px; color: var(--accent); margin-bottom: 6px; }
-  .step-list b { font-size: 18px; } .step-list span { color: var(--muted); line-height: 1.4; }
+  .step-list b { font-size: 18px; } .step-list span { color: var(--muted); line-height: 1.45; }
+
+  .host-strip { display: flex; gap: 18px 28px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 18px;
+                background: var(--bg2); border: 1px solid var(--line); border-radius: 18px; padding: 20px 22px; }
+  .host-strip .tx { flex: 1 1 340px; }
+  .host-strip b { display: block; font-size: 18px; margin-bottom: 4px; }
+  .host-strip span { color: var(--muted); line-height: 1.45; }
+  .host-strip nav { display: flex; flex-wrap: wrap; gap: 8px; }
+  .host-strip nav a { color: var(--text); text-decoration: none; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 8px 14px; font-size: 15px; font-weight: 500; }
+  .host-strip nav a:hover { border-color: var(--accent); color: var(--accent); }
 
   .land-foot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; color: var(--muted); font-size: 14px; border-top: 1px solid var(--line); margin-top: 46px; padding: 18px 0 8px; }
   .land-foot a { color: var(--text); }
@@ -118,9 +127,9 @@
   <div id="vJoin" class="landing-wrap">
     <section class="hero">
       <div class="hero-text">
-        <div class="kicker">Hljómey · Tónlistarleikir</div>
-        <h1>Hlustaðu.<br>Giskaðu.<br><span>Sigraðu.</span></h1>
-        <p class="lead">Tónlistarleikir fyrir partí, pöbbinn og hátíðina. Síminn þinn er svarhnappurinn og stóri skjárinn sýnir stöðuna.</p>
+        <div class="kicker">Hljómey · Leikir og söngur</div>
+        <h1>Hlustaðu.<br>Syngdu.<br><span>Sigraðu.</span></h1>
+        <p class="lead">Pöbbkviss, tónlistarbingó, gítarpartý og karaoke fyrir partíið, pöbbinn og stofuna heima. Síminn þinn er stjórntækið og stóri skjárinn sýnir hvað er að gerast.</p>
       </div>
       <svg class="hero-art" viewBox="0 0 320 260" aria-hidden="true">
         <defs>
@@ -146,10 +155,10 @@
     </section>
 
     <section class="join-card" id="joinCard">
-      <h2>Ertu með leikkóða?</h2>
-      <p>Kóðinn birtist á stóra skjánum. Þú getur líka skannað QR-kóðann þar.</p>
+      <h2>Ertu með kóða?</h2>
+      <p>Kóðinn birtist á stóra skjánum. Þú getur líka skannað QR-kóðann þar, þá ferðu beint inn.</p>
       <div class="join-row">
-        <div class="field"><label for="codeIn">Leikkóði</label><input type="text" id="codeIn" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD"></div>
+        <div class="field"><label for="codeIn">Kóði</label><input type="text" id="codeIn" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD"></div>
         <div class="field grow"><label for="nameIn">Nafn eða lið</label><input type="text" id="nameIn" maxlength="20" autocomplete="nickname" placeholder="t.d. Lundarnir"></div>
       </div>
       <button class="btn" id="joinBtn">Taka þátt</button>
@@ -235,6 +244,40 @@
             </ul>
           </div>
         </article>
+
+        <article class="game">
+          <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
+            <rect x="0" y="0" width="300" height="170" rx="18" fill="#1f1a2e"/>
+            <g transform="translate(22 16)">
+              <rect width="178" height="108" rx="10" fill="#15121f" stroke="#3b3357" stroke-width="3"/>
+              <circle cx="104" cy="28" r="5" fill="#ff5fa2"/>
+              <rect x="22" y="40" width="134" height="10" rx="5" fill="#3b3357"/><rect x="22" y="40" width="82" height="10" rx="5" fill="#ffb938"/>
+              <rect x="38" y="62" width="102" height="10" rx="5" fill="#3b3357"/>
+              <rect x="56" y="84" width="66" height="7" rx="3.5" fill="#2a2340"/>
+              <rect x="76" y="110" width="26" height="9" fill="#3b3357"/><rect x="60" y="118" width="58" height="5" rx="2.5" fill="#3b3357"/>
+            </g>
+            <g transform="translate(246 24) rotate(16)">
+              <rect x="-15" y="0" width="30" height="44" rx="15" fill="#ff5fa2"/>
+              <path d="M-15 16h30M-15 25h30" stroke="#15121f" stroke-width="2.4" opacity=".3"/>
+              <rect x="-7" y="44" width="14" height="58" rx="7" fill="#b3aacb"/>
+            </g>
+            <g transform="translate(22 142)">
+              <rect width="84" height="20" rx="10" fill="#2a2340"/><circle cx="10" cy="10" r="6" fill="#ff5fa2"/><rect x="22" y="7" width="50" height="6" rx="3" fill="#b3aacb"/>
+              <rect x="92" width="84" height="20" rx="10" fill="#2a2340"/><circle cx="102" cy="10" r="6" fill="#3b3357"/><rect x="114" y="7" width="44" height="6" rx="3" fill="#6f6590"/>
+              <rect x="184" width="70" height="20" rx="10" fill="#2a2340" opacity=".6"/><circle cx="194" cy="10" r="6" fill="#3b3357"/><rect x="206" y="7" width="36" height="6" rx="3" fill="#6f6590"/>
+            </g>
+          </svg>
+          <div class="game-body">
+            <h3>Karaoke</h3>
+            <p>Sjónvarpið spilar karaoke-myndbandið og þú velur lögin í símanum. Finndu lagið, settu nafnið þitt í röðina og bíddu eftir að röðin komi að þér.</p>
+            <ul>
+              <li>Leitaðu að lagi á YouTube í símanum</li>
+              <li>Hlustaðu á útgáfurnar áður en þú velur</li>
+              <li>Biðröð og „Næst á svið“ á skjánum</li>
+              <li>Lagalisti með öllu sem hefur verið valið</li>
+            </ul>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -242,17 +285,23 @@
       <h2 class="sec-title">Svona virkar þetta</h2>
       <ol class="step-list">
         <li><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="6" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="3"/><rect x="28" y="6" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="3"/><rect x="6" y="28" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="3"/><rect x="11" y="11" width="4" height="4" fill="currentColor"/><rect x="33" y="11" width="4" height="4" fill="currentColor"/><rect x="11" y="33" width="4" height="4" fill="currentColor"/><path d="M28 28h6v6h-6zM36 36h6v6h-6zM36 28h6M28 40h4" stroke="currentColor" stroke-width="3" fill="none"/></svg>
-          <b>Skannaðu QR</b><span>eða sláðu inn kóðann af stóra skjánum</span></li>
-        <li><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 28v-4a16 16 0 0 1 32 0v4" fill="none" stroke="currentColor" stroke-width="3"/><rect x="6" y="27" width="9" height="14" rx="3" fill="currentColor"/><rect x="33" y="27" width="9" height="14" rx="3" fill="currentColor"/></svg>
-          <b>Hlustaðu</b><span>tónlistin hljómar í salnum, ekki í símanum</span></li>
+          <b>Skannaðu QR-kóðann</b><span>eða sláðu inn fjögurra stafa kóðann af stóra skjánum hér efst á síðunni.</span></li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="16" r="8" fill="none" stroke="currentColor" stroke-width="3"/><path d="M9 42c1.5-9 7.5-14 15-14s13.5 5 15 14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+          <b>Skráðu nafnið</b><span>þitt eða liðsins. Það birtist á stigatöflunni eða í biðröðinni. Í gítarpartýi þarf ekkert nafn.</span></li>
+        <li><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="8" width="40" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><path d="M17 42h14M24 34v8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M13 21h10M13 27h22" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".55"/></svg>
+          <b>Fylgstu með skjánum</b><span>þar birtast spurningar, bingólögin, textinn og hver er næst/ur á svið. Hljóðið kemur úr salnum.</span></li>
         <li><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="13" y="4" width="22" height="40" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="24" cy="24" r="6" fill="currentColor"/><path d="M21 38h6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
-          <b>Svaraðu í símanum</b><span>engin innskráning, ekkert app</span></li>
+          <b>Síminn er stjórntækið</b><span>þú svarar, merkir við, fylgir textanum eða velur lag. Engin innskráning og ekkert app.</span></li>
       </ol>
+      <div class="host-strip">
+        <div class="tx"><b>Ætlarðu að stjórna?</b><span>Opnaðu stjórnandasíðuna í tölvu sem er tengd við sjónvarp eða skjávarpa. Gestirnir þurfa bara símann.</span></div>
+        <nav aria-label="Stjórnandasíður"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a></nav>
+      </div>
     </section>
 
     <footer class="land-foot">
       <span>Hljómey</span>
-      <span>Stjórnandi? <a href="stjorn.html">Pöbbkviss</a> · <a href="bingo-stjorn.html">Tónlistarbingó</a> · <a href="gitar.html">Gítarpartý</a> · <a href="karaoke.html">Karaoke</a> · <a href="spurningar.html">Spurningabanki</a></span>
+      <span><a href="spurningar.html">Spurningabanki</a></span>
     </footer>
   </div>
 
