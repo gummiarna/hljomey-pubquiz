@@ -17,7 +17,11 @@
     ogildur_leikmadur: 'Skráningin fannst ekki. Skráðu þig aftur.',
     ogildar_umferdir: 'Engin lög valin.',
     of_fa_log: 'Bingó þarf a.m.k. 24 lög í pottinum.',
-    ogild_mynstur: 'Veldu a.m.k. eitt vinningsmynstur.'
+    ogild_mynstur: 'Veldu a.m.k. eitt vinningsmynstur.',
+    spurning_til: 'Þessi spurning er þegar til í bankanum.',
+    svor_eins: 'Svörin fjögur verða að vera ólík.',
+    spurning_fannst_ekki: 'Spurningin fannst ekki. Hún hefur kannski verið eydd.',
+    of_margar_linur: 'Of margar línur í einu (hámark 3000).'
   };
 
   async function rpc(fn, args) {

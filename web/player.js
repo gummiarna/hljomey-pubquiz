@@ -115,7 +115,10 @@
   // ---------- Spurning ----------
   function showQuestion(g, secondsLeft) {
     shownRound = g.current_round;
-    $('qNo').textContent = `Lag ${g.current_round} af ${g.total_rounds}`;
+    const prompt = g.current_prompt || '';
+    $('qNo').textContent = `${prompt ? 'Spurning' : 'Lag'} ${g.current_round} af ${g.total_rounds}`;
+    $('qPrompt').textContent = prompt; $('qPrompt').classList.toggle('hidden', !prompt);
+    $('answers').classList.toggle('q', !!prompt);
     $('answers').innerHTML = (g.current_options || []).map((o, i) =>
       `<button class="ans opt${i}" data-i="${i}"><span class="sh">${SHAPES[i]}</span><span>${esc(o)}</span></button>`).join('');
     view('vQuestion');
@@ -181,7 +184,7 @@
       box.classList.add('bad');
       $('resTitle').textContent = 'Rangt';
       $('resPts').textContent = g.current_options && g.current_correct != null ? 'Rétt var: ' + g.current_options[g.current_correct] : '';
-      $('resHint').textContent = 'Næsta lag kemur!';
+      $('resHint').textContent = g.current_prompt ? 'Næsta umferð kemur!' : 'Næsta lag kemur!';
     }
     $('resRank').innerHTML = g.state === 'finished'
       ? `Þú lentir í <b>${p.rank}.</b> sæti af ${p.total}`

@@ -3,7 +3,21 @@
 Leikirnir þrír, Pöbbkviss, Tónlistarbingó og Gítarpartý, eru settir upp saman. Þeir samanstanda af tveimur hlutum:
 
 - **Supabase** (ókeypis): gagnagrunnur og rauntími sem tengir síma og stóra skjáinn.
-- **Vefsíðan** (15 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+- **Vefsíðan** (18 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+
+---
+
+## Uppfærsla: spurningar í Pöbbkvissið (október 2026)
+
+Pöbbkvissið getur nú líka spurt spurninga úr íslenskum spurningabanka, eða blandað lögum og spurningum. Efst á stjórnandasíðunni velurðu **Tónlist**, **Spurningar** eða **Blandað**. Spurningin birtist á stóra skjánum og í símunum, og eftir hverja spurningu sést rétta svarið og fróðleikur ef hann er skráður. Bankinn byrjar með 208 spurningum í 13 flokkum. Á **hljomey.is/pubquiz/spurningar.html** geturðu breytt þeim, bætt við nýjum, slökkt á spurningum og flutt inn úr Excel eða Google Sheets.
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald `spurningar.sql` → **Run**. Notar sama PIN og leikirnir. Byrjunarspurningarnar fara aðeins inn ef bankinn er tómur.
+2. **Bluehost**: hladdu upp í `public_html/pubquiz` og skrifaðu yfir:
+   - Nýjar: `spurningar.html`, `spurningar.js`
+   - Breyttar: `stjorn.html`, `host.js`, `host.css`, `index.html`, `player.js`, `common.js`
+3. Ctrl+F5 á stjórnandasíðunni.
+
+Svörin í bankanum eru læst á bak við PIN-ið, svo gestir geta ekki flett þeim upp í gagnagrunninum á meðan leikurinn stendur yfir.
 
 ---
 
@@ -50,9 +64,9 @@ Ef Pöbbkvissið og bingóið eru þegar uppsett á hljomey.is þarftu aðeins �
 4. Afritaðu allt innihald `setup.sql`, límdu það inn og smelltu á **Run**.
 5. Þú átt að sjá **Success. No rows returned**.
 6. Smelltu aftur á **New query**, límdu inn allt innihald `bingo.sql` og smelltu á **Run**. Þetta bætir bingóinu við og notar sama PIN.
-7. Gerðu það sama við `gitar.sql` (Gítarpartý) og `themes.sql` (vistuð þemu). Bæði nota sama PIN.
+7. Gerðu það sama við `gitar.sql` (Gítarpartý), `themes.sql` (vistuð þemu) og `spurningar.sql` (spurningabanki). Öll nota sama PIN.
 
-Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql` og `themes.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
+Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql`, `themes.sql` og `spurningar.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
 
 Viltu breyta PIN-inu síðar? Keyrðu þessa línu í SQL Editor:
 
@@ -79,8 +93,8 @@ SUPABASE_ANON_KEY: 'sb_publishable_...',
 1. Skráðu þig inn á Bluehost → **Hosting** → **cPanel** (heitir **Advanced** í eldra viðmóti) → **File Manager**.
 2. Opnaðu möppuna **public_html** (þar er WordPress).
 3. Smelltu á **+ Folder** og búðu til möppuna **`pubquiz`**.
-4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 16 skránum úr `web`:
-   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `gitar.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `themes.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`, `gitar-core.js`
+4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 18 skránum úr `web`:
+   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `gitar.html`, `spurningar.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `themes.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`, `gitar-core.js`, `spurningar.js`
 5. Þetta hefur engin áhrif á WordPress eða Elementor. Mappan hefur einfaldlega forgang á slóðinni /pubquiz.
 
 Slóðirnar verða:
@@ -91,6 +105,7 @@ Slóðirnar verða:
 | Stjórnandi Pöbbkviss | **hljomey.is/pubquiz/stjorn.html** |
 | Stjórnandi Tónlistarbingós | **hljomey.is/pubquiz/bingo-stjorn.html** |
 | Spilari í Gítarpartýi | **hljomey.is/pubquiz/gitar.html** |
+| Spurningabankinn | **hljomey.is/pubquiz/spurningar.html** |
 
 Efst á stjórnandasíðunni er hnappur til að skipta á milli leikjanna. QR-kóðinn vísar beint á réttan leik.
 

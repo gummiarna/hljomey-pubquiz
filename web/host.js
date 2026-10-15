@@ -4,7 +4,9 @@
   const $ = id => document.getElementById(id);
 
   const S = {
-    pool: [], rounds: [],               // rounds: [{options, correct, meta}]
+    type: 'music',                      // music | questions | mixed
+    pool: [], rounds: [],               // rounds: [{options, correct, meta}] – meta.type === 'q' fyrir spurningar
+    bank: null, qcats: new Set(),       // spurningabankinn (qb_list) og valdir flokkar
     game: null, token: null,            // game: {game_id, code, title, answer_seconds, total_rounds}
     round: 0, phase: 'setup',           // setup | lobby | question | reveal | leaderboard | finished
     players: 0, answered: 0,
@@ -42,6 +44,111 @@
   }
   $('kind').addEventListener('change', onKind); onKind();
 
+  // ---------- Tegund leiks ----------
+  const isQ = r => r && r.meta && r.meta.type === 'q';
+  const needsMusic = () => S.type !== 'questions';
+  const needsQ = () => S.type !== 'music';
+  let secsTouched = false;
+  $('secs').addEventListener('change', () => { secsTouched = true; });
+
+  function setType(t, init) {
+    S.type = ['music', 'questions', 'mixed'].includes(t) ? t : 'music';
+    store.set('pq_gtype', S.type);
+    document.querySelector('.setup-wrap').dataset.t = S.type;
+    document.querySelectorAll('#gtype button').forEach(b => { const on = b.dataset.t === S.type; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+    $('themePanel').classList.toggle('hidden', !needsMusic());
+    $('qPanel').classList.toggle('hidden', !needsQ());
+    $('pickBtn').textContent = { music: 'Velja lög af handahófi', questions: 'Velja spurningar af handahófi', mixed: 'Velja af handahófi' }[S.type];
+    if (!secsTouched) $('secs').value = S.type === 'music' ? '15' : '20';
+    if (needsQ() && !S.bank) loadBank();
+    S.rounds = S.rounds.filter(r => isQ(r) ? needsQ() : needsMusic());
+    if (!init) autoPick();
+    updatePick();
+  }
+  $('gtype').addEventListener('click', e => { const b = e.target.closest('[data-t]'); if (b && b.dataset.t !== S.type) setType(b.dataset.t); });
+
+  // ---------- Spurningabanki ----------
+  function qbView(id) { ['qbLocked', 'qbMissing', 'qbReady'].forEach(v => $(v).classList.toggle('hidden', v !== id)); }
+  async function loadBank(pin) {
+    pin = pin || ($('pin').value || '').trim() || store.get('pq_pin') || '';
+    showErr('qErr', '');
+    if (!pin) { qbView('qbLocked'); return; }
+    try {
+      S.bank = await rpc('qb_list', { p_pin: pin });
+      store.set('pq_pin', pin);
+      if (!$('pin').value) $('pin').value = pin;
+      qbView('qbReady'); renderCats(); autoPick(); updatePick();
+    } catch (e) {
+      if (/Could not find the function|PGRST202/i.test(e.message) && !e.code) return qbView('qbMissing');
+      qbView('qbLocked');
+      if (e.code === 'rangt_pin' && $('qbPin').value) showErr('qErr', e.message);
+    }
+  }
+  $('qbOpen').onclick = () => loadBank(($('qbPin').value || '').trim());
+  $('qbPin').addEventListener('keydown', e => { if (e.key === 'Enter') $('qbOpen').click(); });
+
+  function qDiffOk(d) { const f = $('qDiff').value; return !f || f.includes(String(d)); }
+  function qPool() {
+    return (S.bank || []).filter(q => q.active && (!S.qcats.size || S.qcats.has(q.category)) && qDiffOk(q.difficulty));
+  }
+  function renderCats() {
+    const counts = {};
+    (S.bank || []).filter(q => q.active && qDiffOk(q.difficulty)).forEach(q => { counts[q.category] = (counts[q.category] || 0) + 1; });
+    const cats = [...new Set((S.bank || []).filter(q => q.active).map(q => q.category))].sort((a, b) => a.localeCompare(b, 'is'));
+    [...S.qcats].forEach(c => { if (!cats.includes(c)) S.qcats.delete(c); });
+    $('qCats').innerHTML = `<button type="button" data-cat="" class="${S.qcats.size ? '' : 'on'}">Allir flokkar</button>` +
+      cats.map(c => `<button type="button" data-cat="${esc(c)}" class="${S.qcats.has(c) ? 'on' : ''}">${esc(c)}<small>${counts[c] || 0}</small></button>`).join('');
+    const active = (S.bank || []).filter(q => q.active).length;
+    $('qbInfo').textContent = `${active} virkar spurningar í ${cats.length} flokkum`;
+    const n = qPool().length;
+    $('qPoolInfo').textContent = n ? `${n} ${n === 1 ? 'spurning kemur' : 'spurningar koma'} til greina.` : 'Engar spurningar passa við valið.';
+  }
+  $('qCats').addEventListener('click', e => {
+    const b = e.target.closest('[data-cat]'); if (!b) return;
+    const c = b.dataset.cat;
+    if (!c) S.qcats.clear(); else if (S.qcats.has(c)) S.qcats.delete(c); else S.qcats.add(c);
+    renderCats(); autoPick(); updatePick();
+  });
+  $('qDiff').addEventListener('change', () => { renderCats(); autoPick(); updatePick(); });
+  $('qFresh').addEventListener('change', () => autoPick());
+
+  // Velur spurningar: helst ónotaðar, og dreift jafnt á flokka
+  function rankQs(list) {
+    const fresh = $('qFresh').checked;
+    return shuffle(list).map(q => ({ q, k: fresh ? q.times_used : 0 })).sort((a, b) => a.k - b.k).map(x => x.q);
+  }
+  function questionRound(q) {
+    const correct = Math.floor(Math.random() * 4);
+    const options = shuffle([q.wrong1, q.wrong2, q.wrong3]); options.splice(correct, 0, q.answer);
+    return { options, correct, meta: { type: 'q', qid: q.id, question: q.question, answer: q.answer, category: q.category, difficulty: q.difficulty, note: q.note || '' } };
+  }
+  function pickQuestions(n, exclude) {
+    const ex = exclude || new Set();
+    const groups = {};
+    rankQs(qPool().filter(q => !ex.has(q.id))).forEach(q => { (groups[q.category] = groups[q.category] || []).push(q); });
+    const order = shuffle(Object.keys(groups));
+    const out = [];
+    while (out.length < n && order.some(c => groups[c].length)) {
+      for (const c of order) { if (out.length < n && groups[c].length) out.push(groups[c].shift()); }
+    }
+    return shuffle(out).map(questionRound);
+  }
+  // Fléttar tvo lista jafnt saman (t.d. 6 lög og 4 spurningar)
+  function interleave(a, b) {
+    const tag = (l, w) => l.map((x, i) => ({ x, p: (i + 0.5) / l.length + w }));
+    return tag(a, 0).concat(tag(b, 0.0001)).sort((u, v) => u.p - v.p).map(o => o.x);
+  }
+
+  function musicReady() { return S.pool.length >= 4; }
+  function qReady() { return !!S.bank && qPool().length > 0; }
+  function canPick() { return (!needsMusic() || musicReady()) && (!needsQ() || qReady()); }
+  function updatePick() {
+    $('pickBtn').disabled = !canPick();
+    const nM = S.rounds.filter(r => !isQ(r)).length, nQ = S.rounds.filter(isQ).length;
+    $('pickInfo').textContent = S.rounds.length && S.type === 'mixed' ? `Alls ${S.rounds.length} umferðir: ${nM} lög og ${nQ} spurningar` : '';
+  }
+  function autoPick() { if (canPick()) pickRounds(); else { if (!S.rounds.length) renderTrackList(); updatePick(); } }
+
   $('fetchBtn').onclick = async () => {
     showErr('setupErr', '');
     $('fetchBtn').disabled = true; $('poolInfo').textContent = 'Sæki lög…';
@@ -50,10 +157,10 @@
       S.pool = await PQDeezer.fetchPool(k, k === 'chart' ? $('genre').value : $('value').value);
       const artists = new Set(S.pool.map(t => t.artist.toLowerCase())).size;
       $('poolInfo').textContent = `Fann ${S.pool.length} lög frá ${artists} flytjendum með forskoðun.`;
-      $('pickBtn').disabled = S.pool.length < 4;
+      updatePick();
       if (window.PQThemes && S.pool.length >= 4) PQThemes.afterFetch(k, k === 'chart' ? $('genre').value : $('value').value, S.pool);
       if (S.pool.length < 4) showErr('setupErr', 'Of fá lög fundust. Prófaðu víðara þema.');
-      else pickRounds();
+      else autoPick();
     } catch (e) { $('poolInfo').textContent = ''; showErr('setupErr', e.message); }
     $('fetchBtn').disabled = false;
   };
@@ -83,12 +190,11 @@
     return { options, correct, meta: Object.assign({}, track, { start, clip }) };
   }
 
-  function pickRounds() {
-    showErr('setupErr', '');
+  function pickMusic(n) {
     const mode = $('mode').value;
-    const n = Math.max(3, Math.min(30, +$('rounds').value || 10));
     if (mode === 'artist' && new Set(S.pool.map(t => norm(t.artist))).size < 4) {
-      return showErr('setupErr', 'Þarf a.m.k. 4 ólíka flytjendur til að spyrja um flytjanda. Veldu annað þema eða „Heiti lags“.');
+      showErr('setupErr', 'Þarf a.m.k. 4 ólíka flytjendur til að spyrja um flytjanda. Veldu annað þema eða „Heiti lags“.');
+      return null;
     }
     const rounds = []; const seen = new Set();
     for (const t of shuffle(S.pool)) {
@@ -98,15 +204,34 @@
       const r = makeRound(t, mode);
       if (r) { rounds.push(r); seen.add(key); }
     }
-    if (rounds.length < n) toast(`Aðeins ${rounds.length} lög fundust sem henta. Leikurinn verður ${rounds.length} lög.`);
-    S.rounds = rounds; renderTrackList();
+    if (rounds.length < n) toast(`Aðeins ${rounds.length} lög fundust sem henta.`);
+    return rounds;
+  }
+
+  function pickRounds() {
+    showErr('setupErr', ''); showErr('qErr', '');
+    let nM = needsMusic() ? Math.max(1, Math.min(30, +$('rounds').value || 10)) : 0;
+    let nQ = needsQ() ? Math.max(1, Math.min(40, +$('qrounds').value || 10)) : 0;
+    if (nM + nQ > 50) { nQ = 50 - nM; toast('Hámark 50 umferðir í leik. Spurningum var fækkað.'); }
+    const music = nM ? pickMusic(nM) : [];
+    if (!music) return;
+    const qs = nQ ? pickQuestions(nQ) : [];
+    if (nQ && qs.length < nQ) toast(`Aðeins ${qs.length} spurningar passa við valið.`);
+    S.rounds = S.type === 'mixed' ? interleave(music, qs) : (S.type === 'questions' ? qs : music);
+    renderTrackList(); updatePick();
   }
   $('pickBtn').onclick = pickRounds;
-  ['mode', 'rounds', 'clip'].forEach(id => $(id).addEventListener('change', () => { if (S.pool.length >= 4) pickRounds(); }));
+  ['mode', 'rounds', 'clip', 'qrounds'].forEach(id => $(id).addEventListener('change', autoPick));
 
   function renderTrackList() {
     $('roundsPanel').classList.toggle('hidden', !S.rounds.length);
-    $('trackList').innerHTML = S.rounds.map((r, i) => `
+    const hasQ = S.rounds.some(isQ), hasM = S.rounds.some(r => !isQ(r));
+    $('roundsTitle').textContent = hasQ && hasM ? 'Umferðirnar' : hasQ ? 'Spurningarnar' : 'Lögin';
+    $('roundsSub').textContent = hasQ && !hasM ? '– skiptu út þeim sem þér líst ekki á' : '– hlustaðu, skiptu út eða haltu áfram';
+    $('trackList').innerHTML = S.rounds.map((r, i) => isQ(r) ? `
+      <li class="qround"><span class="n">${i + 1}</span><span class="qi">?</span>
+        <div class="t wrap"><b>${esc(r.meta.question)}</b><small class="muted"><span class="ok">✓ ${esc(r.meta.answer)}</span> · ${esc(r.meta.category)}</small></div>
+        <button class="btn ghost small" data-swap="${i}">Skipta</button></li>` : `
       <li><span class="n">${i + 1}</span><img src="${esc(r.meta.cover)}" alt="">
         <div class="t"><b>${esc(r.meta.title)}</b><small class="muted">${esc(r.meta.artist)}</small></div>
         <button class="btn ghost small" data-play="${i}">▶</button>
@@ -115,6 +240,12 @@
   $('trackList').addEventListener('click', async e => {
     const p = e.target.closest('[data-play]'), s = e.target.closest('[data-swap]');
     if (p) { const r = S.rounds[+p.dataset.play]; try { await playClip(r.meta, r.meta.clip); } catch (err) { toast(err.message); } }
+    if (s && isQ(S.rounds[+s.dataset.swap])) {
+      const i = +s.dataset.swap;
+      const next = pickQuestions(1, new Set(S.rounds.filter(isQ).map(r => r.meta.qid)));
+      if (!next.length) return toast('Engar fleiri spurningar passa við valið.');
+      S.rounds[i] = next[0]; renderTrackList(); return;
+    }
     if (s) {
       const i = +s.dataset.swap; const mode = $('mode').value;
       const inUse = new Set(S.rounds.map(r => r.meta.deezer_id));
@@ -128,7 +259,7 @@
 
   $('createBtn').onclick = async () => {
     showErr('createErr', '');
-    if (!S.rounds.length) return showErr('createErr', 'Veldu lög fyrst.');
+    if (!S.rounds.length) return showErr('createErr', S.type === 'music' ? 'Veldu lög fyrst.' : 'Veldu umferðir fyrst.');
     $('createBtn').disabled = true;
     try {
       const secs = +$('secs').value;
@@ -137,6 +268,8 @@
         p_rounds: S.rounds, p_event_tag: cfg.EVENT_TAG || null
       });
       store.set('pq_pin', $('pin').value);
+      const qids = S.rounds.filter(isQ).map(r => r.meta.qid);
+      if (qids.length) rpc('qb_mark_used', { p_pin: $('pin').value, p_ids: qids }).catch(() => {});
       S.game = { game_id: res.game_id, code: res.code, title: $('title').value || 'Hljómey Pöbbkviss', answer_seconds: secs, total_rounds: S.rounds.length };
       S.token = res.host_token;
       store.set('pq_host', { game_id: res.game_id, host_token: res.host_token });
@@ -168,6 +301,26 @@
     } catch (e) { store.del('pq_host'); }
   }
 
+  // ---------- Merkingar ----------
+  function gameKinds() { const q = S.rounds.filter(isQ).length; return { q, m: S.rounds.length - q }; }
+  function roundLabel(n) {
+    const k = gameKinds(), r = S.rounds[n - 1];
+    if (k.q && k.m) return `${isQ(r) ? 'Spurning' : 'Lag'} · ${n} af ${S.game.total_rounds}`;
+    return `${isQ(r) ? 'Spurning' : 'Lag'} ${n} af ${S.game.total_rounds}`;
+  }
+  function countLabel(n) {
+    const k = gameKinds();
+    if (k.q && k.m) return `${n} ${n === 1 ? 'umferð' : 'umferðir'}`;
+    if (k.q) return `${n} ${n === 1 ? 'spurningu' : 'spurningar'}`;
+    return `${n} ${n === 1 ? 'lag' : 'lög'}`;
+  }
+  function lobbyLabel() {
+    const k = gameKinds();
+    if (k.q && k.m) return `${k.m} lög og ${k.q} spurningar`;
+    if (k.q) return `${k.q} ${k.q === 1 ? 'spurning' : 'spurningar'}`;
+    return `${S.game.total_rounds} lög`;
+  }
+
   // ---------- 2. Biðsalur ----------
   function setHeads() {
     ['lobbyTitle', 'qTitle', 'bTitle', 'fTitle'].forEach(id => $(id).textContent = S.game.title);
@@ -180,7 +333,7 @@
     $('qr').innerHTML = qr.createSvgTag({ cellSize: 8, margin: 2, scalable: true });
     $('joinUrl').textContent = prettyUrl();
     $('code').textContent = S.game.code;
-    $('lobbyRounds').textContent = `${S.game.total_rounds} lög`;
+    $('lobbyRounds').textContent = lobbyLabel();
     setPrimary('Byrja leik', () => startRound(1));
     $('replayBtn').classList.add('hidden');
     info('Bíð eftir þátttakendum…');
@@ -239,19 +392,23 @@
   async function startRound(n) {
     clearInterval(S.poll); clearInterval(S.timer); stopAudio();
     const r = S.rounds[n - 1]; S.round = n; S.revealing = false;
-    $('primary').disabled = true; info('Hleð lagi…');
-    try { await loadTrack(r.meta); } catch (e) { toast('Náði ekki í lagið. Sleppi því.'); }
+    const q = isQ(r);
+    $('primary').disabled = true; info(q ? 'Set spurningu í gang…' : 'Hleð lagi…');
+    if (!q) { try { await loadTrack(r.meta); } catch (e) { toast('Náði ekki í lagið. Sleppi því.'); } }
     try {
       await rpc('host_start_round', { p_game_id: S.game.game_id, p_host_token: S.token, p_round: n });
     } catch (e) { toast(e.message); $('primary').disabled = false; return; }
 
     S.phase = 'question'; show('question');
-    $('qNo').textContent = `Lag ${n} af ${S.game.total_rounds}`;
+    $('question').classList.remove('reveal');
+    $('qNo').textContent = roundLabel(n);
+    setQuestionText(r);
     $('songBox').classList.add('hidden'); $('qmid').classList.remove('hidden');
+    $('wave').classList.toggle('hidden', q);
     renderOpts(r, null);
     S.answered = 0; $('ansNum').textContent = '0'; $('ansTot').textContent = S.players;
-    playClip(r.meta, r.meta.clip || 5).catch(e => toast('Hljóð: ' + e.message));
-    $('replayBtn').classList.remove('hidden');
+    if (!q) playClip(r.meta, r.meta.clip || 5).catch(e => toast('Hljóð: ' + e.message));
+    $('replayBtn').classList.toggle('hidden', q);
 
     const secs = S.game.answer_seconds;
     S.deadline = Date.now() + secs * 1000;
@@ -263,7 +420,7 @@
     };
     tick(); S.timer = setInterval(tick, 200);
     setPrimary('Sýna svar', doReveal); $('primary').disabled = false;
-    info(`Lag ${n}/${S.game.total_rounds} · bil = sýna svar`);
+    info(`${q ? 'Spurning' : 'Lag'} ${n}/${S.game.total_rounds} · bil = sýna svar`);
     S.poll = setInterval(pollStatus, 1000);
   }
 
@@ -284,19 +441,35 @@
     try { res = await rpc('host_reveal', { p_game_id: S.game.game_id, p_host_token: S.token }); }
     catch (e) { toast(e.message); S.revealing = false; return; }
     S.phase = 'reveal'; show('question');
-    const r = S.rounds[S.round - 1];
-    $('qNo').textContent = `Lag ${S.round} af ${S.game.total_rounds}`;
+    const r = S.rounds[S.round - 1], q = isQ(r);
+    $('question').classList.add('reveal');
+    $('qNo').textContent = roundLabel(S.round);
+    setQuestionText(r);
     renderOpts(r, res.counts || [0, 0, 0, 0]);
     $('qmid').classList.add('hidden'); $('songBox').classList.remove('hidden');
-    $('cover').src = r.meta.cover || ''; $('songTitle').textContent = r.meta.title; $('songArtist').textContent = r.meta.artist;
+    $('songRow').classList.toggle('hidden', q); $('qAnswer').classList.toggle('hidden', !q);
+    if (q) {
+      $('qAnsText').textContent = r.meta.answer;
+      $('qNote').textContent = r.meta.note || ''; $('qNote').classList.toggle('hidden', !r.meta.note);
+    } else {
+      $('cover').src = r.meta.cover || ''; $('songTitle').textContent = r.meta.title; $('songArtist').textContent = r.meta.artist;
+    }
     $('firstBox').innerHTML = res.first
       ? `Fyrst/ur með rétt svar: <b>${esc(res.first)}</b> (${(res.first_ms / 1000).toFixed(1).replace('.', ',')} sek) · +200 bónus`
       : 'Enginn var með rétt svar!';
     $('songBox').classList.add('pop');
     // Lagið fær að hljóma áfram á meðan svarið er sýnt
-    playClip(r.meta, 0).catch(() => {});
+    if (!q) playClip(r.meta, 0).catch(() => {});
     setPrimary('Stigatafla', showBoard);
     info('bil = stigatafla');
+  }
+
+  function setQuestionText(r) {
+    const q = isQ(r);
+    $('qText').classList.toggle('hidden', !q);
+    $('qCat').classList.toggle('hidden', !q);
+    $('qText').textContent = q ? r.meta.question : '';
+    $('qCat').textContent = q ? r.meta.category : '';
   }
 
   // ---------- 4. Stigatafla ----------
@@ -306,16 +479,17 @@
     const { data } = await client.from('players').select('name,score').eq('game_id', S.game.game_id)
       .order('score', { ascending: false }).order('joined_at', { ascending: true }).limit(10);
     const top = (data && data[0] && data[0].score) || 1;
-    $('boardList').innerHTML = `<h1>Staðan eftir ${S.round} ${S.round === 1 ? 'lag' : 'lög'}</h1>` +
+    $('boardList').innerHTML = `<h1>Staðan eftir ${countLabel(S.round)}</h1>` +
       (data || []).map((p, i) => `<div class="brow pop" style="animation-delay:${i * 60}ms">
         <span class="fill" style="width:${(p.score / top) * 100}%"></span>
         <span class="r">${i + 1}.</span><span>${esc(p.name)}</span><span class="s">${p.score.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')}</span></div>`).join('');
     const last = S.round >= S.game.total_rounds;
-    if (last) { setPrimary('Úrslit', showFinal); info('Síðasta lag búið · bil = úrslit'); }
+    if (last) { setPrimary('Úrslit', showFinal); info('Síðasta umferð búin · bil = úrslit'); }
     else {
-      setPrimary('Næsta lag', () => startRound(S.round + 1));
-      info(`bil = næsta lag (${S.round + 1}/${S.game.total_rounds})`);
-      loadTrack(S.rounds[S.round].meta).catch(() => {});   // forhlaða næsta lag
+      const nextQ = isQ(S.rounds[S.round]);
+      setPrimary(nextQ ? 'Næsta spurning' : 'Næsta lag', () => startRound(S.round + 1));
+      info(`bil = ${nextQ ? 'næsta spurning' : 'næsta lag'} (${S.round + 1}/${S.game.total_rounds})`);
+      if (!nextQ) loadTrack(S.rounds[S.round].meta).catch(() => {});   // forhlaða næsta lag
     }
   }
 
@@ -342,7 +516,7 @@
   function setPrimary(text, fn) { $('primary').textContent = text; primaryFn = fn; $('primary').disabled = false; }
   function info(t) { $('ctlInfo').textContent = t; }
   $('primary').onclick = () => { if (primaryFn && !$('primary').disabled) primaryFn(); };
-  $('replayBtn').onclick = () => { const r = S.rounds[S.round - 1]; if (r) playClip(r.meta, S.phase === 'question' ? (r.meta.clip || 5) : 0).catch(e => toast(e.message)); };
+  $('replayBtn').onclick = () => { const r = S.rounds[S.round - 1]; if (r && !isQ(r)) playClip(r.meta, S.phase === 'question' ? (r.meta.clip || 5) : 0).catch(e => toast(e.message)); };
   $('fsBtn').onclick = () => { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); };
   $('quitBtn').onclick = () => { if (confirm('Hætta í leiknum og sýna úrslit?')) showFinal(); };
   // Tekur fókus af hnöppum svo bilstöng smelli ekki tvisvar
@@ -355,6 +529,7 @@
   if (!cfg.SUPABASE_URL || cfg.SUPABASE_URL.includes('XXXX')) {
     showErr('setupErr', 'Vantar Supabase-stillingar í config.js (sjá leiðbeiningar).');
   }
+  setType(store.get('pq_gtype') || 'music', true);
   checkResume();
   window.__PQ_HOST = S;   // fyrir prófanir
 })();

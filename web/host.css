@@ -92,3 +92,43 @@ body { overflow: hidden; }
 .modes { display: flex; gap: 6px; background: var(--bg2); border: 1px solid var(--line); border-radius: 999px; padding: 4px; }
 .modes a { color: var(--muted); text-decoration: none; padding: 7px 14px; border-radius: 999px; font-size: 15px; font-weight: 500; }
 .modes a.on { background: var(--accent); color: #1b1300; }
+
+/* Tegund leiks: tónlist / spurningar / blandað */
+.gtype { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.gtype button { display: flex; align-items: center; gap: 12px; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; color: var(--text); transition: border-color .15s, background .15s; }
+.gtype button:hover { border-color: var(--muted); }
+.gtype button.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); background: linear-gradient(0deg, rgba(255,185,56,.08), rgba(255,185,56,.08)), var(--card); }
+.gtype svg { width: 30px; height: 30px; flex: 0 0 30px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; color: var(--muted); }
+.gtype button.on svg { color: var(--accent); }
+.gtype b { display: block; font-size: 16px; }
+.gtype small { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+@media (max-width: 640px) { .gtype { grid-template-columns: 1fr; } }
+
+/* Skrefanúmer reiknuð sjálfkrafa */
+.setup-wrap { counter-reset: step; }
+.panel.step:not(.hidden) > h2::before { counter-increment: step; content: counter(step) ". "; }
+.setup-wrap[data-t="music"] .f-q, .setup-wrap[data-t="questions"] .f-music { display: none; }
+
+/* Val á spurningum */
+.qb-head { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; color: var(--muted); font-size: 14px; }
+.qb-head a { color: var(--accent); text-decoration: none; font-weight: 500; }
+.qb-head a:hover { text-decoration: underline; }
+.catpick { display: flex; flex-wrap: wrap; gap: 6px; }
+.catpick button { background: var(--bg2); border: 1px solid var(--line); color: var(--text); border-radius: 999px; padding: 7px 13px; font-size: 14px; }
+.catpick button small { color: var(--muted); margin-left: 5px; font-size: 13px; }
+.catpick button.on { background: var(--accent); border-color: var(--accent); color: #1b1300; font-weight: 500; }
+.catpick button.on small { color: rgba(27,19,0,.7); }
+.qfresh { display: flex !important; align-items: center; gap: 8px; color: var(--text) !important; margin: 0 0 12px !important; cursor: pointer; font-size: 14px; }
+.qfresh input { width: 18px; height: 18px; accent-color: var(--accent); }
+.tracklist .qi { width: 44px; height: 44px; flex: 0 0 44px; border-radius: 6px; background: var(--bg2); display: grid; place-items: center; color: var(--accent); font-weight: 900; font-size: 20px; }
+.tracklist .t small .ok { color: var(--good); }
+.tracklist .t.wrap b { white-space: normal; }
+
+/* Spurning á stóra skjánum */
+.qhead .qcat { margin-top: .6vh; color: var(--accent); font-weight: 700; font-size: clamp(14px, 1.4vw, 24px); letter-spacing: .03em; }
+.qtext { text-align: center; font-size: clamp(24px, 3.6vw, 62px); font-weight: 700; line-height: 1.2; max-width: 1400px; margin: 3vh auto 0; padding: 0 2vw; text-wrap: balance; }
+#question.reveal .qtext { font-size: clamp(18px, 2.2vw, 38px); color: var(--muted); margin-top: 1.5vh; font-weight: 500; }
+.qanswer { text-align: center; margin: 1.5vh 0 2vh; }
+.qanswer .qa-lbl { color: var(--muted); font-size: clamp(13px, 1.3vw, 22px); text-transform: uppercase; letter-spacing: .14em; }
+.qanswer h2 { font-size: clamp(34px, 5vw, 88px); margin: .4vh 0 0; font-weight: 900; color: var(--good); line-height: 1.05; }
+.qanswer p { font-size: clamp(16px, 1.7vw, 30px); max-width: 1200px; margin: 1.4vh auto 0; line-height: 1.35; opacity: .92; }
