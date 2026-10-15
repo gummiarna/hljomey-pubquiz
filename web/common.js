@@ -26,7 +26,11 @@
     ogilt_myndband: 'Þetta YouTube-myndband virkar ekki.',
     rodin_full: 'Biðröðin er full.',
     ma_ekki_fjarlaegja: 'Aðeins sá sem valdi lagið (eða stjórnandinn) getur tekið það af lista.',
-    lag_fannst_ekki: 'Lagið er ekki lengur í biðröðinni.'
+    lag_fannst_ekki: 'Lagið er ekki lengur í biðröðinni.',
+    ogilt_saeti: 'Veldu stað á tímalínunni.',
+    of_fa_tokn: 'Þú þarft 3 tákn til að fá aukaspil.',
+    stokkur_tomur: 'Engin spil eftir í stokknum.',
+    ekki_nuna: 'Það er ekki hægt núna. Bíddu eftir svarinu.'
   };
 
   async function rpc(fn, args) {

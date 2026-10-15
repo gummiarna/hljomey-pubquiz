@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="theme-color" content="#15121f">
 <title>Hljómey – Leikir og söngur</title>
-<meta name="description" content="Pöbbkviss, tónlistarbingó, gítarpartý og karaoke Hljómeyjar. Taktu þátt með símanum.">
+<meta name="description" content="Pöbbkviss, tónlistarbingó, gítarpartý, karaoke og Hvaða ár? Hljómeyjar. Taktu þátt með símanum.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2026-10-15c">
@@ -76,6 +76,10 @@
 
   .sec-title { font-size: clamp(24px, 3.4vw, 34px); font-weight: 900; margin: 46px 0 18px; }
   .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (min-width: 761px) {
+    .game-grid > .game:last-child:nth-child(odd) { grid-column: 1 / -1; flex-direction: row; align-items: center; }
+    .game-grid > .game:last-child:nth-child(odd) .game-art { width: 48%; flex: 0 0 48%; padding: 14px; }
+  }
   .game { background: var(--card); border: 1px solid var(--line); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; }
   .game-art { width: 100%; display: block; padding: 14px 14px 0; }
   .game-body { padding: 16px 22px 22px; }
@@ -129,7 +133,7 @@
       <div class="hero-text">
         <div class="kicker">Hljómey · Leikir og söngur</div>
         <h1>Hlustaðu.<br>Syngdu.<br><span>Sigraðu.</span></h1>
-        <p class="lead">Pöbbkviss, tónlistarbingó, gítarpartý og karaoke fyrir partíið, pöbbinn og stofuna heima. Síminn þinn er stjórntækið og stóri skjárinn sýnir hvað er að gerast.</p>
+        <p class="lead">Pöbbkviss, tónlistarbingó, gítarpartý, karaoke og „Hvaða ár?“ fyrir partíið, pöbbinn og stofuna heima. Síminn þinn er stjórntækið og stóri skjárinn sýnir hvað er að gerast.</p>
       </div>
       <svg class="hero-art" viewBox="0 0 320 260" aria-hidden="true">
         <defs>
@@ -278,6 +282,31 @@
             </ul>
           </div>
         </article>
+        <article class="game">
+          <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
+            <rect x="0" y="0" width="300" height="170" rx="18" fill="#1f1a2e"/>
+            <path d="M18 132 H282" stroke="#3b3357" stroke-width="3" stroke-linecap="round"/>
+            <g font-family="Rubik, sans-serif" font-weight="900" text-anchor="middle">
+              <g transform="translate(22 66)"><rect width="54" height="58" rx="9" fill="#2a2340"/><text x="27" y="26" font-size="15" fill="#ffb938">1975</text><rect x="9" y="36" width="36" height="5" rx="2.5" fill="#3b3357"/><rect x="9" y="45" width="26" height="5" rx="2.5" fill="#3b3357"/></g>
+              <g transform="translate(84 66)"><rect width="54" height="58" rx="9" fill="#2a2340"/><text x="27" y="26" font-size="15" fill="#ffb938">1986</text><rect x="9" y="36" width="36" height="5" rx="2.5" fill="#3b3357"/><rect x="9" y="45" width="22" height="5" rx="2.5" fill="#3b3357"/></g>
+              <rect x="146" y="66" width="54" height="58" rx="9" fill="none" stroke="#ffb938" stroke-width="2.5" stroke-dasharray="6 5"/>
+              <g transform="translate(208 66)"><rect width="54" height="58" rx="9" fill="#2a2340"/><text x="27" y="26" font-size="15" fill="#ffb938">2011</text><rect x="9" y="36" width="36" height="5" rx="2.5" fill="#3b3357"/><rect x="9" y="45" width="30" height="5" rx="2.5" fill="#3b3357"/></g>
+              <g transform="translate(150 12) rotate(-8 27 29)"><rect width="54" height="58" rx="9" fill="#ffb938"/><text x="27" y="40" font-size="30" fill="#1b1300">?</text></g>
+            </g>
+            <path d="M177 76 v-2" stroke="#ffb938" stroke-width="0"/>
+            <g fill="#e5484d" transform="translate(246 18)"><circle cx="6" cy="30" r="6"/><rect x="10.3" y="2" width="3" height="29"/><path d="M13.3 2 q10 4 8 14 q-2-7-8-6z"/></g>
+          </svg>
+          <div class="game-body">
+            <h3>Hvaða ár?</h3>
+            <p>Lag hljómar og þú setur það á réttan stað á tímalínunni þinni: fyrir, á milli eða á eftir lögunum sem þú átt. Fyrst/ur í 10 spil vinnur.</p>
+            <ul>
+              <li>Íslensk og erlend lög, eða blanda</li>
+              <li>Heil lög á Spotify eða bútar af Deezer</li>
+              <li>Bónus fyrir flytjandann og nákvæmt ár</li>
+              <li>Þrjú tákn gefa aukaspil</li>
+            </ul>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -289,13 +318,13 @@
         <li><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="16" r="8" fill="none" stroke="currentColor" stroke-width="3"/><path d="M9 42c1.5-9 7.5-14 15-14s13.5 5 15 14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
           <b>Skráðu nafnið</b><span>þitt eða liðsins. Það birtist á stigatöflunni eða í biðröðinni. Í gítarpartýi þarf ekkert nafn.</span></li>
         <li><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="8" width="40" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="3"/><path d="M17 42h14M24 34v8" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><path d="M13 21h10M13 27h22" stroke="currentColor" stroke-width="3" stroke-linecap="round" opacity=".55"/></svg>
-          <b>Fylgstu með skjánum</b><span>þar birtast spurningar, bingólögin, textinn og hver er næst/ur á svið. Hljóðið kemur úr salnum.</span></li>
+          <b>Fylgstu með skjánum</b><span>þar birtast spurningar, bingólögin, textinn, svörin og hver er næst/ur á svið. Hljóðið kemur úr salnum.</span></li>
         <li><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="13" y="4" width="22" height="40" rx="5" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="24" cy="24" r="6" fill="currentColor"/><path d="M21 38h6" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
           <b>Síminn er stjórntækið</b><span>þú svarar, merkir við, fylgir textanum eða velur lag. Engin innskráning og ekkert app.</span></li>
       </ol>
       <div class="host-strip">
         <div class="tx"><b>Ætlarðu að stjórna?</b><span>Opnaðu stjórnandasíðuna í tölvu sem er tengd við sjónvarp eða skjávarpa. Gestirnir þurfa bara símann.</span></div>
-        <nav aria-label="Stjórnandasíður"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a></nav>
+        <nav aria-label="Stjórnandasíður"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a></nav>
       </div>
     </section>
 
@@ -342,7 +371,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="common.js?v=2026-10-15d"></script>
+<script src="common.js?v=2026-10-15e"></script>
 <script>
   // Bingóspjald í myndinni
   (function () {
@@ -360,6 +389,6 @@
   })();
   if (new URLSearchParams(location.search).get('k')) document.body.classList.add('has-code');
 </script>
-<script src="player.js?v=2026-10-15d"></script>
+<script src="player.js?v=2026-10-15e"></script>
 </body>
 </html>

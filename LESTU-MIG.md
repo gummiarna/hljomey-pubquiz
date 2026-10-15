@@ -1,9 +1,44 @@
-# Hljómey Pöbbkviss, Tónlistarbingó og Gítarpartý – uppsetning skref fyrir skref
+# Hljómey tónlistarleikir – uppsetning skref fyrir skref
 
-Leikirnir þrír, Pöbbkviss, Tónlistarbingó og Gítarpartý, eru settir upp saman. Þeir samanstanda af tveimur hlutum:
+Leikirnir, Pöbbkviss, Tónlistarbingó, Gítarpartý, Karaoke og Hvaða ár?, eru settir upp saman. Þeir samanstanda af tveimur hlutum:
 
 - **Supabase** (ókeypis): gagnagrunnur og rauntími sem tengir síma og stóra skjáinn.
-- **Vefsíðan** (20 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+- **Vefsíðan** (24 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+
+---
+
+## Uppfærsla: Hvaða ár? (október 2026)
+
+Tímalínuleikur í anda Hitster. Lag er spilað og hver leikmaður setur það á réttan stað á sinni eigin tímalínu í símanum. Allir spila samtímis. Rétt sett lag fer á tímalínuna, og sá sem fyrst nær settum fjölda spila vinnur. Bónus: að þekkja flytjandann (val úr fjórum) og giska á nákvæmt ár gefur tákn, og þrjú tákn má skipta fyrir aukaspil.
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald `hvadaar.sql` → **Run**.
+2. **Bluehost**: hladdu upp í `public_html/pubquiz` og skrifaðu yfir:
+   - Nýjar: `hvadaar.html`, `hvadaar.js`, `hvadaar-host.js`, `hvadaar-listi.js`
+   - Breyttar: `common.js`, `player.js`, `index.html`, `stjorn.html`, `bingo-stjorn.html`, `gitar.html`, `karaoke.html`, `host.css`
+   - **Ekki** hlaða upp `config.js`.
+3. **Spotify-forrit** (gert einu sinni, þarf **Spotify Premium**). Án Spotify spilar leikurinn 30 sek. búta frá Deezer.
+   1. Farðu á **developer.spotify.com/dashboard**, skráðu þig inn með Spotify-reikningnum og smelltu á **Create app**.
+   2. Nafn og lýsing: t.d. „Hljómey Hvaða ár“. Undir **Redirect URIs** bætirðu við báðum: `https://hljomey.is/pubquiz/hvadaar.html` og `https://www.hljomey.is/pubquiz/hvadaar.html`.
+   3. Undir **Which API/SDKs are you planning to use?** hakarðu við **Web API**, samþykkir skilmálana og smellir á **Save**.
+   4. Opnaðu forritið → **Settings** → afritaðu **Client ID**. (Client secret er ekki notað.)
+   5. Opnaðu **hljomey.is/pubquiz/hvadaar.html**. Skrifaðu PIN-ið í **3. Stillingar** ef það er ekki þegar þar. Farðu svo í **1. Hljóð** → límdu Client ID inn → **Vista** → **Tengja Spotify** og samþykktu.
+   6. Ef aðrir eiga að geta tengst með sínum Spotify-reikningi: forritið → **User Management** → bættu netfanginu þeirra við (mest 5 í þróunarham).
+4. **Lagabankinn** (gert einu sinni, tekur nokkrar mínútur): smelltu á **Opna lagabankann** → **Sækja byrjunarlista**. Þá er um 215 lögum (um 80 íslenskum) flett upp á Spotify, MusicBrainz og Deezer til að finna útgáfuárið.
+   - **Grænt** = staðfest ár. **Appelsínugult** = heimildum ber ekki saman, athugaðu. **Rautt** = ár vantar.
+   - Smelltu á tillögu (t.d. „MusicBrainz 1984“) til að velja það ár, eða skrifaðu árið sjálfur og ýttu á ✓. ▶ spilar lagið.
+   - **Staðfesta samhljóða** staðfestir í einu öll lög þar sem heimildirnar eru sammála.
+   - Íslensku lögin þurfa mesta yfirferð. Spotify gefur oft ár endurútgáfu eða safnplötu frekar en upprunalega árið.
+   - **Úr Spotify-lagalista** bætir lögum úr þínum eigin lagalistum við (veldu íslenskt eða erlent). **+ Bæta við lagi** bætir við einu lagi.
+
+**Svona er leikurinn spilaður:**
+
+1. Opnaðu **hljomey.is/pubquiz/hvadaar.html** í tölvunni sem er tengd við sjónvarpið.
+2. Opnaðu Spotify á tækinu sem á að spila (tölvunni, hátalara eða síma) og veldu það í **Tæki**. Ef það sést ekki: spilaðu eitthvað stutt í Spotify og ýttu á ↻.
+3. **2. Lögin**: veldu blönduna (Bara íslensk → Bara erlend). Láttu **Aðeins lög með staðfestu ári** vera hakað.
+4. **3. Stillingar**: hve mörg spil vinna (5–15), tími til að svara og erfiðleiki (**Létt (±3 ár)** fyrirgefur skekkju). Smelltu á **Búa til leik**.
+5. Gestir skanna QR-kóðann eða slá kóðann inn á **hljomey.is/pubquiz**. Hver fær eitt byrjunarspil með ártali.
+6. Bilstöngin keyrir leikinn: byrja → afhjúpa árið → staða → næsta lag. Afhjúpað er sjálfkrafa þegar allir hafa svarað eða tíminn er búinn.
+7. Ef tölvan endurræsist: opnaðu hvadaar.html aftur og veldu **Halda áfram**.
 
 ---
 
@@ -86,9 +121,9 @@ Ef Pöbbkvissið og bingóið eru þegar uppsett á hljomey.is þarftu aðeins �
 4. Afritaðu allt innihald `setup.sql`, límdu það inn og smelltu á **Run**.
 5. Þú átt að sjá **Success. No rows returned**.
 6. Smelltu aftur á **New query**, límdu inn allt innihald `bingo.sql` og smelltu á **Run**. Þetta bætir bingóinu við og notar sama PIN.
-7. Gerðu það sama við `gitar.sql` (Gítarpartý), `themes.sql` (vistuð þemu), `spurningar.sql` (spurningabanki) og `karaoke.sql` (karaoke). Öll nota sama PIN.
+7. Gerðu það sama við `gitar.sql` (Gítarpartý), `themes.sql` (vistuð þemu), `spurningar.sql` (spurningabanki), `karaoke.sql` (karaoke) og `hvadaar.sql` (Hvaða ár?). Öll nota sama PIN.
 
-Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql` og `karaoke.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
+Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql`, `karaoke.sql` og `hvadaar.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
 
 Viltu breyta PIN-inu síðar? Keyrðu þessa línu í SQL Editor:
 
@@ -115,20 +150,21 @@ SUPABASE_ANON_KEY: 'sb_publishable_...',
 1. Skráðu þig inn á Bluehost → **Hosting** → **cPanel** (heitir **Advanced** í eldra viðmóti) → **File Manager**.
 2. Opnaðu möppuna **public_html** (þar er WordPress).
 3. Smelltu á **+ Folder** og búðu til möppuna **`pubquiz`**.
-4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 20 skránum úr `web`:
-   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `gitar.html`, `spurningar.html`, `karaoke.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `themes.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`, `gitar-core.js`, `spurningar.js`, `karaoke.js`
+4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 24 skránum úr `web`:
+   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `gitar.html`, `spurningar.html`, `karaoke.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `themes.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`, `gitar-core.js`, `spurningar.js`, `karaoke.js`, `hvadaar.html`, `hvadaar.js`, `hvadaar-host.js`, `hvadaar-listi.js`
 5. Þetta hefur engin áhrif á WordPress eða Elementor. Mappan hefur einfaldlega forgang á slóðinni /pubquiz.
 
 Slóðirnar verða:
 
 | Hver | Slóð |
 | --- | --- |
-| Þátttakendur (sláðu inn kóða, virkar fyrir báða leiki) | **hljomey.is/pubquiz** |
+| Þátttakendur (sláðu inn kóða, virkar fyrir alla leiki) | **hljomey.is/pubquiz** |
 | Stjórnandi Pöbbkviss | **hljomey.is/pubquiz/stjorn.html** |
 | Stjórnandi Tónlistarbingós | **hljomey.is/pubquiz/bingo-stjorn.html** |
 | Spilari í Gítarpartýi | **hljomey.is/pubquiz/gitar.html** |
 | Spurningabankinn | **hljomey.is/pubquiz/spurningar.html** |
 | Karaoke (sjónvarpið) | **hljomey.is/pubquiz/karaoke.html** |
+| Stjórnandi Hvaða ár? | **hljomey.is/pubquiz/hvadaar.html** |
 
 Efst á stjórnandasíðunni er hnappur til að skipta á milli leikjanna. QR-kóðinn vísar beint á réttan leik.
 
