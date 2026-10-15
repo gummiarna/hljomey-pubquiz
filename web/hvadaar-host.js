@@ -125,30 +125,46 @@
         await step('vekja', () => this.transfer(d.id, false));
         note(await waitActive() ? 'virkt' : 'varð ekki virkt');
       }
+      // Upplýsingar um lagið í landi notandans: spilanlegt? Spotify gefur jafngilt lag ef þetta er ekki í boði hér.
+      let info = null;
+      try { info = await this.api(`/tracks/${uri.split(':').pop()}?market=from_token`); } catch (e) { note(`lag ${e.status || 'villa'}`); }
+      if (info) {
+        note(`lag „${info.name}“ ${info.is_playable === false ? 'ekki spilanlegt' : info.is_playable ? 'spilanlegt' : '?'}`);
+        if (info.is_playable === false) throw Object.assign(fail(`Lagið „${title || info.name}“ er ekki spilanlegt í þínu landi á Spotify.`), { unplayable: true });
+        if (info.uri && info.uri !== uri) { note('jafngilt lag notað'); uri = info.uri; }
+        if (!title) title = info.name;
+      }
       let prev = null; try { prev = await this.state(); } catch (e) { /* ekkert */ }
       const prevUri = prev && prev.item && prev.item.uri;
       const tn = norm(title);
       const isOn = st => st && st.is_playing && st.item && (st.item.uri === uri || (tn && norm(st.item.name) === tn) || (!!prevUri && st.item.uri !== prevUri));
-      const desc = st => !st ? 'ekkert virkt tæki' : `${(st.device && st.device.name) || '?'}: ${st.is_playing ? 'spilar' : 'spilar ekki'}, ${st.item ? '„' + st.item.name + '“' : 'ekkert lag'}`;
+      const desc = st => !st ? 'ekkert virkt tæki' : `${st.is_playing ? 'spilar' : 'spilar ekki'}, ${st.item ? '„' + st.item.name + '“' : 'ekkert lag'}`;
       const watch = async () => { let st = null; for (let k = 0; k < 10; k++) { await sleep(500); try { st = await this.state(); } catch (e) { st = null; } if (isOn(st)) return true; } note(desc(st)); return false; };
-      // 1) venjuleg skipun, 2) án upphafsstöðu og svo spólað, 3) tækið vakið með spilun og reynt aftur
-      const tries = [
-        ['spila', async () => this.play(d.id, uri, pos)],
-        ['spila frá byrjun', async () => { await this.play(d.id, uri, 0); if (pos) { await sleep(800); await this.seek(d.id, pos).catch(() => {}); } }],
-        ['vekja+spila', async () => { await this.transfer(d.id, true).catch(() => {}); await waitActive(); await this.play(d.id, uri, pos); }]
-      ];
+      const q = 'device_id=' + encodeURIComponent(d.id);
+      const seekLater = async () => { if (pos) { await sleep(900); await this.seek(d.id, pos).catch(() => {}); } };
+      // Mismunandi leiðir til að setja lag í gang; sú sem virkar er munuð og reynd fyrst næst.
+      const ways = {
+        lag: ['spila lag', () => this.play(d.id, uri, pos)],
+        plata: ['spila af plötu', async () => {
+          const alb = info && info.album && info.album.uri; if (!alb) throw Object.assign(new Error('engin plata'), { status: 'engin plata' });
+          await this.api('/me/player/play?' + q, { method: 'PUT', body: JSON.stringify({ context_uri: alb, offset: { uri }, position_ms: pos || 0 }) });
+        }],
+        rod: ['biðröð+næsta', async () => {
+          await this.api('/me/player/queue?uri=' + encodeURIComponent(uri) + '&' + q, { method: 'POST' });
+          await sleep(600); await this.api('/me/player/next?' + q, { method: 'POST' }); await seekLater();
+        }],
+        vekja: ['vekja+spila', async () => { await this.transfer(d.id, true).catch(() => {}); await waitActive(); await this.play(d.id, uri, 0); await seekLater(); }]
+      };
+      const pref = store.get('ha_sp_way');
+      const order = [pref, 'lag', 'plata', 'rod', 'vekja'].filter((k, n, a) => k && ways[k] && a.indexOf(k) === n);
       let last = null;
-      for (const [label, fn] of tries) {
+      for (const k of order) {
+        const [label, fn] = ways[k];
         const e = await step(label, fn);
         if (e) { last = e; if (e.status === 401 || e.status === 403) throw fail(null, e); continue; }
         last = null;
-        if (await watch()) return d;
+        if (await watch()) { if (k !== pref) store.set('ha_sp_way', k); return d; }
       }
-      // Er lagið spilanlegt á Íslandi?
-      try {
-        const id = uri.split(':').pop(), t = await this.api(`/tracks/${id}?market=from_token`);
-        if (t && t.is_playable === false) throw fail(`Lagið „${title || t.name}“ er ekki spilanlegt í þínu landi á Spotify.`);
-      } catch (e) { if (e.diag) throw e; }
       if (last) throw fail(null, last);
       throw fail(`Spotify tók við skipuninni en ekkert fór að spila á „${d.name}“.`);
     },
@@ -348,20 +364,31 @@
   async function testSpotify() {
     const out = $('spTestRes'), btn = $('spTest'); if (!out) return;
     const say = (t, bad) => { out.classList.remove('hidden'); out.className = 'hint' + (bad ? ' badline' : ''); out.textContent = t; };
-    btn.disabled = true; say('Prófa…');
+    btn.disabled = true; say('Prófa… (getur tekið allt að hálfa mínútu)');
+    const diags = [];
+    const tryOne = async (s, uri) => {
+      try {
+        const d = await SP.playSure(uri, A.startMs, s.title); A.spBroken = false;
+        say(`✓ Spotify spilar „${s.title}“ á ${d.name}. Stöðvast eftir 8 sek.`);
+        setTimeout(() => { SP.pause(d.id).catch(() => {}); }, 8000);
+        return true;
+      } catch (e) { diags.push({ s, uri, e }); return false; }
+    };
     try {
-      let s = (S.bank || []).find(x => x.spotify_uri && x.active) || null, uri = s && s.spotify_uri;
-      if (!uri) { s = { title: 'Bohemian Rhapsody', artist: 'Queen' }; uri = await spFind(s); }
-      if (!uri) throw new Error('Fann ekkert prufulag á Spotify.');
-      const d = await SP.playSure(uri, A.startMs, s.title);
-      say(`✓ Spotify spilar „${s.title}“ á ${d.name}. Stöðvast eftir 8 sek.`);
-      setTimeout(() => { SP.pause(d.id).catch(() => {}); }, 8000);
-    } catch (e) {
+      const s = (S.bank || []).find(x => x.spotify_uri && x.active);
+      if (s && await tryOne(s, s.spotify_uri)) return;
+      const q = { title: 'Bohemian Rhapsody', artist: 'Queen' }, uri = await spFind(q);
+      if (uri && await tryOne(q, uri)) {
+        if (s) out.innerHTML += `<br><small style="opacity:.8">Lag úr bankanum („${esc(s.title)}“) spilaðist ekki, en nýtt lag úr leit gerði það. Sendu Claude þetta: ${esc(s.spotify_uri)} · ${esc(diags[0].e.diag || diags[0].e.message)}</small>`;
+        return;
+      }
+      if (!uri && !s) throw new Error('Fann ekkert prufulag á Spotify.');
+      const e = diags[diags.length - 1].e;
       say('✗ ' + e.message, true);
-      out.innerHTML += (e.diag ? `<br><small style="opacity:.8">Ferill: ${esc(e.diag)}</small>` : '')
-        + '<br><small style="opacity:.8">Ráð: í developer.spotify.com → forritið → <b>Settings → Edit</b>, hakaðu líka við <b>Web Playback SDK</b> og vistaðu. Smelltu svo á <b>Aftengja</b> og <b>Tengja Spotify</b> hér og prófaðu aftur.</small>';
-    }
-    btn.disabled = false;
+      out.innerHTML += diags.map(x => `<br><small style="opacity:.8">„${esc(x.s.title)}“ (${esc(x.uri)}): ${esc(x.e.diag || x.e.message)}</small>`).join('')
+        + '<br><small style="opacity:.8">Prófaðu að velja símann þinn sem tæki (opnaðu Spotify í honum og ýttu á ↻). Ef það virkar þar liggur vandinn í Spotify á tölvunni.</small>';
+    } catch (e) { say('✗ ' + e.message, true); }
+    finally { btn.disabled = false; }
   }
   async function loadDevices() {
     const sel = $('spDev'); if (!sel) return;
@@ -760,12 +787,16 @@
   async function playRound(r, again) {
     A.paused = false; $('pauseB') && ($('pauseB').textContent = '❚❚ Pása');
     const m = r.meta || {};
-    if (A.mode === 'spotify' && SP.connected()) {
+    if (A.mode === 'spotify' && SP.connected() && !A.spBroken) {
       try {
         if (!m.spotify_uri) m.spotify_uri = await spFind(r, r.song_id);
         if (m.spotify_uri) { await SP.playSure(m.spotify_uri, A.startMs, r.title); return; }
         toast('Lagið fannst ekki á Spotify. Spila 30 sek. bút frá Deezer.', true);
-      } catch (e) { toast(e.message + ' Spila Deezer-bút í staðinn.', true); }
+      } catch (e) {
+        // Ekki bíða aftur og aftur í sama leik: næstu lög fara beint á Deezer
+        if (!e.unplayable && (!e.status || e.status === 404)) A.spBroken = true;
+        toast(e.message + ' Spila Deezer-bút' + (A.spBroken ? ' í þessum leik.' : ' í staðinn.'), true);
+      }
     }
     try {
       let id = m.deezer_id;
