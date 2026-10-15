@@ -282,7 +282,7 @@ a{color:var(--accent)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="config.js"></script>
-<script src="common.js?v=2026-10-15f"></script>
+<script src="common.js?v=2026-10-15g"></script>
 <script src="gitar-core.js?v=2026-10-14g"></script>
 <script>
 (function () {
@@ -335,6 +335,7 @@ function toast(msg) {
 }
 function errMsg(e) {
   var m = (e && (e.message || e.error_description)) || '';
+  if (/gestapin_ekki/.test(m)) return 'Gestapin dugar aðeins til að stýra leikjum. Notaðu aðal-PIN til að breyta söngbókinni.';
   if (/rangt_pin|Rangt PIN/.test(m)) return 'Rangt PIN-númer.';
   if (/ogildur_spilari|stýrir ekki/.test(m)) return 'Þú stýrir ekki þessu partýi lengur.';
   if (/engin_log/.test(m)) return 'Veldu a.m.k. eitt lag.';

@@ -44,6 +44,7 @@
   });
 
   const ERRORS = {
+    gestapin_ekki: 'Gestapin dugar aðeins til að stýra leikjum. Notaðu aðal-PIN til að breyta bönkum og stillingum.',
     rangt_pin: 'Rangt PIN-númer.',
     leikur_fannst_ekki: 'Enginn leikur fannst með þessum kóða.',
     leik_lokid: 'Þessum leik er lokið.',

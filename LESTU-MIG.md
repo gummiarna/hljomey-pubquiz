@@ -7,6 +7,25 @@ Leikirnir, Pöbbkviss, Tónlistarbingó, Gítarpartý, Karaoke og Hvaða ár?, e
 
 ---
 
+## Uppfærsla: Gestapin (október 2026)
+
+Gestapin er annað PIN sem þú getur lánað öðrum. Með því má búa til og stýra Pöbbkvissi (líka með spurningum), Tónlistarbingói og Hvaða ár?. Karaoke og Gítarpartý þurfa ekkert PIN til að byrja. Gestapin má **ekki** breyta spurningabankanum, lagabankanum í Hvaða ár?, söngbókinni, YouTube-lyklinum, Spotify-stillingunum eða endurnefna og eyða þemum. Þá birtast skilaboð um að aðal-PIN þurfi.
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald `gestapin.sql` → **Run**. Neðst stendur „Gestapin: 14 föll uppfærð.“
+   - Í `gestapin.sql` í þessu repo er lína gestapinsins óvirk (byrjar á `--`), svo það komi aldrei fram opinberlega. Settu þitt eigið inn þar, eða keyrðu línuna hér fyrir neðan.
+2. **Bluehost**: hladdu upp `common.js`, `stjorn.html`, `bingo-stjorn.html`, `bingo.html`, `gitar.html`, `hvadaar.html`, `index.html`, `karaoke.html` og `spurningar.html`.
+
+**Mikilvægt:** keyrðu `gestapin.sql` alltaf **síðast**. Ef einhver hinna SQL-skránna er keyrð aftur þarf að keyra `gestapin.sql` aftur á eftir, annars hættir gestapinið að virka þar.
+
+Breyta eða slökkva á gestapininu:
+
+```sql
+update app_settings set value = 'NÝTT-GESTAPIN' where key = 'guest_pin';   -- breyta
+delete from app_settings where key = 'guest_pin';                         -- slökkva
+```
+
+---
+
 ## Uppfærsla: Hvaða ár? (október 2026)
 
 Tímalínuleikur í anda Hitster. Lag er spilað og hver leikmaður setur það á réttan stað á sinni eigin tímalínu í símanum. Allir spila samtímis. Rétt sett lag fer á tímalínuna, og sá sem fyrst nær settum fjölda spila vinnur. Bónus: að þekkja flytjandann (val úr fjórum) og giska á nákvæmt ár gefur tákn, og þrjú tákn má skipta fyrir aukaspil.
@@ -122,9 +141,9 @@ Ef Pöbbkvissið og bingóið eru þegar uppsett á hljomey.is þarftu aðeins �
 4. Afritaðu allt innihald `setup.sql`, límdu það inn og smelltu á **Run**.
 5. Þú átt að sjá **Success. No rows returned**.
 6. Smelltu aftur á **New query**, límdu inn allt innihald `bingo.sql` og smelltu á **Run**. Þetta bætir bingóinu við og notar sama PIN.
-7. Gerðu það sama við `gitar.sql` (Gítarpartý), `themes.sql` (vistuð þemu), `spurningar.sql` (spurningabanki), `karaoke.sql` (karaoke) og `hvadaar.sql` (Hvaða ár?). Öll nota sama PIN.
+7. Gerðu það sama við `gitar.sql` (Gítarpartý), `themes.sql` (vistuð þemu), `spurningar.sql` (spurningabanki), `karaoke.sql` (karaoke) og `hvadaar.sql` (Hvaða ár?). Öll nota sama PIN. Síðast kemur `gestapin.sql` ef þú vilt gestapin (sjá ofar).
 
-Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql`, `karaoke.sql` og `hvadaar.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
+Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql`, `karaoke.sql`, `hvadaar.sql` og `gestapin.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna. **Athugaðu** að `setup.sql` setur líka aðal-PIN-ið aftur á gildið sem stendur neðst í skránni.
 
 Viltu breyta PIN-inu síðar? Keyrðu þessa línu í SQL Editor:
 

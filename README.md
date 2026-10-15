@@ -15,7 +15,7 @@ Vefsíðan á **[hljomey.is/pubquiz](https://hljomey.is/pubquiz)**: fimm leikir 
 ## Uppbygging
 
 - `web/` – allar skrár sem fara í möppuna `public_html/pubquiz` á Bluehost.
-- `setup.sql`, `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql`, `karaoke.sql`, `hvadaar.sql` – gagnagrunnurinn í Supabase, keyrt í þessari röð. `spurningar.sql` inniheldur líka 208 byrjunarspurningar og `web/hvadaar-listi.js` byrjunarlistann fyrir Hvaða ár?.
+- `setup.sql`, `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql`, `karaoke.sql`, `hvadaar.sql`, `gestapin.sql` – gagnagrunnurinn í Supabase, keyrt í þessari röð (`gestapin.sql` alltaf síðast). `spurningar.sql` inniheldur líka 208 byrjunarspurningar og `web/hvadaar-listi.js` byrjunarlistann fyrir Hvaða ár?.
 - `LESTU-MIG.md` – uppsetning skref fyrir skref.
 
 `web/config.js` er hér með staðgenglum. Raunverulegu Supabase-lyklarnir eru aðeins í útgáfunni á vefþjóninum og eiga ekki heima í þessu repo.
