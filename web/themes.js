@@ -65,6 +65,7 @@
   else if ($('poolInfo')) $('poolInfo').insertAdjacentElement('afterend', saveLine);
   let lastFetch = null;   // { key, pool } – síðast sóttu lögin (fyrir mynd og fjölda)
 
+  const isPl = v => !!(window.PQDeezer && PQDeezer.isPlaylistUrl && PQDeezer.isPlaylistUrl(v));
   function pin() { return ($('pin') && $('pin').value.trim()) || store.get('pq_pin') || ''; }
   function askPin() {
     const p = window.prompt('PIN stjórnanda (sama og þegar þú býrð til leik):', '');
@@ -121,7 +122,34 @@
       missing = /saved_themes|does not exist|schema cache|PGRST205|42P01/i.test((error.message || '') + ' ' + (error.code || ''));
       ready = true; render(); return;
     }
-    missing = false; ready = true; list = data || []; render();
+    missing = false; ready = true;
+    list = (data || []).map(t => {
+      if (t.kind !== 'playlist' && t.kind !== 'chart' && isPl(t.value))
+        return Object.assign({}, t, { kind: 'playlist', value: canon('playlist', t.value), _legacy: t.kind, _raw: t.value });
+      return t;
+    });
+    render();
+    repairLegacy();
+  }
+
+  // Lagfæra lagalista sem voru vistaðir sem „Leit" (vantar mynd og fjölda laga): þarf PIN
+  let repairing = false;
+  async function repairLegacy() {
+    const bad = list.filter(t => t._legacy);
+    if (!bad.length || repairing || !pin()) return;
+    repairing = true;
+    try {
+      for (const t of bad.slice().reverse()) {   // elsta fyrst, svo röðin haldist
+        let inf = null;
+        try { inf = await PQDeezer.playlistInfo(t.value); } catch (e) {}
+        const custom = t.name && t.name !== t._raw;
+        await rpc('save_theme', { p_pin: pin(), p_kind: 'playlist', p_value: t.value,
+          p_name: custom ? t.name : ((inf && inf.title) || 'Deezer-lagalisti'), p_cover: (inf && inf.cover) || '', p_count: (inf && inf.count) || null });
+        await rpc('delete_theme', { p_pin: pin(), p_id: t.id });
+      }
+    } catch (e) { repairing = false; return; }
+    await load();
+    repairing = false;
   }
 
   // ---------- aðgerðir ----------
@@ -141,8 +169,9 @@
 
   // Hvað er í reitunum núna?
   function current() {
-    const kind = $('kind') ? $('kind').value : '';
+    let kind = $('kind') ? $('kind').value : '';
     const raw = kind === 'chart' ? '' : ($('value') ? $('value').value.trim() : '');
+    if (kind !== 'chart' && isPl(raw)) kind = 'playlist';
     return { kind, raw };
   }
   const LABEL = { playlist: 'Vista lagalista', search: 'Vista leit', artists: 'Vista flytjendur' };
@@ -240,6 +269,7 @@
 
   // Kallað af host.js / bingo-host.js eftir að lög hafa verið sótt
   async function afterFetch(kind, rawValue, pool) {
+    if (kind !== 'chart' && isPl(rawValue)) kind = 'playlist';
     if (kind === 'chart' || !String(rawValue || '').trim()) { activeKey = ''; lastFetch = null; render(); return; }
     activeKey = keyOf(kind, rawValue);
     lastFetch = { key: activeKey, pool };
@@ -247,7 +277,9 @@
     render();
     if (missing) return;
     const value = canon(kind, rawValue);
-    if (list.some(t => t.kind === kind && t.value === value)) {
+    const hit = list.find(t => t.kind === kind && t.value === value);
+    if (hit && hit._legacy) { repairLegacy(); return; }
+    if (hit) {
       // Þegar vistað: merkja sem nýlega notað (hljóðlega, ef PIN er þekkt)
       if (pin()) { try { await rpc('save_theme', { p_pin: pin(), p_kind: kind, p_value: value, p_name: '', p_cover: '', p_count: pool ? pool.length : null }); load(); } catch (e) {} }
     } else if (LABEL[kind]) {
@@ -256,8 +288,26 @@
   }
 
   saveBtn.addEventListener('click', onSave);
-  if ($('value')) $('value').addEventListener('input', () => { saveBtn.classList.remove('nudge'); if (!/^Sæki/.test(saveLine.textContent)) status(''); syncBtn(); });
-  if ($('kind')) $('kind').addEventListener('change', () => { status(''); syncBtn(); });
+  function autoKind() {
+    const v = $('value').value;
+    if ($('kind').value !== 'playlist' && isPl(v)) {
+      $('kind').value = 'playlist';
+      $('kind').dispatchEvent(new Event('change'));
+      status('Þetta er slóð á Deezer-lagalista, svo ég valdi „Deezer-lagalista“.', 'muted');
+      return true;
+    }
+    if (window.PQDeezer && PQDeezer.isShortLink && PQDeezer.isShortLink(v)) {
+      status('Þetta er stutt deilislóð úr Deezer-appinu. Opnaðu hana í vafra og afritaðu slóðina úr veffangastikunni.', 'bad');
+      return true;
+    }
+    return false;
+  }
+  if ($('value')) $('value').addEventListener('input', () => {
+    saveBtn.classList.remove('nudge');
+    if (!autoKind() && !/^Sæki/.test(saveLine.textContent)) status('');
+    syncBtn();
+  });
+  if ($('kind')) $('kind').addEventListener('change', e => { if (e.isTrusted) status(''); syncBtn(); });
 
   box.addEventListener('click', async e => {
     if (e.target.closest('[data-th-all]')) { showAll = !showAll; render(); return; }
@@ -285,6 +335,7 @@
     const t = list.find(x => x.id === card.getAttribute('data-th'));
     if (!t) return;
     // Setja þemað inn og sækja lögin
+    saveLine.innerHTML = '';
     $('kind').value = t.kind;
     $('kind').dispatchEvent(new Event('change'));
     if (t.kind === 'chart') { if ($('genre')) $('genre').value = t.value; }

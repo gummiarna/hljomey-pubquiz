@@ -60,10 +60,18 @@
     const m = String(input).match(/playlist\/(\d+)/) || String(input).match(/^\s*(\d{4,})\s*$/);
     return m ? m[1] : null;
   }
+  // Er þetta slóð á Deezer-lagalista? (t.d. deezer.com/en/playlist/123)
+  function isPlaylistUrl(input) { return /deezer\.com\/.*playlist\/\d+/i.test(String(input || '')); }
+  // Stuttar deilislóðir úr Deezer-appinu er ekki hægt að lesa beint
+  function isShortLink(input) { return /(deezer\.page\.link|link\.deezer\.com|dzr\.page\.link)/i.test(String(input || '')); }
+  const SHORT_MSG = 'Þetta er stutt deilislóð úr Deezer-appinu. Opnaðu hana í vafra og afritaðu slóðina úr veffangastikunni (deezer.com/…/playlist/…).';
 
   // Sækir lagalista (pool) eftir tegund þema
   async function fetchPool(kind, value) {
     let raw = [];
+    value = String(value || '');
+    if (isShortLink(value)) throw new Error(SHORT_MSG);
+    if (kind !== 'chart' && isPlaylistUrl(value)) kind = 'playlist';   // slóð á lagalista virkar óháð vali
     if (kind === 'search') {
       if (!value.trim()) throw new Error('Sláðu inn leitarorð.');
       raw = await paged('/search', { q: value.trim() }, 200);
@@ -101,5 +109,5 @@
     return t && t.preview;
   }
 
-  window.PQDeezer = { dz, fetchPool, refreshPreview, cleanTitle, playlistId, playlistInfo };
+  window.PQDeezer = { dz, fetchPool, refreshPreview, cleanTitle, playlistId, playlistInfo, isPlaylistUrl, isShortLink };
 })();
