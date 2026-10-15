@@ -19,10 +19,11 @@ Tímalínuleikur í anda Hitster. Lag er spilað og hver leikmaður setur það 
 3. **Spotify-forrit** (gert einu sinni, þarf **Spotify Premium**). Án Spotify spilar leikurinn 30 sek. búta frá Deezer.
    1. Farðu á **developer.spotify.com/dashboard**, skráðu þig inn með Spotify-reikningnum og smelltu á **Create app**.
    2. Nafn og lýsing: t.d. „Hljómey Hvaða ár“. Undir **Redirect URIs** bætirðu við báðum: `https://hljomey.is/pubquiz/hvadaar.html` og `https://www.hljomey.is/pubquiz/hvadaar.html`.
-   3. Undir **Which API/SDKs are you planning to use?** hakarðu við **Web API**, samþykkir skilmálana og smellir á **Save**.
+   3. Undir **Which API/SDKs are you planning to use?** hakarðu við **Web API** og **Web Playback SDK**, samþykkir skilmálana og smellir á **Save**.
    4. Opnaðu forritið → **Settings** → afritaðu **Client ID**. (Client secret er ekki notað.)
    5. Opnaðu **hljomey.is/pubquiz/hvadaar.html**. Skrifaðu PIN-ið í **3. Stillingar** ef það er ekki þegar þar. Farðu svo í **1. Hljóð** → límdu Client ID inn → **Vista** → **Tengja Spotify** og samþykktu.
-   6. Ef aðrir eiga að geta tengst með sínum Spotify-reikningi: forritið → **User Management** → bættu netfanginu þeirra við (mest 5 í þróunarham).
+   6. Smelltu á **Prófa Spotify**. Það spilar eitt lag í 8 sek. og finnur hvaða leið virkar á tækinu þínu. Ef ✗ birtist sýnir ferillinn hvar það stoppar.
+   7. Ef aðrir eiga að geta tengst með sínum Spotify-reikningi: forritið → **User Management** → bættu netfanginu þeirra við (mest 5 í þróunarham).
 4. **Lagabankinn** (gert einu sinni, tekur nokkrar mínútur): smelltu á **Opna lagabankann** → **Sækja byrjunarlista**. Þá er um 215 lögum (um 80 íslenskum) flett upp á Spotify, MusicBrainz og Deezer til að finna útgáfuárið.
    - **Grænt** = staðfest ár. **Appelsínugult** = heimildum ber ekki saman, athugaðu. **Rautt** = ár vantar.
    - Smelltu á tillögu (t.d. „MusicBrainz 1984“) til að velja það ár, eða skrifaðu árið sjálfur og ýttu á ✓. ▶ spilar lagið.

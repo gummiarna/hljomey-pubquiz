@@ -310,7 +310,7 @@
     if (!SP.cid) {
       box.innerHTML = `<p style="margin:0 0 6px">Til að spila heil lög þarf að tengja Spotify (Premium) einu sinni. Annars eru notaðir 30 sek. bútar frá Deezer.</p>
         <ol class="setup-steps"><li>Farðu á <b>developer.spotify.com/dashboard</b> og skráðu þig inn → <b>Create app</b>.</li>
-          <li>Nafn: t.d. „Hljómey Hvaða ár“. Undir <b>Redirect URIs</b>: <code>${esc(SP.redirect())}</code>. Hakaðu við <b>Web API</b> → <b>Save</b>.</li>
+          <li>Nafn: t.d. „Hljómey Hvaða ár“. Undir <b>Redirect URIs</b>: <code>${esc(SP.redirect())}</code>. Hakaðu við <b>Web API</b> og <b>Web Playback SDK</b> → <b>Save</b>.</li>
           <li>Afritaðu <b>Client ID</b> og límdu hér, ásamt PIN-inu.</li></ol>
         <div class="row" style="margin-top:10px"><div class="grow"><label for="cid">Spotify Client ID</label><input type="text" id="cid" autocomplete="off" spellcheck="false"></div><button class="btn" id="cidSave">Vista</button></div>${modeRow}`;
       $('cidSave').onclick = async () => {
