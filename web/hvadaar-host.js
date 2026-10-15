@@ -73,6 +73,7 @@
       const tk = await this.access();
       const r = await fetch('https://api.spotify.com/v1' + path, { method: opt.method || 'GET', body: opt.body,
         headers: Object.assign({ Authorization: 'Bearer ' + tk }, opt.body ? { 'Content-Type': 'application/json' } : {}) });
+      this.lastStatus = r.status;
       if (r.status === 429) { await sleep(((+r.headers.get('Retry-After')) || 2) * 1000); return this.api(path, opt); }
       if (r.status === 204 || r.status === 202) return null;
       const d = await r.json().catch(() => ({}));
@@ -96,13 +97,17 @@
       }
       return out;
     },
-    async search(q) { const d = await this.api('/search?' + new URLSearchParams({ q, type: 'track', limit: 10 })); return (d && d.tracks && d.tracks.items) || []; },
+    async search(q) { const d = await this.api('/search?' + new URLSearchParams({ q, type: 'track', limit: 10, market: 'from_token' })); return (d && d.tracks && d.tracks.items) || []; },
     play(dev, uri, pos) { return this.api('/me/player/play' + (dev ? '?device_id=' + encodeURIComponent(dev) : ''), { method: 'PUT', body: JSON.stringify({ uris: [uri], position_ms: pos || 0 }) }); },
     state() { return this.api('/me/player'); },
-    transfer(dev) { return this.api('/me/player', { method: 'PUT', body: JSON.stringify({ device_ids: [dev], play: false }) }); },
-    // Spilar lag og gengur úr skugga um að það fari í raun af stað. Spotify svarar oft „OK“ (204/202)
-    // þótt tæki í dvala geri ekkert, svo tækið er vakið (transfer), staðan lesin og reynt aftur.
+    transfer(dev, play) { return this.api('/me/player', { method: 'PUT', body: JSON.stringify({ device_ids: [dev], play: !!play }) }); },
+    seek(dev, pos) { return this.api('/me/player/seek?position_ms=' + (pos || 0) + '&device_id=' + encodeURIComponent(dev), { method: 'PUT' }); },
+    // Spilar lag og gengur úr skugga um að það fari í raun af stað. Spotify svarar „OK“ (204/202) þótt
+    // tæki í dvala geri ekkert, svo tækið er vakið, beðið eftir að það verði virkt og staðan lesin.
+    // Skráir hvert skref í e.diag svo villuboðin segi nákvæmlega hvað Spotify gerði.
     async playSure(uri, pos, title) {
+      const log = [], note = t => log.push(t);
+      const fail = (msg, e) => { const x = e || new Error(msg); if (msg && e) x.message = msg; x.diag = log.join(' → '); return x; };
       const ds = await this.devices();
       let d = ds.find(x => x.id === A.dev) || ds.find(x => A.devName && x.name === A.devName) || (!A.dev && (ds.find(x => x.is_active) || ds[0]));
       if (!d) {
@@ -111,21 +116,41 @@
       }
       if (d.id !== A.dev) setDev(d);
       if (d.is_restricted) throw new Error(`Spotify leyfir ekki fjarstýringu á „${d.name}“. Veldu annað tæki.`);
-      const playing = st => st && st.is_playing && st.item && (st.item.uri === uri || (title && norm(st.item.name) === norm(title)));
-      if (!d.is_active) { try { await this.transfer(d.id); } catch (e) { /* reynt samt */ } await sleep(900); }
-      let last = null;
-      for (let i = 0; i < 3; i++) {
-        try { await this.play(d.id, uri, pos); last = null; }
-        catch (e) { last = e; if (e.status === 401 || e.status === 403) throw e; }
-        for (let k = 0; k < 5; k++) {
-          await sleep(500);
-          let st = null; try { st = await this.state(); } catch (e) { /* lesið aftur */ }
-          if (playing(st)) return d;
-        }
-        if (i < 2) { try { await this.transfer(d.id); } catch (e) { /* reynt aftur */ } await sleep(1200); }
+      const step = async (label, fn) => { try { await fn(); note(`${label} ${this.lastStatus}`); return null; } catch (e) { note(`${label} ${e.status || 'villa'}`); return e; } };
+      const waitActive = async () => {
+        for (let k = 0; k < 10; k++) { try { const x = (await this.devices()).find(y => y.id === d.id); if (x && x.is_active) return true; } catch (e) { /* aftur */ } await sleep(500); }
+        return false;
+      };
+      if (!d.is_active) {
+        await step('vekja', () => this.transfer(d.id, false));
+        note(await waitActive() ? 'virkt' : 'varð ekki virkt');
       }
-      if (last) throw last;
-      throw new Error(`Spotify tók við skipuninni en ekkert fór að spila á „${d.name}“. Spilaðu eitthvað stutt í Spotify á því tæki og reyndu aftur.`);
+      let prev = null; try { prev = await this.state(); } catch (e) { /* ekkert */ }
+      const prevUri = prev && prev.item && prev.item.uri;
+      const tn = norm(title);
+      const isOn = st => st && st.is_playing && st.item && (st.item.uri === uri || (tn && norm(st.item.name) === tn) || (!!prevUri && st.item.uri !== prevUri));
+      const desc = st => !st ? 'ekkert virkt tæki' : `${(st.device && st.device.name) || '?'}: ${st.is_playing ? 'spilar' : 'spilar ekki'}, ${st.item ? '„' + st.item.name + '“' : 'ekkert lag'}`;
+      const watch = async () => { let st = null; for (let k = 0; k < 10; k++) { await sleep(500); try { st = await this.state(); } catch (e) { st = null; } if (isOn(st)) return true; } note(desc(st)); return false; };
+      // 1) venjuleg skipun, 2) án upphafsstöðu og svo spólað, 3) tækið vakið með spilun og reynt aftur
+      const tries = [
+        ['spila', async () => this.play(d.id, uri, pos)],
+        ['spila frá byrjun', async () => { await this.play(d.id, uri, 0); if (pos) { await sleep(800); await this.seek(d.id, pos).catch(() => {}); } }],
+        ['vekja+spila', async () => { await this.transfer(d.id, true).catch(() => {}); await waitActive(); await this.play(d.id, uri, pos); }]
+      ];
+      let last = null;
+      for (const [label, fn] of tries) {
+        const e = await step(label, fn);
+        if (e) { last = e; if (e.status === 401 || e.status === 403) throw fail(null, e); continue; }
+        last = null;
+        if (await watch()) return d;
+      }
+      // Er lagið spilanlegt á Íslandi?
+      try {
+        const id = uri.split(':').pop(), t = await this.api(`/tracks/${id}?market=from_token`);
+        if (t && t.is_playable === false) throw fail(`Lagið „${title || t.name}“ er ekki spilanlegt í þínu landi á Spotify.`);
+      } catch (e) { if (e.diag) throw e; }
+      if (last) throw fail(null, last);
+      throw fail(`Spotify tók við skipuninni en ekkert fór að spila á „${d.name}“.`);
     },
     pause(dev) { return this.api('/me/player/pause' + (dev ? '?device_id=' + encodeURIComponent(dev) : ''), { method: 'PUT' }); },
     resume(dev) { return this.api('/me/player/play' + (dev ? '?device_id=' + encodeURIComponent(dev) : ''), { method: 'PUT' }); }
@@ -331,7 +356,11 @@
       const d = await SP.playSure(uri, A.startMs, s.title);
       say(`✓ Spotify spilar „${s.title}“ á ${d.name}. Stöðvast eftir 8 sek.`);
       setTimeout(() => { SP.pause(d.id).catch(() => {}); }, 8000);
-    } catch (e) { say('✗ ' + e.message, true); }
+    } catch (e) {
+      say('✗ ' + e.message, true);
+      out.innerHTML += (e.diag ? `<br><small style="opacity:.8">Ferill: ${esc(e.diag)}</small>` : '')
+        + '<br><small style="opacity:.8">Ráð: í developer.spotify.com → forritið → <b>Settings → Edit</b>, hakaðu líka við <b>Web Playback SDK</b> og vistaðu. Smelltu svo á <b>Aftengja</b> og <b>Tengja Spotify</b> hér og prófaðu aftur.</small>';
+    }
     btn.disabled = false;
   }
   async function loadDevices() {
