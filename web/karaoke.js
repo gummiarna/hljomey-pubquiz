@@ -223,7 +223,8 @@
     if (f) f.addEventListener('submit', e => { e.preventDefault(); const c = document.getElementById('cin').value.trim().toUpperCase(); if (c) location.href = 'karaoke.html?k=' + encodeURIComponent(c); });
   }
   function guestName() {
-    app.innerHTML = `<div class="center-wrap">
+    app.innerHTML = `<div class="kk-top"><div class="brand">Hljómey</div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="gitar.html">Gítarpartý</a><a class="on" href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a></nav></div>
+      <div class="center-wrap">
       <svg class="mic-art" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#2a2340"/><rect x="38" y="18" width="20" height="36" rx="10" fill="#ff5fa2"/><path d="M28 46a20 20 0 0 0 40 0M48 66v10M38 78h20" fill="none" stroke="#ffb938" stroke-width="5" stroke-linecap="round"/></svg>
       <div class="brand">Hljómey <span>Karaoke</span></div><p>Veldu lag, hlustaðu á útgáfurnar og settu þig í röðina.</p>
       <form class="card" id="nf"><label for="nin">Hvað heitirðu?</label><input type="text" id="nin" maxlength="40" autocomplete="nickname" placeholder="t.d. Gummi" value="${esc(G.name)}"><div style="height:12px"></div><button class="btn">Áfram</button></form></div>`;
@@ -345,7 +346,8 @@
       store.del('kk_host');
     }
     const missing = c.error && isMissing(c.error);
-    app.innerHTML = `<div class="center-wrap">
+    app.innerHTML = `<div class="kk-top"><div class="brand">Hljómey</div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="gitar.html">Gítarpartý</a><a class="on" href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a></nav></div>
+      <div class="center-wrap">
       <svg class="mic-art" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#2a2340"/><rect x="38" y="18" width="20" height="36" rx="10" fill="#ff5fa2"/><path d="M28 46a20 20 0 0 0 40 0M48 66v10M38 78h20" fill="none" stroke="#ffb938" stroke-width="5" stroke-linecap="round"/></svg>
       <div class="brand">Hljómey <span>Karaoke</span></div>
       <p>Opnaðu þessa síðu á sjónvarpinu eða tölvunni sem er tengd við það. Gestir skanna QR-kóðann, finna lag á YouTube og fara í röðina.</p>
