@@ -74,7 +74,18 @@
     $('potPanel').classList.remove('hidden');
     $('potCount').textContent = `– ${S.pot.length} lög`;
     $('potGrid').innerHTML = S.pot.map(t => `<div><b>${esc(t.title)}</b> · ${esc(t.artist)}</div>`).join('');
+    $('lbInfo').innerHTML = `<b>${S.pot.length} lög í pottinum</b> · ${gridLabel()} spjald`;
+    $('createBtn').disabled = false;
   }
+  // Lögin eru falin sjálfgefið svo að enginn sjái þau ef skjárinn sést
+  let listOpen = false;
+  $('listToggle').onclick = () => {
+    listOpen = !listOpen;
+    $('potGrid').classList.toggle('hidden', !listOpen);
+    $('listHidden').classList.toggle('hidden', listOpen);
+    $('listToggle').textContent = listOpen ? 'Fela lögin' : 'Sýna lögin';
+    $('listToggle').setAttribute('aria-expanded', String(listOpen));
+  };
   $('reshuffleBtn').onclick = pickPot;
   $('potSize').addEventListener('change', () => { if (S.pool.length >= cardSongs()) pickPot(); });
 
@@ -123,7 +134,7 @@
       store.set('pq_bingo_host', { game_id: res.game_id, host_token: res.host_token, gap: +$('gap').value, reveal: $('reveal').checked });
       await loadGame(res.game_id, res.host_token, +$('gap').value, $('reveal').checked);
     } catch (e) { showErr('createErr', e.message); }
-    $('createBtn').disabled = false;
+    $('createBtn').disabled = !S.pot.length;
   };
 
   async function loadGame(gameId, token, gap, reveal) {

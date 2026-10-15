@@ -208,6 +208,7 @@ Efst á stjórnandasíðunni er hnappur til að skipta á milli leikjanna. QR-k�
 
 - [ ] **Opnaðu Supabase deginum áður.** Ókeypis verkefni fara í dvala eftir 7 daga án notkunar. Ef það gerist: skráðu þig inn og smelltu á **Restore project**.
 - [ ] Tölvan tengd við skjávarpa og hátalara. Smelltu á **Fullur skjár**.
+- [ ] Lögin og spurningarnar eru falin á uppsetningarsíðunni svo enginn sjái svörin á skjánum. **Búa til leik** er alltaf neðst á skjánum, svo það þarf ekki að skruna framhjá listanum. **Sýna listann** opnar hann ef þú vilt fara yfir hann.
 - [ ] Gestir þurfa netsamband í símanum (Wi-Fi eða 4G/5G).
 - [ ] Prófaðu hljóðið með ▶ áður en gestir mæta.
 - [ ] Bilstöngin keyrir leikinn áfram: byrja → sýna svar → stigatafla → næsta lag → úrslit.

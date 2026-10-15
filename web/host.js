@@ -223,11 +223,29 @@
   $('pickBtn').onclick = pickRounds;
   ['mode', 'rounds', 'clip', 'qrounds'].forEach(id => $(id).addEventListener('change', autoPick));
 
+  // Listinn er falinn sjálfgefið svo að enginn sjái svörin ef skjárinn sést (t.d. á skjávarpa)
+  let listOpen = false;
+  function showList(open) {
+    listOpen = open;
+    $('trackList').classList.toggle('hidden', !open);
+    $('listHidden').classList.toggle('hidden', open);
+    $('listToggle').textContent = open ? 'Fela listann' : 'Sýna listann';
+    $('listToggle').setAttribute('aria-expanded', String(open));
+  }
+  $('listToggle').onclick = () => showList(!listOpen);
+  function updateLaunch() {
+    const nQ = S.rounds.filter(isQ).length, nM = S.rounds.length - nQ;
+    const parts = []; if (nM) parts.push(`${nM} ${nM === 1 ? 'lag' : 'lög'}`); if (nQ) parts.push(`${nQ} ${nQ === 1 ? 'spurning' : 'spurningar'}`);
+    $('lbInfo').innerHTML = S.rounds.length ? `<b>${S.rounds.length} umferðir tilbúnar</b> · ${parts.join(' og ')}` : 'Veldu þema eða spurningar til að byrja.';
+    $('createBtn').disabled = !S.rounds.length;
+  }
   function renderTrackList() {
     $('roundsPanel').classList.toggle('hidden', !S.rounds.length);
     const hasQ = S.rounds.some(isQ), hasM = S.rounds.some(r => !isQ(r));
     $('roundsTitle').textContent = hasQ && hasM ? 'Umferðirnar' : hasQ ? 'Spurningarnar' : 'Lögin';
     $('roundsSub').textContent = hasQ && !hasM ? '– skiptu út þeim sem þér líst ekki á' : '– hlustaðu, skiptu út eða haltu áfram';
+    $('listHiddenTxt').textContent = `${hasQ && !hasM ? 'Spurningarnar eru faldar' : hasQ ? 'Umferðirnar eru faldar' : 'Lögin eru falin'} svo að enginn á skjánum sjái svörin. Smelltu á „Sýna listann“ ef þú vilt fara yfir ${hasQ && !hasM ? 'þær' : hasQ ? 'þær' : 'þau'} eða skipta út.`;
+    showList(listOpen); updateLaunch();
     $('trackList').innerHTML = S.rounds.map((r, i) => isQ(r) ? `
       <li class="qround"><span class="n">${i + 1}</span><span class="qi">?</span>
         <div class="t wrap"><b>${esc(r.meta.question)}</b><small class="muted"><span class="ok">✓ ${esc(r.meta.answer)}</span> · ${esc(r.meta.category)}</small></div>
@@ -275,7 +293,7 @@
       store.set('pq_host', { game_id: res.game_id, host_token: res.host_token });
       enterLobby();
     } catch (e) { showErr('createErr', e.message); }
-    $('createBtn').disabled = false;
+    $('createBtn').disabled = !S.rounds.length;
   };
 
   // ---------- Halda áfram eftir endurhleðslu ----------

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2026-10-15c">
-<link rel="stylesheet" href="host.css?v=2026-10-15d">
+<link rel="stylesheet" href="host.css?v=2026-10-15f">
 </head>
 <body>
 
@@ -89,12 +89,18 @@
     </div>
 
     <div class="panel step hidden" id="roundsPanel">
-      <h2><span id="roundsTitle">Lögin</span> <span class="muted" style="font-weight:400;font-size:14px" id="roundsSub">– hlustaðu, skiptu út eða haltu áfram</span></h2>
-      <ul class="tracklist" id="trackList"></ul>
-      <div class="row" style="margin-top:18px">
-        <div style="flex:0 0 200px"><label for="pin">PIN stjórnanda</label><input type="password" id="pin" autocomplete="off"></div>
-        <button class="btn" id="createBtn">Búa til leik</button>
+      <div class="secret-head">
+        <h2><span id="roundsTitle">Lögin</span> <span class="muted" style="font-weight:400;font-size:14px" id="roundsSub">– hlustaðu, skiptu út eða haltu áfram</span></h2>
+        <button class="btn ghost small" id="listToggle" aria-controls="trackList" aria-expanded="false">Sýna listann</button>
       </div>
+      <div class="secret-note" id="listHidden"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.1A10.6 10.6 0 0 1 12 5c5 0 9 4.5 10 7a12.8 12.8 0 0 1-3.2 4.3M6.1 6.1C3.9 7.6 2.5 9.8 2 12c1 2.5 5 7 10 7a10 10 0 0 0 4.9-1.3"/></svg><span id="listHiddenTxt">Listinn er falinn svo að enginn á skjánum sjái svörin.</span></div>
+      <ul class="tracklist hidden" id="trackList"></ul>
+    </div>
+
+    <div class="launchbar" id="launchBar">
+      <div class="lb-info" id="lbInfo">Veldu þema eða spurningar til að byrja.</div>
+      <input type="password" id="pin" autocomplete="off" placeholder="PIN stjórnanda" aria-label="PIN stjórnanda">
+      <button class="btn" id="createBtn" disabled>Búa til leik</button>
       <div id="createErr" class="err hidden"></div>
     </div>
   </div>
@@ -159,6 +165,6 @@
 <script src="common.js?v=2026-10-15g"></script>
 <script src="deezer.js?v=2026-10-15c"></script>
 <script src="themes.js?v=2026-10-15c"></script>
-<script src="host.js?v=2026-10-15c"></script>
+<script src="host.js?v=2026-10-15d"></script>
 </body>
 </html>

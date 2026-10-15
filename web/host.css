@@ -134,3 +134,17 @@ body { overflow: hidden; }
 .qanswer p { font-size: clamp(16px, 1.7vw, 30px); max-width: 1200px; margin: 1.4vh auto 0; line-height: 1.35; opacity: .92; }
 .topline .modes { min-width: 0; }
 .topline .brand { flex: 0 0 auto; }
+
+/* Falinn listi (svörin sjást ekki á stóra skjánum) og föst „Búa til leik“-stika neðst */
+.secret-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.secret-head h2 { margin: 0; }
+.secret-note { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 14px 16px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); font-size: 15px; }
+.secret-note svg { flex: 0 0 auto; color: var(--accent); }
+.launchbar { position: sticky; bottom: 0; z-index: 6; margin: 18px -4px 0; padding: 12px 14px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 -10px 30px rgba(0,0,0,.35); }
+.launchbar .lb-info { flex: 1 1 220px; min-width: 0; font-size: 15px; color: var(--muted); }
+.launchbar .lb-info b { color: var(--text); }
+.launchbar input { width: 170px; }
+.launchbar .err { flex-basis: 100%; margin: 0; }
+@media (max-width: 560px) { .launchbar { padding: 10px 12px; gap: 8px 10px; } .launchbar .lb-info { flex-basis: 100%; } .launchbar input { flex: 1 1 100px; width: auto; min-width: 0; } .launchbar .btn { flex: 0 0 auto; } }
