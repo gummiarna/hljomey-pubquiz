@@ -1,4 +1,41 @@
 // Sameiginlegur kóði fyrir stjórnanda- og símasíðu.
+
+(function () {
+  // Valmynd leikjanna (nav.modes) verður fellilisti í símum. Virkar líka á valmyndir
+  // sem eru teiknaðar seinna með JavaScript (Gítarpartý, Hvaða ár?).
+  const pickCss = `.modes-pick{display:none;position:relative;flex:0 0 auto;min-width:0}
+.modes-pick select{appearance:none;-webkit-appearance:none;margin:0;width:auto;max-width:62vw;background:var(--accent);color:var(--accent-ink,#1b1300);border:0;border-radius:999px;padding:9px 36px 9px 16px;font:inherit;font-size:15px;font-weight:600;line-height:1.2;cursor:pointer;text-overflow:ellipsis}
+.modes-pick select:focus-visible{outline:2px solid var(--text,#fff);outline-offset:2px}
+.modes-pick select option{background:var(--bg2,var(--panel2,#1f1a2e));color:var(--text,#f6f3ff);font-weight:500}
+.modes-pick::after{content:'';position:absolute;right:16px;top:50%;width:7px;height:7px;border-right:2px solid var(--accent-ink,#1b1300);border-bottom:2px solid var(--accent-ink,#1b1300);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+@media (max-width:760px){nav.modes[data-pick]{display:none!important}.modes-pick{display:block}.modes-has-pick .brand span{display:none}}`;
+  function modesMenu() {
+    document.querySelectorAll('nav.modes:not([data-pick])').forEach(nav => {
+      const links = Array.from(nav.querySelectorAll('a[href]'));
+      if (links.length < 3) return;
+      if (!document.getElementById('modes-pick-css')) {
+        const st = document.createElement('style'); st.id = 'modes-pick-css'; st.textContent = pickCss; document.head.appendChild(st);
+      }
+      nav.dataset.pick = '1';
+      const wrap = document.createElement('div'); wrap.className = 'modes-pick';
+      const sel = document.createElement('select'); sel.setAttribute('aria-label', 'Velja leik');
+      links.forEach(a => { const o = new Option(a.textContent.trim(), a.getAttribute('href')); if (a.classList.contains('on')) { o.selected = true; sel.dataset.cur = o.value; } sel.add(o); });
+      sel.onchange = () => { if (sel.value && sel.value !== sel.dataset.cur) location.href = sel.value; };
+      wrap.appendChild(sel); nav.after(wrap);
+      if (nav.parentElement) nav.parentElement.classList.add('modes-has-pick');   // í símum er nafn leiksins aðeins í fellilistanum
+    });
+  }
+  let pickPending = false;
+  const pickObs = new MutationObserver(() => {
+    if (pickPending) return; pickPending = true;
+    requestAnimationFrame(() => { pickPending = false; modesMenu(); });
+  });
+  const pickStart = () => { modesMenu(); pickObs.observe(document.body, { childList: true, subtree: true }); };
+  if (document.body) pickStart(); else document.addEventListener('DOMContentLoaded', pickStart);
+  // Til baka í vafranum: sýna aftur leikinn sem er opinn
+  window.addEventListener('pageshow', () => document.querySelectorAll('.modes-pick select').forEach(s => { if (s.dataset.cur) s.value = s.dataset.cur; }));
+})();
+
 (function () {
   const cfg = window.PQ_CONFIG || {};
   const client = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
