@@ -98,6 +98,35 @@
     },
     async search(q) { const d = await this.api('/search?' + new URLSearchParams({ q, type: 'track', limit: 10 })); return (d && d.tracks && d.tracks.items) || []; },
     play(dev, uri, pos) { return this.api('/me/player/play' + (dev ? '?device_id=' + encodeURIComponent(dev) : ''), { method: 'PUT', body: JSON.stringify({ uris: [uri], position_ms: pos || 0 }) }); },
+    state() { return this.api('/me/player'); },
+    transfer(dev) { return this.api('/me/player', { method: 'PUT', body: JSON.stringify({ device_ids: [dev], play: false }) }); },
+    // Spilar lag og gengur úr skugga um að það fari í raun af stað. Spotify svarar oft „OK“ (204/202)
+    // þótt tæki í dvala geri ekkert, svo tækið er vakið (transfer), staðan lesin og reynt aftur.
+    async playSure(uri, pos, title) {
+      const ds = await this.devices();
+      let d = ds.find(x => x.id === A.dev) || ds.find(x => A.devName && x.name === A.devName) || (!A.dev && (ds.find(x => x.is_active) || ds[0]));
+      if (!d) {
+        if (!ds.length) throw new Error('Ekkert Spotify-tæki er opið. Opnaðu Spotify á tölvunni (eða hátalaranum) og ýttu á ↻ við „Tæki“.');
+        throw new Error(`Spotify-tækið sem er valið („${A.devName || 'óþekkt'}“) finnst ekki. Opnaðu Spotify á því, eða veldu annað tæki í „Tæki“.`);
+      }
+      if (d.id !== A.dev) setDev(d);
+      if (d.is_restricted) throw new Error(`Spotify leyfir ekki fjarstýringu á „${d.name}“. Veldu annað tæki.`);
+      const playing = st => st && st.is_playing && st.item && (st.item.uri === uri || (title && norm(st.item.name) === norm(title)));
+      if (!d.is_active) { try { await this.transfer(d.id); } catch (e) { /* reynt samt */ } await sleep(900); }
+      let last = null;
+      for (let i = 0; i < 3; i++) {
+        try { await this.play(d.id, uri, pos); last = null; }
+        catch (e) { last = e; if (e.status === 401 || e.status === 403) throw e; }
+        for (let k = 0; k < 5; k++) {
+          await sleep(500);
+          let st = null; try { st = await this.state(); } catch (e) { /* lesið aftur */ }
+          if (playing(st)) return d;
+        }
+        if (i < 2) { try { await this.transfer(d.id); } catch (e) { /* reynt aftur */ } await sleep(1200); }
+      }
+      if (last) throw last;
+      throw new Error(`Spotify tók við skipuninni en ekkert fór að spila á „${d.name}“. Spilaðu eitthvað stutt í Spotify á því tæki og reyndu aftur.`);
+    },
     pause(dev) { return this.api('/me/player/pause' + (dev ? '?device_id=' + encodeURIComponent(dev) : ''), { method: 'PUT' }); },
     resume(dev) { return this.api('/me/player/play' + (dev ? '?device_id=' + encodeURIComponent(dev) : ''), { method: 'PUT' }); }
   };
@@ -187,7 +216,7 @@
     game: null, token: null, rounds: [], round: 0, phase: 'setup', players: 0, answered: 0,
     timer: null, poll: null, deadline: 0, revealing: false, lastReveal: null
   };
-  const A = { mode: store.get('ha_audio') || 'spotify', dev: store.get('ha_dev') || '', startMs: +(store.get('ha_start') || 0), el: new Audio(), paused: false };
+  const A = { mode: store.get('ha_audio') || 'spotify', dev: store.get('ha_dev') || '', devName: store.get('ha_dev_name') || '', devs: [], startMs: +(store.get('ha_start') || 0), el: new Audio(), paused: false };
 
   // =====================================================================
   //  1. Uppsetning
@@ -256,11 +285,13 @@
     } else {
       box.innerHTML = `<div class="sp-status"><span class="sp-dot on"></span><span id="spWho">Spotify er tengt</span>
           <label style="margin:0">Tæki</label><select id="spDev"><option value="">Sæki tæki…</option></select><button class="btn small ghost" id="spRef" title="Endurnýja tækjalista">↻</button>
-          <button class="btn small ghost" id="spOut">Aftengja</button></div>
-        <p class="hint" style="margin:8px 0 0">Opnaðu Spotify á tækinu sem er tengt hátölurunum (tölvu, síma eða hátalara) svo það birtist í listanum.</p>${modeRow}`;
+          <button class="btn small" id="spTest">Prófa Spotify</button><button class="btn small ghost" id="spOut">Aftengja</button></div>
+        <p class="hint" style="margin:8px 0 0">Opnaðu Spotify á tækinu sem er tengt hátölurunum (tölvu, síma eða hátalara) svo það birtist í listanum. <b>Prófa Spotify</b> spilar eitt lag í 8 sek.</p>
+        <p class="hint hidden" id="spTestRes" style="margin:6px 0 0"></p>${modeRow}`;
       $('spOut').onclick = () => { SP.logout(); renderSp(); };
       $('spRef').onclick = loadDevices;
-      $('spDev').onchange = e => { A.dev = e.target.value; store.set('ha_dev', A.dev); };
+      $('spDev').onchange = e => { const d = A.devs.find(x => x.id === e.target.value); if (d) setDev(d); };
+      $('spTest').onclick = testSpotify;
       SP.me().then(m => { const w = $('spWho'); if (w && m) w.textContent = 'Tengt: ' + (m.display_name || m.id); }).catch(e => toast(e.message, true));
       loadDevices();
     }
@@ -273,12 +304,43 @@
     };
     $('aStart').value = String(A.startMs); $('aStart').onchange = e => { A.startMs = +e.target.value; store.set('ha_start', A.startMs); };
   }
+  function setDev(d) {
+    A.dev = d.id; A.devName = d.name; store.set('ha_dev', A.dev); store.set('ha_dev_name', A.devName);
+    const sel = $('spDev'); if (sel && [...sel.options].some(o => o.value === d.id)) sel.value = d.id;
+  }
+  // Finnur lag á Spotify ef það vantar slóð (t.d. lög sem voru sótt áður en Spotify var tengt) og vistar hana í bankanum.
+  async function spFind(s, songId) {
+    const best = bestSp(await SP.search(`${s.title} artist:${s.artist}`), s.title, s.artist)
+      || bestSp(await SP.search(`${s.artist} ${s.title}`), s.title, s.artist);
+    if (!best) return null;
+    const x = fromSp(best);
+    if (songId && pin()) {
+      rpc('ha_bank_upsert', { p_pin: pin(), p_rows: [{ id: songId, spotify_uri: x.spotify_uri, isrc: x.isrc, cover: x.cover }] })
+        .then(() => { const b = (S.bank || []).find(y => y.id === songId); if (b) b.spotify_uri = x.spotify_uri; }).catch(() => {});
+    }
+    return x.spotify_uri;
+  }
+  async function testSpotify() {
+    const out = $('spTestRes'), btn = $('spTest'); if (!out) return;
+    const say = (t, bad) => { out.classList.remove('hidden'); out.className = 'hint' + (bad ? ' badline' : ''); out.textContent = t; };
+    btn.disabled = true; say('Prófa…');
+    try {
+      let s = (S.bank || []).find(x => x.spotify_uri && x.active) || null, uri = s && s.spotify_uri;
+      if (!uri) { s = { title: 'Bohemian Rhapsody', artist: 'Queen' }; uri = await spFind(s); }
+      if (!uri) throw new Error('Fann ekkert prufulag á Spotify.');
+      const d = await SP.playSure(uri, A.startMs, s.title);
+      say(`✓ Spotify spilar „${s.title}“ á ${d.name}. Stöðvast eftir 8 sek.`);
+      setTimeout(() => { SP.pause(d.id).catch(() => {}); }, 8000);
+    } catch (e) { say('✗ ' + e.message, true); }
+    btn.disabled = false;
+  }
   async function loadDevices() {
     const sel = $('spDev'); if (!sel) return;
     try {
-      const ds = await SP.devices();
-      sel.innerHTML = ds.length ? ds.map(d => `<option value="${esc(d.id)}" ${d.id === A.dev || (!A.dev && d.is_active) ? 'selected' : ''}>${esc(d.name)} (${esc(d.type)})</option>`).join('') : '<option value="">Ekkert tæki – opnaðu Spotify</option>';
-      if (ds.length && !ds.some(d => d.id === A.dev)) { A.dev = (ds.find(d => d.is_active) || ds[0]).id; store.set('ha_dev', A.dev); sel.value = A.dev; }
+      const ds = A.devs = await SP.devices();
+      sel.innerHTML = ds.length ? ds.map(d => `<option value="${esc(d.id)}">${esc(d.name)} (${esc(d.type)})</option>`).join('') : '<option value="">Ekkert tæki – opnaðu Spotify</option>';
+      const d = ds.find(x => x.id === A.dev) || ds.find(x => A.devName && x.name === A.devName) || ds.find(x => x.is_active) || ds[0];
+      if (d) setDev(d);
     } catch (e) { sel.innerHTML = '<option value="">Náði ekki í tæki</option>'; toast(e.message, true); }
   }
 
@@ -294,8 +356,8 @@
   }
   function bankSum() {
     const b = $('bankSum'); if (!b || !S.bank) return;
-    const all = S.bank, is = all.filter(s => s.lang === 'is').length, ok = all.filter(s => s.verified && s.year).length;
-    b.innerHTML = all.length ? `<span><b>${all.length}</b> lög</span><span><b>${is}</b> íslensk</span><span><b>${all.length - is}</b> erlend</span><span><b>${ok}</b> staðfest</span>${all.length - ok ? `<span class="warn"><b>${all.length - ok}</b> bíða yfirferðar</span>` : ''}`
+    const all = S.bank, is = all.filter(s => s.lang === 'is').length, ok = all.filter(s => s.verified && s.year).length, noSp = all.filter(s => !s.spotify_uri).length;
+    b.innerHTML = all.length ? `<span><b>${all.length}</b> lög</span><span><b>${is}</b> íslensk</span><span><b>${all.length - is}</b> erlend</span><span><b>${ok}</b> staðfest</span>${SP.connected() && noSp ? `<span class="warn"><b>${noSp}</b> ekki tengd Spotify</span>` : ''}${all.length - ok ? `<span class="warn"><b>${all.length - ok}</b> bíða yfirferðar</span>` : ''}`
       : '<span>Lagabankinn er tómur. Opnaðu hann og sæktu byrjunarlistann eða Spotify-lagalista.</span>';
     deckInfo();
   }
@@ -312,11 +374,12 @@
     ov.innerHTML = `<div class="bank-top"><h2>Lagabankinn</h2><button class="btn small ghost" id="bkClose">Loka</button></div>
       <div class="bank-tools">
         <input type="search" id="bkQ" placeholder="Leita að lagi eða flytjanda">
-        <select id="bkF"><option value="">Öll lög</option><option value="todo">Bíða yfirferðar</option><option value="ok">Staðfest</option><option value="is">Íslensk</option><option value="erl">Erlend</option><option value="off">Óvirk</option></select>
+        <select id="bkF"><option value="">Öll lög</option><option value="todo">Bíða yfirferðar</option><option value="ok">Staðfest</option><option value="is">Íslensk</option><option value="erl">Erlend</option><option value="off">Óvirk</option><option value="nosp">Ekki á Spotify</option></select>
         <button class="btn small" id="bkStart">Sækja byrjunarlista</button>
         <button class="btn small ghost" id="bkPl">Úr Spotify-lagalista</button>
         <button class="btn small ghost" id="bkAdd">+ Bæta við lagi</button>
         <button class="btn small ghost" id="bkAgree">Staðfesta samhljóða</button>
+        ${SP.connected() ? '<button class="btn small ghost" id="bkSp">Finna á Spotify</button>' : ''}
       </div>
       <div class="bank-prog hidden" id="bkProg"><span id="bkProgT"></span><span class="bar"><i id="bkBar"></i></span><button class="btn small ghost" id="bkStop">Stöðva</button></div>
       <div class="bank-list" id="bkList"></div>`;
@@ -327,6 +390,7 @@
     $('bkPl').onclick = importPlaylist;
     $('bkAdd').onclick = addSong;
     $('bkAgree').onclick = confirmAgreeing;
+    if ($('bkSp')) $('bkSp').onclick = findOnSpotify;
     $('bkStop').onclick = () => { if (S.job) S.job.cancel = true; };
     $('bkList').addEventListener('click', bankClick);
     $('bkList').addEventListener('change', bankChange);
@@ -342,7 +406,7 @@
     const box = $('bkList'); if (!box) return;
     const q = norm($('bkQ').value), f = $('bkF').value;
     const list = S.bank.filter(s => (!q || norm(s.title + ' ' + s.artist).includes(q)) &&
-      (!f || (f === 'todo' && (!s.verified || !s.year)) || (f === 'ok' && s.verified && s.year) || (f === s.lang) || (f === 'off' && !s.active)))
+      (!f || (f === 'todo' && (!s.verified || !s.year)) || (f === 'ok' && s.verified && s.year) || (f === s.lang) || (f === 'off' && !s.active) || (f === 'nosp' && !s.spotify_uri)))
       .sort((a, b) => (rowStatus(a) === 'ok') - (rowStatus(b) === 'ok') || a.artist.localeCompare(b.artist, 'is') || a.title.localeCompare(b.title, 'is'));
     if (!S.bank.length) { box.innerHTML = '<div class="empty2">Lagabankinn er tómur.<br>Smelltu á <b>Sækja byrjunarlista</b> (um 215 lög) eða sæktu lög úr þínum eigin Spotify-lagalista.</div>'; return; }
     if (!list.length) { box.innerHTML = '<div class="empty2">Ekkert passar við leitina.</div>'; return; }
@@ -385,7 +449,10 @@
   }
   async function previewSong(s) {
     try {
-      if (A.mode === 'spotify' && SP.connected() && s.spotify_uri) { await SP.play(A.dev, s.spotify_uri, A.startMs); toast(`Spila „${s.title}“ á Spotify.`); return; }
+      if (A.mode === 'spotify' && SP.connected()) {
+        const uri = s.spotify_uri || await spFind(s, s.id);
+        if (uri) { toast(`Set „${s.title}“ í gang á Spotify…`); const d = await SP.playSure(uri, A.startMs, s.title); toast(`Spilar á ${d.name}.`); drawBank(); return; }
+      }
       let id = s.deezer_id; if (!id) { const d = await dzInfo(s); id = d && d.deezer_id; }
       if (!id) return toast('Fann ekki hljóð fyrir lagið.', true);
       A.el.src = await PQDeezer.refreshPreview(id); A.el.currentTime = 0; await A.el.play();
@@ -411,15 +478,15 @@
     $('bkProgT').textContent = `${j.label}: ${j.done} af ${j.total}${j.note ? ' · ' + j.note : ''}`;
     $('bkBar').style.width = (j.total ? (j.done / j.total) * 100 : 0) + '%';
   }
-  async function runJob(label, items, work, note) {
+  async function runJob(label, items, work, note, finish) {
     if (S.job) return toast('Innflutningur er þegar í gangi.', true);
     const j = S.job = { label, total: items.length, done: 0, cancel: false, note };
     drawProg();
-    let batch = [], added = 0;
+    let batch = [], added = 0, saved = 0;
     const flush = async () => {
       if (!batch.length) return;
       const rows = batch; batch = [];
-      try { const r = await rpc('ha_bank_upsert', { p_pin: pin(), p_rows: rows }); added += r.added; }
+      try { const r = await rpc('ha_bank_upsert', { p_pin: pin(), p_rows: rows }); added += r.added; saved += r.added + r.updated; }
       catch (e) { toast(e.message, true); }
     };
     for (const it of items) {
@@ -430,7 +497,23 @@
     }
     await flush(); await loadBank(true);
     S.job = null; drawProg(); drawBank();
-    toast(`${label}: ${j.done} lög unnin, ${added} ný í bankanum.`);
+    toast(finish ? finish(j, saved) : `${label}: ${j.done} lög unnin, ${added} ný í bankanum.`);
+  }
+  function findOnSpotify() {
+    if (!SP.connected()) return toast('Tengdu Spotify fyrst (efst á síðunni).', true);
+    const items = (S.bank || []).filter(s => !s.spotify_uri);
+    if (!items.length) return toast('Öll lögin í bankanum eru þegar tengd Spotify.');
+    if (!confirm(`Finna ${items.length} lög á Spotify? Árin breytast ekki, aðeins tengingin við Spotify bætist við.`)) return;
+    runJob('Finna á Spotify', items, async s => {
+      const best = bestSp(await SP.search(`${s.title} artist:${s.artist}`), s.title, s.artist)
+        || bestSp(await SP.search(`${s.artist} ${s.title}`), s.title, s.artist);
+      if (!best) return null;
+      const x = fromSp(best), row = { id: s.id, spotify_uri: x.spotify_uri };
+      if (!s.isrc && x.isrc) row.isrc = x.isrc;
+      if (!s.cover && x.cover) row.cover = x.cover;
+      if (x.spYear && !(s.suggest || {}).spotify) row.suggest = { spotify: x.spYear };
+      return row;
+    }, null, (j, saved) => `Finna á Spotify: ${saved} af ${j.done} lögum fundust.` + (j.done - saved ? ' Hin spilast sem Deezer-bútar.' : ''));
   }
   function importStarter() {
     const have = new Set((S.bank || []).map(s => norm(s.artist) + '|' + norm(s.title)));
@@ -468,9 +551,14 @@
       ov.remove();
       let tracks;
       try { tracks = await SP.items(b.dataset.id); } catch (err) { return toast(err.message, true); }
-      const have = new Set((S.bank || []).map(s => norm(s.artist) + '|' + norm(s.title)));
-      const items = tracks.map(fromSp).filter(x => !have.has(norm(x.artist) + '|' + norm(x.title)));
-      if (!items.length) return toast('Öll lögin í listanum eru þegar í bankanum.');
+      const key = x => norm(x.artist) + '|' + norm(x.title);
+      const byKey = new Map((S.bank || []).map(s => [key(s), s]));
+      const all = tracks.map(fromSp);
+      const fill = all.filter(x => byKey.has(key(x)) && !byKey.get(key(x)).spotify_uri)
+        .map(x => ({ id: byKey.get(key(x)).id, spotify_uri: x.spotify_uri, isrc: x.isrc, cover: x.cover }));
+      if (fill.length) { try { await rpc('ha_bank_upsert', { p_pin: pin(), p_rows: fill }); await loadBank(true); drawBank(); } catch (err) { /* sleppt */ } }
+      const items = all.filter(x => !byKey.has(key(x)));
+      if (!items.length) return toast('Öll lögin í listanum eru þegar í bankanum.' + (fill.length ? ` ${fill.length} þeirra voru tengd Spotify.` : ''));
       runJob('Spotify-lagalisti', items, s => enrich(Object.assign(s, { lang })), 'MusicBrainz leyfir eitt lag á sekúndu');
     });
   }
@@ -643,9 +731,12 @@
   async function playRound(r, again) {
     A.paused = false; $('pauseB') && ($('pauseB').textContent = '❚❚ Pása');
     const m = r.meta || {};
-    if (A.mode === 'spotify' && SP.connected() && m.spotify_uri) {
-      try { await SP.play(A.dev, m.spotify_uri, A.startMs); return; }
-      catch (e) { toast(e.message + (m.deezer_id || m.isrc ? ' Spila Deezer-bút í staðinn.' : ''), true); }
+    if (A.mode === 'spotify' && SP.connected()) {
+      try {
+        if (!m.spotify_uri) m.spotify_uri = await spFind(r, r.song_id);
+        if (m.spotify_uri) { await SP.playSure(m.spotify_uri, A.startMs, r.title); return; }
+        toast('Lagið fannst ekki á Spotify. Spila 30 sek. bút frá Deezer.', true);
+      } catch (e) { toast(e.message + ' Spila Deezer-bút í staðinn.', true); }
     }
     try {
       let id = m.deezer_id;
@@ -762,5 +853,5 @@
     try { const c = await rpc('ha_config', {}); SP.cid = c.spotify_client_id || ''; await SP.callback(); } catch (e) { /* setupView sýnir villuna */ }
     setupView();
   })();
-  window.__HA_H = { S, A, SP, decide, bestSp, norm };
+  window.__HA_H = { S, A, SP, decide, bestSp, norm, loadBank };
 })();
