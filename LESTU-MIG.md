@@ -3,7 +3,29 @@
 Leikirnir þrír, Pöbbkviss, Tónlistarbingó og Gítarpartý, eru settir upp saman. Þeir samanstanda af tveimur hlutum:
 
 - **Supabase** (ókeypis): gagnagrunnur og rauntími sem tengir síma og stóra skjáinn.
-- **Vefsíðan** (18 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+- **Vefsíðan** (20 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+
+---
+
+## Uppfærsla: Karaoke (október 2026, til heimanota)
+
+Karaoke með YouTube: sjónvarpið spilar karaoke-myndbönd og gestir velja lög í símanum. Gestir leita á YouTube, hlusta á útgáfurnar í símanum, velja eina og fara í biðröðina. Öll lög sem eru valin fara á **lagalistann**, svo það má velja þau aftur seinna án þess að leita.
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald `karaoke.sql` → **Run**.
+2. **Bluehost**: hladdu upp í `public_html/pubquiz` og skrifaðu yfir:
+   - Nýjar: `karaoke.html`, `karaoke.js`
+   - Breyttar: `common.js`, `player.js`, `index.html`, `stjorn.html`, `bingo-stjorn.html`, `gitar.html`
+3. **YouTube-lykill** (ókeypis, gert einu sinni). Leitin þarf lykil frá Google:
+   1. Farðu á **console.cloud.google.com** og skráðu þig inn með Google-reikningi.
+   2. Búðu til verkefni, t.d. „Hljomey karaoke“.
+   3. **APIs & Services → Library** → leitaðu að **YouTube Data API v3** → **Enable**.
+   4. **APIs & Services → Credentials → Create credentials → API key**.
+   5. Smelltu á lykilinn og takmarkaðu hann: undir **Application restrictions** veldu **Websites** og bættu við `https://hljomey.is/*` og `https://www.hljomey.is/*`. Undir **API restrictions** veldu **Restrict key** → **YouTube Data API v3**. **Save**.
+   6. Opnaðu **hljomey.is/pubquiz/karaoke.html** → **Stillingar** → límdu lykilinn inn ásamt PIN-inu → **Vista og prófa**.
+
+**Svona er þetta notað:** Opnaðu **hljomey.is/pubquiz/karaoke.html** á sjónvarpinu (eða tölvu sem er tengd við það) og smelltu á **Byrja karaoke-kvöld**. Gestir skanna QR-kóðann. Á milli laga birtist „Næst á svið“ í nokkrar sekúndur og svo byrjar næsta lag sjálfkrafa. Bilstöngin setur á pásu. Þú getur raðað biðröðinni, sett lag strax á svið eða tekið lag af lista.
+
+YouTube leyfir um 100 leitir á dag með ókeypis lyklinum. Leitir eru geymdar í símanum í sólarhring, lagalistinn kostar engar leitir og það má alltaf líma inn YouTube-slóð í leitarreitinn.
 
 ---
 
@@ -64,9 +86,9 @@ Ef Pöbbkvissið og bingóið eru þegar uppsett á hljomey.is þarftu aðeins �
 4. Afritaðu allt innihald `setup.sql`, límdu það inn og smelltu á **Run**.
 5. Þú átt að sjá **Success. No rows returned**.
 6. Smelltu aftur á **New query**, límdu inn allt innihald `bingo.sql` og smelltu á **Run**. Þetta bætir bingóinu við og notar sama PIN.
-7. Gerðu það sama við `gitar.sql` (Gítarpartý), `themes.sql` (vistuð þemu) og `spurningar.sql` (spurningabanki). Öll nota sama PIN.
+7. Gerðu það sama við `gitar.sql` (Gítarpartý), `themes.sql` (vistuð þemu), `spurningar.sql` (spurningabanki) og `karaoke.sql` (karaoke). Öll nota sama PIN.
 
-Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql`, `themes.sql` og `spurningar.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
+Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql` og `karaoke.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna.
 
 Viltu breyta PIN-inu síðar? Keyrðu þessa línu í SQL Editor:
 
@@ -93,8 +115,8 @@ SUPABASE_ANON_KEY: 'sb_publishable_...',
 1. Skráðu þig inn á Bluehost → **Hosting** → **cPanel** (heitir **Advanced** í eldra viðmóti) → **File Manager**.
 2. Opnaðu möppuna **public_html** (þar er WordPress).
 3. Smelltu á **+ Folder** og búðu til möppuna **`pubquiz`**.
-4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 18 skránum úr `web`:
-   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `gitar.html`, `spurningar.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `themes.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`, `gitar-core.js`, `spurningar.js`
+4. Opnaðu `pubquiz` og smelltu á **Upload**. Hladdu upp öllum 20 skránum úr `web`:
+   `index.html`, `stjorn.html`, `bingo.html`, `bingo-stjorn.html`, `gitar.html`, `spurningar.html`, `karaoke.html`, `style.css`, `host.css`, `config.js`, `common.js`, `deezer.js`, `themes.js`, `host.js`, `player.js`, `bingo-host.js`, `bingo-player.js`, `gitar-core.js`, `spurningar.js`, `karaoke.js`
 5. Þetta hefur engin áhrif á WordPress eða Elementor. Mappan hefur einfaldlega forgang á slóðinni /pubquiz.
 
 Slóðirnar verða:
@@ -106,6 +128,7 @@ Slóðirnar verða:
 | Stjórnandi Tónlistarbingós | **hljomey.is/pubquiz/bingo-stjorn.html** |
 | Spilari í Gítarpartýi | **hljomey.is/pubquiz/gitar.html** |
 | Spurningabankinn | **hljomey.is/pubquiz/spurningar.html** |
+| Karaoke (sjónvarpið) | **hljomey.is/pubquiz/karaoke.html** |
 
 Efst á stjórnandasíðunni er hnappur til að skipta á milli leikjanna. QR-kóðinn vísar beint á réttan leik.
 

@@ -35,6 +35,10 @@
       try {
         if (await rpc('gitar_find', { p_code: code })) { location.href = 'gitar.html?k=' + encodeURIComponent(code); return; }
       } catch (err) { /* gitar.sql ekki uppsett: halda áfram */ }
+      // Karaoke-kvöld? Þá á karaoke-síðuna.
+      try {
+        if (await rpc('karaoke_find', { p_code: code })) { location.href = 'karaoke.html?k=' + encodeURIComponent(code) + '&n=' + encodeURIComponent($('nameIn').value.trim()); return; }
+      } catch (err) { /* karaoke.sql ekki uppsett: halda áfram */ }
       // Er þetta bingókóði? Þá er farið á bingósíðuna.
       try {
         const f = await rpc('find_game', { p_code: code });

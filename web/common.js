@@ -21,7 +21,12 @@
     spurning_til: 'Þessi spurning er þegar til í bankanum.',
     svor_eins: 'Svörin fjögur verða að vera ólík.',
     spurning_fannst_ekki: 'Spurningin fannst ekki. Hún hefur kannski verið eydd.',
-    of_margar_linur: 'Of margar línur í einu (hámark 3000).'
+    of_margar_linur: 'Of margar línur í einu (hámark 3000).',
+    karaoke_fannst_ekki: 'Karaoke-kvöldið fannst ekki. Skannaðu QR-kóðann aftur.',
+    ogilt_myndband: 'Þetta YouTube-myndband virkar ekki.',
+    rodin_full: 'Biðröðin er full.',
+    ma_ekki_fjarlaegja: 'Aðeins sá sem valdi lagið (eða stjórnandinn) getur tekið það af lista.',
+    lag_fannst_ekki: 'Lagið er ekki lengur í biðröðinni.'
   };
 
   async function rpc(fn, args) {
