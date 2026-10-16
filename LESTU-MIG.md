@@ -7,6 +7,15 @@ Leikirnir, Pöbbkviss, Tónlistarbingó, Gítarpartý, Karaoke og Hvaða ár?, e
 
 ---
 
+## Uppfærsla: Óskalög í Gítarpartýi (október 2026)
+
+Gestir í Gítarpartýi geta óskað eftir lögum úr söngbókinni og sent inn lög sem vantar, til dæmis afrituð af gítarsíðu. Innsend lög fara strax í söngbókina, merkt **Frá gesti**, og á óskalistann. Þú lagar þau svo þegar þér hentar.
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald `gitar.sql` → **Run**. Keyrðu svo **`gestapin.sql`** aftur á eftir (þú átt eintakið með gestapininu frá því síðast).
+2. **Bluehost**: hladdu upp `gitar.html`.
+
+---
+
 ## Uppfærsla: Gestapin (október 2026)
 
 Gestapin er annað PIN sem þú getur lánað öðrum. Með því má búa til og stýra Pöbbkvissi (líka með spurningum), Tónlistarbingói og Hvaða ár?. Karaoke og Gítarpartý þurfa ekkert PIN til að byrja. Gestapin má **ekki** breyta spurningabankanum, lagabankanum í Hvaða ár?, söngbókinni, YouTube-lyklinum, Spotify-stillingunum eða endurnefna og eyða þemum. Þá birtast skilaboð um að aðal-PIN þurfi.
@@ -263,6 +272,15 @@ Spilarinn fær lögin með hljómum, og allir sem skanna QR-kóðann fylgjast me
 7. QR-takkinn efst sýnir kóðann aftur í fullri stærð. Örvalyklar og fótstig (síðuflettarar) fletta á milli laga.
 8. Ef síminn eða tölvan endurræsist: opnaðu gitar.html aftur og veldu **Halda áfram**.
 9. **Prenta valin lög** býr til söngbók með einu lagi á síðu. Í prentglugganum má velja **Vista sem PDF**.
+
+**Óskalög**
+
+1. **Gestir óska**: í símanum opna þeir lagalistann (☰). Undir **Í kvöld** eru lög kvöldsins og undir **Öll lög** öll söngbókin. Hjartað við lag sendir ósk, og gestur getur sett nafnið sitt með. Ef fleiri óska eftir sama lagi safnast hjörtun saman.
+2. **Gestir senda inn lag**: neðst í lagalistanum er **Senda inn lag sem vantar**. Þar líma þeir lagið með hljómum af gítarsíðu (gitargrip.is, Ultimate Guitar o.fl.). Hljómunum er raðað sjálfkrafa og heiti og flytjandi fyllast út ef þau fylgja. Lagið fer í söngbókina, merkt **Frá gesti**, og beint á óskalistann. Sé lagið þegar til er bara óskað eftir því.
+3. **Spilarinn**: hjartað efst sýnir fjölda óska og tilkynning birtist þegar ný ósk kemur. Smelltu á hjartað til að sjá óskirnar, flest hjörtu efst. Smelltu á lag til að spila það (það bætist við lög kvöldsins og símarnir fylgja), eða á ✕ til að fjarlægja óskina.
+4. **Kerfisstjórinn**: í **Breyta söngbók** birtist **Frá gestum** efst með innsendum lögum. **Yfirfara** opnar lagið: lagaðu heiti, flytjanda og texta og vistaðu, þá er það merkt yfirfarið. Lög sem komu inn án heitis heita „Án heitis“ og heitisreiturinn er tómur svo þú verður að fylla hann út. ✓ samþykkir lag óbreytt.
+
+Takmarkanir: aðeins er hægt að óska og senda inn á meðan partý er í gangi, mest 20 innsend lög í hverju partýi á hálfum sólarhring og 100 opnar óskir í einu.
 
 ## Stigagjöf í Pöbbkvissi
 

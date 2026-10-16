@@ -23,6 +23,11 @@ create table if not exists public.gitar_songs (
 -- Flokkur: 'is' (íslenskt) eða 'erl' (erlent); tómt = greint sjálfkrafa út frá textanum
 alter table public.gitar_songs add column if not exists lang text check (lang in ('is', 'erl'));
 
+-- Lög sem gestir senda inn í partýi: koma strax inn en eru merkt óyfirfarin þar til kerfisstjóri vistar þau
+alter table public.gitar_songs add column if not exists pending boolean not null default false;
+alter table public.gitar_songs add column if not exists submitted_by text not null default '' check (char_length(submitted_by) <= 40);
+alter table public.gitar_songs add column if not exists submitted_in text;
+
 -- Partý í gangi: hvaða lag spilarinn er á. Allir mega lesa (símarnir).
 create table if not exists public.gitar_sessions (
   code          text primary key,
@@ -40,11 +45,25 @@ create table if not exists public.gitar_hosts (
   host_token  uuid not null default gen_random_uuid()
 );
 
+-- Óskalög í partýi. Sama lag safnar atkvæðum á meðan óskin er opin.
+create table if not exists public.gitar_requests (
+  id          uuid primary key default gen_random_uuid(),
+  code        text not null references public.gitar_sessions(code) on delete cascade,
+  song_id     uuid not null references public.gitar_songs(id) on delete cascade,
+  votes       int not null default 1,
+  names       text[] not null default '{}',
+  status      text not null default 'open' check (status in ('open', 'done', 'dismissed')),
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+create unique index if not exists gitar_requests_open_uidx on public.gitar_requests (code, song_id) where status = 'open';
+
 -- ---------- Aðgangsstýring (RLS) ------------------------------------
 
 alter table public.gitar_songs    enable row level security;
 alter table public.gitar_sessions enable row level security;
 alter table public.gitar_hosts    enable row level security;
+alter table public.gitar_requests enable row level security;   -- aðeins í gegnum föllin hér fyrir neðan
 
 drop policy if exists gitar_songs_read    on public.gitar_songs;
 drop policy if exists gitar_sessions_read on public.gitar_sessions;
@@ -106,7 +125,7 @@ begin
     update gitar_songs
        set title = trim(p_title), artist = coalesce(trim(p_artist), ''), body = coalesce(p_body, ''),
            song_key = coalesce(trim(p_key), ''), capo = greatest(0, least(12, coalesce(p_capo, 0))),
-           lang = v_lang, updated_at = now()
+           lang = v_lang, pending = false, updated_at = now()
      where id = p_id
     returning id into v_id;
   end if;
@@ -194,15 +213,112 @@ begin
   return v_o is null or v_g > v_o;
 end $$;
 
+-- ---------- Óskalög og innsend lög (gestir í partýi) ----------------
+
+-- Partý í gangi (uppfært síðasta sólarhring)? Skilar kóðanum hreinum.
+create or replace function public._gitar_live(p_code text)
+returns text language plpgsql security definer set search_path = public as $$
+declare c text := upper(trim(coalesce(p_code, '')));
+begin
+  if not exists (select 1 from gitar_sessions where code = c and updated_at > now() - interval '1 day') then
+    raise exception 'party_fannst_ekki';
+  end if;
+  return c;
+end $$;
+
+-- Gestur óskar eftir lagi úr söngbókinni. Sama lag aftur = fleiri atkvæði.
+create or replace function public.gitar_request(p_code text, p_song uuid, p_name text default '')
+returns json language plpgsql security definer set search_path = public as $$
+declare c text := _gitar_live(p_code); v_name text := left(trim(coalesce(p_name, '')), 40); v_votes int;
+begin
+  if not exists (select 1 from gitar_songs where id = p_song) then raise exception 'lag_fannst_ekki'; end if;
+  if (select count(*) from gitar_requests where code = c and status = 'open') >= 100 then raise exception 'of_margar_oskir'; end if;
+  insert into gitar_requests (code, song_id, names)
+  values (c, p_song, case when v_name = '' then '{}' else array[v_name] end)
+  on conflict (code, song_id) where status = 'open' do update
+     set votes = gitar_requests.votes + 1,
+         names = case when v_name = '' or v_name = any(gitar_requests.names) or cardinality(gitar_requests.names) >= 8
+                      then gitar_requests.names else gitar_requests.names || v_name end,
+         updated_at = now()
+  returning votes into v_votes;
+  return json_build_object('votes', v_votes);
+end $$;
+
+-- Opnar óskir í partýinu (allir í partýinu mega sjá, flest atkvæði fyrst)
+create or replace function public.gitar_request_list(p_code text)
+returns json language plpgsql security definer set search_path = public as $$
+declare c text := upper(trim(coalesce(p_code, '')));
+begin
+  return (select coalesce(json_agg(json_build_object(
+            'id', r.id, 'song_id', r.song_id, 'title', s.title, 'artist', s.artist, 'pending', s.pending,
+            'votes', r.votes, 'names', r.names, 'created_at', r.created_at)
+            order by r.votes desc, r.created_at), '[]'::json)
+            from gitar_requests r join gitar_songs s on s.id = r.song_id
+           where r.code = c and r.status = 'open');
+end $$;
+
+-- Spilarinn merkir ósk spilaða ('done') eða hafnar henni ('dismissed')
+create or replace function public.gitar_request_set(p_code text, p_token uuid, p_id uuid, p_status text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not exists (select 1 from gitar_hosts where code = p_code and host_token = p_token) then raise exception 'ogildur_spilari'; end if;
+  if p_status not in ('done', 'dismissed') then raise exception 'ogild_stada'; end if;
+  update gitar_requests set status = p_status, updated_at = now() where id = p_id and code = p_code and status = 'open';
+end $$;
+
+-- Gestur sendir inn nýtt lag (t.d. afritað af gítarsíðu). Það fer strax í söngbókina,
+-- merkt óyfirfarið, og á óskalistann. Sé lagið þegar til er óskað eftir því í staðinn.
+create or replace function public.gitar_submit(
+  p_code text, p_title text, p_artist text, p_body text, p_key text, p_capo int, p_name text default '')
+returns json language plpgsql security definer set search_path = public as $$
+declare
+  c text := _gitar_live(p_code);
+  v_title text := left(nullif(trim(coalesce(p_title, '')), ''), 200);
+  v_artist text := left(trim(coalesce(p_artist, '')), 200);
+  v_body text := trim(coalesce(p_body, ''));
+  v_id uuid; v_new boolean := false; v_req json;
+begin
+  if char_length(v_body) < 10 then raise exception 'vantar_texta'; end if;
+  if char_length(v_body) > 20000 then raise exception 'of_langt'; end if;
+  if v_title is not null then
+    select id into v_id from gitar_songs
+     where lower(trim(title)) = lower(v_title) and lower(trim(artist)) = lower(v_artist) limit 1;
+  end if;
+  if v_id is null then
+    if (select count(*) from gitar_songs where submitted_in = c and created_at > now() - interval '12 hours') >= 20 then
+      raise exception 'of_morg_log';
+    end if;
+    insert into gitar_songs (title, artist, body, song_key, capo, sort_order, pending, submitted_by, submitted_in)
+    values (coalesce(v_title, 'Án heitis'), v_artist, v_body, left(trim(coalesce(p_key, '')), 12),
+            greatest(0, least(12, coalesce(p_capo, 0))), coalesce((select max(sort_order) + 1 from gitar_songs), 0),
+            true, left(trim(coalesce(p_name, '')), 40), c)
+    returning id into v_id;
+    v_new := true;
+  end if;
+  v_req := gitar_request(c, v_id, p_name);
+  return json_build_object('id', v_id, 'new', v_new, 'votes', v_req->'votes');
+end $$;
+
+-- Kerfisstjóri merkir innsent lag yfirfarið án breytinga
+create or replace function public.gitar_approve(p_pin text, p_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not _gitar_pin_ok(p_pin) then raise exception 'rangt_pin'; end if;
+  update gitar_songs set pending = false, updated_at = now() where id = p_id;
+end $$;
+
 -- ---------- Réttindi ------------------------------------------------
 
-revoke all on public.gitar_songs, public.gitar_sessions, public.gitar_hosts from anon, authenticated;
+revoke all on public.gitar_songs, public.gitar_sessions, public.gitar_hosts, public.gitar_requests from anon, authenticated;
 revoke all on function
   public._gitar_pin_ok(text), public._code_taken(text),
   public.gitar_check(text), public.gitar_save_song(text, uuid, text, text, text, text, int, text),
   public.gitar_delete_song(text, uuid), public.gitar_reorder(text, uuid[]),
   public.gitar_start(uuid[], text), public.gitar_set(text, uuid, uuid, int, uuid[]),
-  public.gitar_is_host(text, uuid), public.gitar_find(text)
+  public.gitar_is_host(text, uuid), public.gitar_find(text),
+  public._gitar_live(text), public.gitar_request(text, uuid, text), public.gitar_request_list(text),
+  public.gitar_request_set(text, uuid, uuid, text), public.gitar_submit(text, text, text, text, text, int, text),
+  public.gitar_approve(text, uuid)
 from public, anon, authenticated;
 
 grant select on public.gitar_songs, public.gitar_sessions to anon, authenticated;
@@ -214,7 +330,12 @@ grant execute on function
   public.gitar_start(uuid[], text),
   public.gitar_set(text, uuid, uuid, int, uuid[]),
   public.gitar_is_host(text, uuid),
-  public.gitar_find(text)
+  public.gitar_find(text),
+  public.gitar_request(text, uuid, text),
+  public.gitar_request_list(text),
+  public.gitar_request_set(text, uuid, uuid, text),
+  public.gitar_submit(text, text, text, text, text, int, text),
+  public.gitar_approve(text, uuid)
 to anon, authenticated;
 
 -- ---------- Rauntími ------------------------------------------------
