@@ -1031,6 +1031,7 @@ function renderSing() {
       '<button class="ib" data-act="drawer" aria-label="Lagalisti">' + I.menu + '</button>' +
       '<button class="t tap" data-act="drawer" title="Lagalisti"><b>' + esc(song.title) + '</b><small><span class="live' + (S.online ? ' ok' : '') + '"></span> ' + (S.follow ? 'Fylgir spilaranum' : 'Þú flettir sjálf/ur') + '</small></button>' +
       '<button class="pill' + (S.chords ? ' on' : '') + '" data-act="chords"><span class="dot"></span>Hljómar</button>' +
+      '<button class="ib" data-act="qr" aria-label="Sýna QR-kóða partýsins" title="Bjóða fleirum">' + I.qr + '</button>' +
       '<button class="ib" data-act="settings" aria-label="Stillingar">' + I.aa + '</button>' +
     '</header>' +
     '<main class="song' + (S.chords ? ' chords-on' : '') + '">' + songHead(song, tr, S.chords) + '<div class="gp">' + songBody(song, tr, S.chords) + '</div></main>' +

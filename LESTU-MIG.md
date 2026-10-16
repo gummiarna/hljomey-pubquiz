@@ -269,7 +269,7 @@ Spilarinn fær lögin með hljómum, og allir sem skanna QR-kóðann fylgjast me
 4. **− / +** færa lagið um hálftón (líka hljómana í símum gesta).
 5. **Velja lag utan raðar**: ýttu á heiti lagsins efst (eða ☰). Leitaðu, síaðu eftir **Íslensk / Erlend**, eða raðaðu eftir stafrófi með **A–Ö**. ✓ merkir lög sem búið er að spila. Undir **Öll lög** geturðu valið lag úr söngbókinni sem var ekki á listanum.
 6. **Sjálfvirkt skrun**: hringlaga takkinn niðri til hægri. Hver smellur hækkar hraðann 1 → 2 → 3 → af. Skrunið stoppar á meðan þú snertir skjáinn, á enda lagsins og þegar skipt er um lag. Gestir hafa sama takka í sínum síma. Við tölvu: **S** skiptir um hraða og **L** opnar lagalistann.
-7. QR-takkinn efst sýnir kóðann aftur í fullri stærð. Örvalyklar og fótstig (síðuflettarar) fletta á milli laga.
+7. QR-takkinn efst sýnir kóðann aftur í fullri stærð. Gestir hafa sama takka í sínum síma, svo hver sem er getur boðið fleirum inn í partýið. Örvalyklar og fótstig (síðuflettarar) fletta á milli laga.
 8. Ef síminn eða tölvan endurræsist: opnaðu gitar.html aftur og veldu **Halda áfram**.
 9. **Prenta valin lög** býr til söngbók með einu lagi á síðu. Í prentglugganum má velja **Vista sem PDF**.
 
