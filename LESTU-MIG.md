@@ -3,7 +3,34 @@
 Leikirnir, Pöbbkviss, Tónlistarbingó, Gítarpartý, Karaoke og Hvaða ár?, eru settir upp saman. Þeir samanstanda af tveimur hlutum:
 
 - **Supabase** (ókeypis): gagnagrunnur og rauntími sem tengir síma og stóra skjáinn.
-- **Vefsíðan** (24 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+- **Vefsíðan** (25 skrár í möppunni `web`): fer í möppuna `/pubquiz` á Bluehost.
+
+---
+
+## Uppfærsla: Innskráning stjórnenda og notkun (október 2026)
+
+Stjórnendur, þeir sem búa til leiki, skrá sig nú inn með netfangi og lykilorði. Gestir í símum skrá sig aldrei inn. PIN-in halda sér eins og áður. Á nýrri síðu, **hljomey.is/pubquiz/notkun.html**, sérðu hver bjó til hvaða leiki og hve margir tóku þátt.
+
+1. **Supabase, fyrst**: vinstra megin **Authentication** → **Sign In / Providers** (heitir **Providers** í sumum útgáfum) → **Email**. Hafðu **Enable Email provider** á og **slökktu á „Confirm email“** → **Save**. Annars þarf hver nýr stjórnandi að staðfesta netfangið í tölvupósti, og ókeypis Supabase sendir aðeins tvo pósta á klukkustund og bara á netföng í þínu teymi.
+2. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald **`innskraning.sql`** → **Run**. Keyrðu svo **`gestapin.sql`** aftur á eftir (eintakið þitt með gestapininu).
+3. **Bluehost**: hladdu upp `common.js`, `notkun.html`, `karaoke.js` og öllum HTML-síðunum sem nota `common.js`: `stjorn.html`, `bingo-stjorn.html`, `bingo.html`, `gitar.html`, `hvadaar.html`, `index.html`, `karaoke.html` og `spurningar.html`. Ekki `config.js`.
+4. **Búðu til þinn aðgang**: opnaðu t.d. stjorn.html, smelltu á **Skrá inn** efst til hægri → **Nýr aðgangur** → nafn, netfang og lykilorð (a.m.k. 6 stafir).
+
+Hvernig þetta virkar:
+
+- Þegar stjórnandi býr til leik (Pöbbkviss, Tónlistarbingó, Gítarpartý, Karaoke eða Hvaða ár?) án þess að vera innskráður opnast innskráningargluggi. Eftir innskráningu verður leikurinn til strax, ekkert tapast af uppsetningunni.
+- Stjórnandinn helst innskráður í vafranum þar til hann smellir á **Skrá út**. Leikur sem er í gangi heldur áfram þótt skráð sé út.
+- Hver sem er getur stofnað aðgang, en þá sérðu hver viðkomandi er. Aðal-PIN og gestapin þarf áfram þar sem þau þurftu áður.
+- Eldri leikir eru færðir inn í notkunina sem **Án innskráningar**.
+
+**Notkunarsíðan** (notkun.html, aðal-PIN): tímabil (7 dagar, 30 dagar, 90 dagar eða 12 mánuðir), fjöldi leikja og þátttakenda miðað við tímabilið á undan, graf yfir leiki eftir tegund, skipting eftir leikjum, listi yfir stjórnendur og nýjustu leikirnir. Gestapinið opnar hana ekki. Síðan er ekki tengd úr valmyndinni, svo þú opnar hana beint.
+
+- **Loka** við stjórnanda: hann getur ekki búið til nýja leiki (smelltu tvisvar til að staðfesta). **Opna** leyfir aftur.
+- **Neyðarhemill**: ef innskráning veldur vandræðum á leikkvöldi skaltu taka hakið af **Stjórnendur þurfa að skrá sig inn** neðst á notkunarsíðunni. Þá geta allir búið til leiki eins og áður. Sama í SQL Editor: `update app_settings set value = 'off' where key = 'require_login';` (og `'on'` til að kveikja aftur).
+- **Gleymt lykilorð**: endurstilling með tölvupósti virkar ekki án póstþjóns. Í Supabase: **Authentication** → **Users** → finndu netfangið → **Delete user**. Viðkomandi stofnar þá aðgang aftur með sama netfangi. Eldri leikir hans standa áfram í notkuninni.
+- Netföng og nöfn stjórnenda eru geymd í Supabase og sjást aðeins á notkunarsíðunni, með aðal-PIN-i.
+
+Ef þú keyrir einhverja hinna SQL-skránna aftur seinna þarf að keyra `innskraning.sql` og svo `gestapin.sql` aftur á eftir.
 
 ---
 
@@ -150,9 +177,9 @@ Ef Pöbbkvissið og bingóið eru þegar uppsett á hljomey.is þarftu aðeins �
 4. Afritaðu allt innihald `setup.sql`, límdu það inn og smelltu á **Run**.
 5. Þú átt að sjá **Success. No rows returned**.
 6. Smelltu aftur á **New query**, límdu inn allt innihald `bingo.sql` og smelltu á **Run**. Þetta bætir bingóinu við og notar sama PIN.
-7. Gerðu það sama við `gitar.sql` (Gítarpartý), `themes.sql` (vistuð þemu), `spurningar.sql` (spurningabanki), `karaoke.sql` (karaoke) og `hvadaar.sql` (Hvaða ár?). Öll nota sama PIN. Síðast kemur `gestapin.sql` ef þú vilt gestapin (sjá ofar).
+7. Gerðu það sama við `gitar.sql` (Gítarpartý), `themes.sql` (vistuð þemu), `spurningar.sql` (spurningabanki), `karaoke.sql` (karaoke), `hvadaar.sql` (Hvaða ár?) og `innskraning.sql` (innskráning stjórnenda og notkun, sjá ofar um „Confirm email“). Öll nota sama PIN. Síðast kemur `gestapin.sql` ef þú vilt gestapin (sjá ofar).
 
-Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql`, `karaoke.sql`, `hvadaar.sql` og `gestapin.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna. **Athugaðu** að `setup.sql` setur líka aðal-PIN-ið aftur á gildið sem stendur neðst í skránni.
+Ef þú hefur þegar keyrt `setup.sql` áður þarftu aðeins að keyra `bingo.sql` og `gitar.sql`. Ef þú keyrir `setup.sql` einhvern tíma aftur skaltu keyra `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql`, `karaoke.sql`, `hvadaar.sql`, `innskraning.sql` og `gestapin.sql` aftur strax á eftir, því `setup.sql` tekur af réttindi hinna leikjanna. **Athugaðu** að `setup.sql` setur líka aðal-PIN-ið aftur á gildið sem stendur neðst í skránni.
 
 Viltu breyta PIN-inu síðar? Keyrðu þessa línu í SQL Editor:
 
@@ -215,6 +242,7 @@ Efst á stjórnandasíðunni er hnappur til að skipta á milli leikjanna. QR-k�
 
 ## Á leikkvöldinu
 
+- [ ] **Vertu innskráður** á tölvunni sem stýrir leiknum (Skrá inn efst á stjórnandasíðunni). Ef innskráning stríðir: taktu hakið af kröfunni á notkun.html.
 - [ ] **Opnaðu Supabase deginum áður.** Ókeypis verkefni fara í dvala eftir 7 daga án notkunar. Ef það gerist: skráðu þig inn og smelltu á **Restore project**.
 - [ ] Tölvan tengd við skjávarpa og hátalara. Smelltu á **Fullur skjár**.
 - [ ] Lögin og spurningarnar eru falin á uppsetningarsíðunni svo enginn sjái svörin á skjánum. **Búa til leik** er alltaf neðst á skjánum, svo það þarf ekki að skruna framhjá listanum. **Sýna listann** opnar hann ef þú vilt fara yfir hann.

@@ -314,7 +314,7 @@ a{color:var(--accent)}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 <script src="config.js"></script>
-<script src="common.js?v=2026-10-15g"></script>
+<script src="common.js?v=2026-10-18a"></script>
 <script src="gitar-core.js?v=2026-10-14g"></script>
 <script>
 (function () {
@@ -369,6 +369,9 @@ function toast(msg) {
 }
 function errMsg(e) {
   var m = (e && (e.message || e.error_description)) || '';
+  if (/innskraning_vantar/.test(m)) return 'Skráðu þig inn sem stjórnandi til að byrja partý.';
+  if (/innskraning_haett/.test(m)) return 'Hætt við innskráningu. Stjórnendur þurfa að skrá sig inn til að byrja partý.';
+  if (/adgangur_lokadur/.test(m)) return 'Lokað hefur verið á þennan aðgang. Hafðu samband við umsjónarmann síðunnar.';
   if (/gestapin_ekki/.test(m)) return 'Gestapin dugar aðeins til að stýra leikjum. Notaðu aðal-PIN til að breyta söngbókinni.';
   if (/rangt_pin|Rangt PIN/.test(m)) return 'Rangt PIN-númer.';
   if (/ogildur_spilari|stýrir ekki/.test(m)) return 'Þú stýrir ekki þessu partýi lengur.';
@@ -430,7 +433,8 @@ function supabaseData() {
     submit: function (code, s, name) { return sb.rpc('gitar_submit', { p_code: code, p_title: s.title || '', p_artist: s.artist || '', p_body: s.body || '', p_key: s.song_key || '', p_capo: +s.capo || 0, p_name: name || '' }).then(un); },
     approve: function (p, id) { return sb.rpc('gitar_approve', { p_pin: p, p_id: id }).then(un); },
     reorder: function (p, ids) { return sb.rpc('gitar_reorder', { p_pin: p, p_ids: ids }).then(un); },
-    start: function (ids) { return sb.rpc('gitar_start', { p_song_ids: ids, p_event_tag: tag }).then(un); },
+    // Stjórnandi þarf að vera innskráður (innskraning.sql): glugginn opnast og kallið er reynt aftur
+    start: function (ids) { var call = function () { return sb.rpc('gitar_start', { p_song_ids: ids, p_event_tag: tag }); }; return (pq.withLogin ? pq.withLogin(call) : call()).then(un); },
     set: function (code, token, song, tr, ids) { return sb.rpc('gitar_set', { p_code: code, p_token: token, p_song: song, p_tr: tr, p_song_ids: ids || null }).then(un); },
     isHost: function (code, token) { return sb.rpc('gitar_is_host', { p_code: code, p_token: token }).then(un); },
     getSession: function (code) { return sb.from('gitar_sessions').select('code,song_ids,current_song,transpose').eq('code', code).maybeSingle().then(un); },

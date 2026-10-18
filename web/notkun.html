@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#15121f">
+<title>Hljómey · Notkun</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2026-10-15c">
+<style>
+  /* Litir fyrir gröf: leikirnir fimm í fastri röð (prófaðir fyrir litblindu á dökkum fleti) */
+  .viz-root {
+    color-scheme: dark;
+    --surface-1: #1f1a2e;
+    --text-primary: #f6f3ff;
+    --text-secondary: #b3aacb;
+    --text-muted: #8f87a6;
+    --grid: #2c2640;
+    --axis: #3b3357;
+    --k-pubquiz: #3987e5;
+    --k-bingo: #d95926;
+    --k-gitar: #199e70;
+    --k-karaoke: #c98500;
+    --k-hvadaar: #d55181;
+  }
+  body { min-height: 100%; height: auto; background: radial-gradient(1200px 700px at 20% -10%, #2c2250 0%, transparent 60%) no-repeat, var(--bg); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 22px 16px 60px; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .top .brand { font-size: 26px; }
+  .top .brand span { color: var(--accent); }
+  .top .right { display: flex; gap: 8px; align-items: center; }
+  .card {
+    background: var(--surface-1); border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px 18px 16px; margin-top: 16px; min-width: 0;
+  }
+  .card h2 { margin: 0; font-size: 17px; font-weight: 700; color: var(--text-primary); }
+  .card .sub { margin: 4px 0 0; color: var(--text-secondary); font-size: 13.5px; }
+  .card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+
+  /* PIN */
+  .gate { max-width: 420px; margin: 12vh auto 0; }
+  .gate p { color: var(--text-secondary); line-height: 1.5; }
+  .gate .row { display: flex; gap: 8px; margin-top: 14px; }
+  .gate .row input { flex: 1; min-width: 0; font-size: 16px; }
+
+  /* Síur: ein lína efst */
+  .filters { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin-top: 18px; }
+  .seg { display: inline-flex; background: var(--surface-1); border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+  .seg button { background: transparent; color: var(--text-secondary); border-radius: 999px; padding: 7px 13px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+  .seg button[aria-pressed=true] { background: var(--accent); color: #1b1300; }
+  .seg button:focus-visible, .btn:focus-visible, .linkbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .filters .note { color: var(--text-muted); font-size: 13px; margin-left: auto; }
+
+  /* Lykiltölur */
+  .tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+  .tile { background: var(--surface-1); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; min-width: 0; }
+  .tile .lab { color: var(--text-secondary); font-size: 13.5px; }
+  .tile .val { font-size: 34px; font-weight: 700; color: var(--text-primary); margin-top: 4px; line-height: 1.1; }
+  .tile .delta { color: var(--text-secondary); font-size: 13px; margin-top: 6px; }
+
+  #main { transition: opacity .15s; }
+  #main.loading { opacity: .5; pointer-events: none; }
+
+  /* Graf */
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 6px; font-size: 13.5px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; flex: 0 0 auto; }
+  .chart { position: relative; }
+  .chart svg { display: block; width: 100%; overflow: visible; }
+  .chart .ax { fill: var(--text-muted); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+  .chart .peak { fill: var(--text-secondary); font-size: 12px; font-weight: 600; }
+  .chart .hit { fill: transparent; cursor: default; outline: none; }
+  .chart .col.on .seg-r { filter: brightness(1.18); }
+  .chart .col.on .band { fill: rgba(255,255,255,.035); }
+  .chart .empty { fill: var(--text-muted); font-size: 14px; }
+  .tip {
+    position: absolute; z-index: 5; pointer-events: none; min-width: 170px;
+    background: #2a2340; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px;
+    box-shadow: 0 12px 30px rgba(0,0,0,.45); font-size: 13px; color: var(--text-secondary);
+    opacity: 0; transition: opacity .1s;
+  }
+  .tip.show { opacity: 1; }
+  .tip .t { color: var(--text-secondary); font-size: 12.5px; margin-bottom: 6px; }
+  .tip .r { display: flex; align-items: center; gap: 8px; line-height: 1.6; }
+  .tip .r i { width: 12px; height: 2px; border-radius: 1px; flex: 0 0 auto; }
+  .tip .r b { color: var(--text-primary); font-variant-numeric: tabular-nums; min-width: 22px; text-align: right; }
+  .tip .tot { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 6px; }
+  .linkbtn { background: none; color: var(--text-secondary); font-size: 13.5px; font-weight: 600; padding: 4px 0; text-decoration: underline; text-underline-offset: 3px; }
+  .linkbtn:hover { color: var(--text-primary); }
+
+  /* Töflur */
+  .tbl-wrap { overflow-x: auto; margin-top: 12px; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 600; color: var(--text-muted); font-size: 12.5px; padding: 8px 10px; border-bottom: 1px solid var(--axis); white-space: nowrap; }
+  td { padding: 10px 10px; border-bottom: 1px solid var(--grid); color: var(--text-primary); vertical-align: middle; }
+  tr:last-child td { border-bottom: 0; }
+  td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td .em { display: block; color: var(--text-secondary); font-size: 12.5px; margin-top: 2px; overflow-wrap: anywhere; }
+  #hosts td:first-child { min-width: 190px; }
+  #hosts td:nth-child(3) { min-width: 200px; }
+  .more { margin-top: 10px; }
+  td .kinds { display: flex; flex-wrap: wrap; gap: 4px 10px; color: var(--text-secondary); font-size: 12.5px; }
+  td .kinds span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+  td .kinds b { color: var(--text-primary); font-weight: 600; font-variant-numeric: tabular-nums; }
+  td.when { white-space: nowrap; color: var(--text-secondary); }
+  td .kname { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .code { font-weight: 700; letter-spacing: .06em; }
+  .pill { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--text-secondary); white-space: nowrap; }
+  .pill.lok { border-color: #7a2533; color: #ffd7dc; }
+  .actbtn { background: transparent; border: 1px solid var(--line); color: var(--text-primary); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .actbtn.warn { border-color: #7a2533; background: #4a1822; color: #ffd7dc; }
+  .muted-row td { color: var(--text-secondary); }
+
+  /* Skipting eftir leikjum */
+  .kb { margin-top: 10px; font-size: 14px; }
+  .kr { display: grid; grid-template-columns: minmax(120px, 170px) minmax(0, 1fr) 64px 130px; grid-template-areas: "nm track n p"; gap: 6px 14px; align-items: center; padding: 7px 0; }
+  .kr.h { color: var(--text-muted); font-size: 12.5px; font-weight: 600; padding: 4px 0; border-bottom: 1px solid var(--axis); }
+  .kb .nm { grid-area: nm; display: flex; align-items: center; gap: 8px; color: var(--text-primary); white-space: nowrap; }
+  .kb .track { grid-area: track; height: 12px; position: relative; }
+  .kb .bar { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; min-width: 2px; }
+  .kb .n { grid-area: n; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-primary); }
+  .kb .p { grid-area: p; text-align: right; font-variant-numeric: tabular-nums; color: var(--text-secondary); white-space: nowrap; }
+  .kr.h .n, .kr.h .p { color: var(--text-muted); }
+
+  .switch { display: flex; align-items: flex-start; gap: 12px; margin-top: 12px; cursor: pointer; color: var(--text-primary); font-size: 14.5px; }
+  .switch input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); flex: 0 0 auto; }
+  .switch small { display: block; color: var(--text-secondary); font-size: 13px; margin-top: 3px; line-height: 1.45; }
+  .foot { color: var(--text-muted); font-size: 13px; margin-top: 18px; text-align: center; }
+  .msg { color: #ffd7dc; background: #4a1822; border: 1px solid #7a2533; border-radius: 10px; padding: 10px 12px; margin-top: 14px; }
+  .msg:empty { display: none; }
+
+  @media (max-width: 860px) {
+    .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .tile .val { font-size: 28px; }
+  }
+  @media (max-width: 560px) {
+    .wrap { padding-top: 16px; }
+    .top .brand { font-size: 22px; }
+    .filters .note { margin-left: 0; width: 100%; }
+    .seg button { padding: 7px 10px; font-size: 13.5px; }
+    .kr { grid-template-columns: minmax(0, 1fr) 44px 104px; grid-template-areas: "nm n p" "track track track"; }
+    .kr.h .track { display: none; }
+    .card { padding: 16px 14px 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap viz-root">
+  <div class="top">
+    <div class="brand">Hljómey <span>Notkun</span></div>
+    <div class="right" id="topRight"></div>
+  </div>
+
+  <section id="gate" class="card gate hidden">
+    <h2>Notkun leikjanna</h2>
+    <p>Hér sérðu hverjir búa til leiki, hvaða leiki og hve margir taka þátt. Sláðu inn aðal-PIN-ið.</p>
+    <form id="gateForm" class="row" autocomplete="off">
+      <input type="password" id="pin" placeholder="Aðal-PIN" aria-label="Aðal-PIN">
+      <button class="btn" id="gateBtn">Opna</button>
+    </form>
+    <div class="msg" id="gateErr" role="alert"></div>
+  </section>
+
+  <div id="dash" class="hidden">
+    <div class="filters" role="group" aria-label="Síur">
+      <div class="seg" id="period" role="group" aria-label="Tímabil">
+        <button data-d="7">7 dagar</button><button data-d="30">30 dagar</button><button data-d="90">90 dagar</button><button data-d="365">12 mánuðir</button>
+      </div>
+      <div class="seg" id="metric" role="group" aria-label="Sýna">
+        <button data-m="games">Leikir</button><button data-m="players">Þátttakendur</button>
+      </div>
+      <span class="note" id="updated"></span>
+    </div>
+    <div class="msg" id="dashErr" role="alert"></div>
+
+    <div id="main">
+      <div class="tiles" id="tiles"></div>
+
+      <section class="card" aria-labelledby="chartTitle">
+        <div class="card-head">
+          <div><h2 id="chartTitle"></h2><p class="sub" id="chartSub"></p></div>
+          <button class="linkbtn" id="tableToggle" aria-expanded="false">Sýna sem töflu</button>
+        </div>
+        <div class="legend" id="legend"></div>
+        <div class="chart" id="chart"></div>
+        <div class="tbl-wrap hidden" id="chartTable"></div>
+      </section>
+
+      <section class="card" aria-labelledby="kindsTitle">
+        <h2 id="kindsTitle">Eftir leikjum</h2>
+        <div class="kb" id="kinds"></div>
+      </section>
+
+      <section class="card" aria-labelledby="hostsTitle">
+        <h2 id="hostsTitle">Stjórnendur</h2>
+        <p class="sub">Allir sem hafa stofnað aðgang, raðað eftir fjölda leikja á tímabilinu. Lokaður aðgangur getur ekki búið til nýja leiki.</p>
+        <div class="tbl-wrap" id="hosts"></div>
+      </section>
+
+      <section class="card" aria-labelledby="recentTitle">
+        <h2 id="recentTitle">Nýjustu leikirnir</h2>
+        <div class="tbl-wrap" id="recent"></div>
+      </section>
+
+      <section class="card" aria-labelledby="setTitle">
+        <h2 id="setTitle">Innskráning</h2>
+        <label class="switch"><input type="checkbox" id="reqLogin">
+          <span>Stjórnendur þurfa að skrá sig inn til að búa til leiki
+            <small>Gestir í símum skrá sig aldrei inn. Ef slökkt er á þessu geta allir búið til leiki eins og áður (með PIN-i þar sem það á við), en innskráðir stjórnendur eru áfram skráðir hér.</small></span>
+        </label>
+      </section>
+      <p class="foot" id="since"></p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="common.js?v=2026-10-18a"></script>
+<script>
+(function () {
+  const { rpc, esc } = window.PQ;
+  const $ = id => document.getElementById(id);
+  const KINDS = [
+    { k: 'pubquiz', name: 'Pöbbkviss', items: 'umferðir' },
+    { k: 'bingo', name: 'Tónlistarbingó', items: 'lög' },
+    { k: 'gitar', name: 'Gítarpartý', items: 'lög' },
+    { k: 'karaoke', name: 'Karaoke', items: 'lög' },
+    { k: 'hvadaar', name: 'Hvaða ár?', items: 'lög' }
+  ];
+  const KN = Object.fromEntries(KINDS.map(x => [x.k, x]));
+  const col = k => `var(--k-${k})`;
+  const MON = ['jan.', 'feb.', 'mar.', 'apr.', 'maí', 'jún.', 'júl.', 'ágú.', 'sep.', 'okt.', 'nóv.', 'des.'];
+  const MONL = ['janúar', 'febrúar', 'mars', 'apríl', 'maí', 'júní', 'júlí', 'ágúst', 'september', 'október', 'nóvember', 'desember'];
+  const DAY = ['sun.', 'mán.', 'þri.', 'mið.', 'fim.', 'fös.', 'lau.'];
+  const PERIOD = { 7: 'síðustu 7 daga', 30: 'síðustu 30 daga', 90: 'síðustu 90 daga', 365: 'síðustu 12 mánuði' };
+  const PREV = { 7: 'fyrri 7 daga', 30: 'fyrri 30 daga', 90: 'fyrri 90 daga', 365: 'fyrri 12 mánuði' };
+  const S = { pin: null, days: 30, metric: 'games', data: null, table: false };
+  try { const v = JSON.parse(localStorage.getItem('notkun_view') || 'null'); if (v) { if (PERIOD[v.days]) S.days = v.days; if (v.metric === 'players') S.metric = 'players'; } } catch (e) {}
+  const saveView = () => { try { localStorage.setItem('notkun_view', JSON.stringify({ days: S.days, metric: S.metric })); } catch (e) {} };
+
+  // ---------- Snið ----------
+  const fmt = n => String(Math.round(+n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const pad = n => String(n).padStart(2, '0');
+  const d0 = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  function when(iso) {
+    if (!iso) return '–';
+    const d = new Date(iso), now = new Date(), diff = Math.round((d0(now) - d0(d)) / 864e5);
+    const t = `kl. ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    if (diff === 0) return `í dag ${t}`;
+    if (diff === 1) return `í gær ${t}`;
+    return `${d.getDate()}. ${MON[d.getMonth()]}${d.getFullYear() !== now.getFullYear() ? ' ' + d.getFullYear() : ''} ${t}`;
+  }
+  const dateOnly = iso => { const d = new Date(iso); return `${d.getDate()}. ${MON[d.getMonth()]} ${d.getFullYear()}`; };
+  function bucketLabel(iso, unit, long) {
+    const d = new Date(iso);
+    if (unit === 'month') return long ? `${MONL[d.getUTCMonth()]} ${d.getUTCFullYear()}` : MON[d.getUTCMonth()].replace('.', '');
+    if (unit === 'week') return long ? `Vika frá ${d.getUTCDate()}. ${MON[d.getUTCMonth()]}` : `${d.getUTCDate()}. ${MON[d.getUTCMonth()]}`;
+    return long ? `${DAY[d.getUTCDay()]} ${d.getUTCDate()}. ${MONL[d.getUTCMonth()]}` : `${d.getUTCDate()}. ${MON[d.getUTCMonth()]}`;
+  }
+  function delta(cur, prev) {
+    const d = (+cur || 0) - (+prev || 0);
+    if (!d) return `Sama og ${PREV[S.days]}`;
+    return `${d > 0 ? '↑' : '↓'} ${fmt(Math.abs(d))} miðað við ${PREV[S.days]}`;
+  }
+
+  // ---------- PIN ----------
+  function showGate(msg) {
+    $('dash').classList.add('hidden'); $('gate').classList.remove('hidden'); $('topRight').innerHTML = '';
+    $('gateErr').textContent = msg || '';
+    let pre = ''; try { pre = JSON.parse(localStorage.getItem('pq_pin') || '""') || ''; } catch (e) {}
+    if (!$('pin').value) $('pin').value = pre;
+    setTimeout(() => $('pin').focus(), 30);
+  }
+  $('gateForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const p = $('pin').value.trim(); if (!p) return;
+    $('gateBtn').disabled = true; $('gateErr').textContent = '';
+    try { await load(p); } catch (ex) { $('gateErr').textContent = errText(ex); }
+    $('gateBtn').disabled = false;
+  });
+  function errText(e) {
+    const m = (e && e.message) || '';
+    if (e && e.code === 'gestapin_ekki') return 'Gestapinið opnar ekki notkunina. Notaðu aðal-PIN-ið.';
+    if (/usage_stats|Could not find the function|schema cache/i.test(m)) return 'Notkunarskráin er ekki uppsett: keyrðu innskraning.sql í Supabase (og svo gestapin.sql aftur).';
+    return m || 'Eitthvað fór úrskeiðis.';
+  }
+
+  // ---------- Gögn ----------
+  async function load(pin) {
+    $('main').classList.add('loading');   // fyrri mynd helst á meðan
+    try {
+      const d = await rpc('usage_stats', { p_pin: pin, p_days: S.days });
+      S.pin = pin; S.data = typeof d === 'string' ? JSON.parse(d) : d;
+      try { sessionStorage.setItem('notkun_pin', pin); } catch (e) {}
+      $('gate').classList.add('hidden'); $('dash').classList.remove('hidden');
+      $('topRight').innerHTML = '<button class="btn ghost small" id="refresh">Uppfæra</button><button class="btn ghost small" id="lock">Læsa</button>';
+      $('refresh').onclick = () => load(S.pin).catch(e => { $('dashErr').textContent = errText(e); });
+      $('lock').onclick = () => { try { sessionStorage.removeItem('notkun_pin'); } catch (e) {} S.pin = null; S.data = null; $('pin').value = ''; showGate(); };
+      $('dashErr').textContent = '';
+      render();
+    } finally { $('main').classList.remove('loading'); }
+  }
+
+  // ---------- Teikna ----------
+  function render() {
+    const D = S.data;
+    document.querySelectorAll('#period button').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.d === S.days)));
+    document.querySelectorAll('#metric button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === S.metric)));
+    const now = new Date(D.now);
+    $('updated').textContent = `Sótt ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    renderTiles(D); renderChart(D); renderKinds(D); renderHosts(D); renderRecent(D);
+    $('reqLogin').checked = !!D.require_login;
+    const at = D.alltime || {};
+    $('since').textContent = at.since ? `Skráning nær aftur til ${dateOnly(at.since)} · ${fmt(at.games)} leikir alls` : '';
+  }
+
+  function renderTiles(D) {
+    const c = D.cur || {}, p = D.prev || {}, a = D.accounts || {};
+    const tiles = [
+      { lab: 'Leikir', val: c.games, d: delta(c.games, p.games) },
+      { lab: 'Þátttakendur', val: c.players, d: delta(c.players, p.players) },
+      { lab: 'Virkir stjórnendur', val: c.hosts, d: c.anon ? `+ ${fmt(c.anon)} ${c.anon === 1 ? 'leikur' : 'leikir'} án innskráningar` : delta(c.hosts, p.hosts) },
+      { lab: 'Stjórnendaaðgangar', val: a.total, d: a.new ? `${fmt(a.new)} ${a.new === 1 ? 'nýr' : 'nýir'} á tímabilinu` : 'Enginn nýr á tímabilinu' }
+    ];
+    $('tiles').innerHTML = tiles.map(t => `<div class="tile"><div class="lab">${t.lab}</div><div class="val">${fmt(t.val)}</div><div class="delta">${esc(t.d)}</div></div>`).join('');
+  }
+
+  function renderChart(D) {
+    const m = S.metric, unit = D.unit;
+    $('chartTitle').textContent = (m === 'games' ? 'Leikir' : 'Þátttakendur') + ' á ' + (unit === 'day' ? 'dag' : unit === 'week' ? 'viku' : 'mánuði');
+    $('chartSub').textContent = (m === 'games' ? 'Nýir leikir eftir tegund, ' : 'Þátttakendur í leikjum sem voru búnir til, ') + PERIOD[S.days] + '.';
+    $('legend').innerHTML = KINDS.map(x => `<span><i class="sw" style="background:${col(x.k)}"></i>${x.name}</span>`).join('');
+    // fötur × tegundir
+    const idx = new Map(D.buckets.map((b, i) => [b, i]));
+    const rows = D.buckets.map(b => ({ t: b, v: Object.fromEntries(KINDS.map(x => [x.k, 0])), tot: 0 }));
+    (D.series || []).forEach(s => { const i = idx.get(s.t); if (i == null) return; const v = +s[m] || 0; rows[i].v[s.kind] += v; rows[i].tot += v; });
+    S.rows = rows;
+    drawChart(rows, unit);
+    // töfluútgáfa
+    $('chartTable').innerHTML = `<table><thead><tr><th>${unit === 'day' ? 'Dagur' : unit === 'week' ? 'Vika' : 'Mánuður'}</th>${KINDS.map(x => `<th class="n">${x.name}</th>`).join('')}<th class="n">Samtals</th></tr></thead><tbody>` +
+      rows.slice().reverse().map(r => `<tr><td>${esc(bucketLabel(r.t, unit, true))}</td>${KINDS.map(x => `<td class="n">${fmt(r.v[x.k])}</td>`).join('')}<td class="n"><b>${fmt(r.tot)}</b></td></tr>`).join('') + '</tbody></table>';
+  }
+
+  function niceMax(v) {
+    if (v <= 4) return { max: Math.max(v, 1) <= 2 ? 2 : 4, step: 1 };
+    const raw = v / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    const step = Math.max(1, (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p);   // heilar tölur (fjöldi)
+    return { max: Math.ceil(v / step) * step, step };
+  }
+  function drawChart(rows, unit) {
+    const box = $('chart'); const W = Math.max(280, box.clientWidth || 600);
+    const H = 230, top = 22, bottom = 28, left = 34, right = 4;
+    const ph = H - top - bottom, pw = W - left - right;
+    const total = rows.reduce((a, r) => a + r.tot, 0), peak = Math.max(0, ...rows.map(r => r.tot));
+    const { max, step } = niceMax(peak);
+    const y = v => top + ph - (v / max) * ph;
+    const band = pw / rows.length, bw = Math.max(3, Math.min(24, band * 0.62));
+    let s = `<svg viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="${esc($('chartTitle').textContent)}">`;
+    for (let v = 0; v <= max + 1e-9; v += step) {
+      const yy = Math.round(y(v)) + 0.5;
+      s += `<line x1="${left}" x2="${W - right}" y1="${yy}" y2="${yy}" stroke="${v === 0 ? 'var(--axis)' : 'var(--grid)'}" stroke-width="1"/>`;
+      s += `<text class="ax" x="${left - 8}" y="${yy + 4}" text-anchor="end">${fmt(v)}</text>`;
+    }
+    // x-ás: merkingar með nægu bili
+    const every = Math.max(1, Math.ceil(54 / band));
+    rows.forEach((r, i) => {
+      const cx = left + band * i + band / 2;
+      if ((rows.length - 1 - i) % every === 0) s += `<text class="ax" x="${cx}" y="${H - 8}" text-anchor="middle">${esc(bucketLabel(r.t, unit))}</text>`;
+    });
+    let peakDone = false;
+    rows.forEach((r, i) => {
+      const cx = left + band * i + band / 2, x0 = cx - bw / 2;
+      s += `<g class="col" data-i="${i}"><rect class="band" x="${left + band * i}" y="${top}" width="${band}" height="${ph}" fill="transparent"/>`;
+      let acc = 0; const segs = KINDS.filter(x => r.v[x.k] > 0);
+      segs.forEach((x, j) => {
+        const v = r.v[x.k], yTop = y(acc + v), yBot = y(acc); acc += v;
+        const gap = j > 0 ? 2 : 0;                 // 2px bil á milli hluta
+        const h = Math.max(1, yBot - yTop - gap);
+        if (j === segs.length - 1) {                // ávalur endi efst, ferkantaður við grunnlínu
+          const rr = Math.min(4, h, bw / 2);
+          s += `<path class="seg-r" fill="${col(x.k)}" d="M${x0},${yTop + h} V${yTop + rr} Q${x0},${yTop} ${x0 + rr},${yTop} H${x0 + bw - rr} Q${x0 + bw},${yTop} ${x0 + bw},${yTop + rr} V${yTop + h} Z"/>`;
+        } else s += `<rect class="seg-r" fill="${col(x.k)}" x="${x0}" y="${yTop}" width="${bw}" height="${h}"/>`;
+      });
+      if (!peakDone && peak > 0 && r.tot === peak) {   // aðeins hæsta súlan fær tölu
+        peakDone = true; s += `<text class="peak" x="${cx}" y="${y(peak) - 6}" text-anchor="middle">${fmt(peak)}</text>`;
+      }
+      const lab = bucketLabel(r.t, unit, true) + ': ' + fmt(r.tot) + (S.metric === 'games' ? ' leikir' : ' þátttakendur');
+      s += `<rect class="hit" x="${left + band * i}" y="${top}" width="${band}" height="${ph + 6}" tabindex="0" aria-label="${esc(lab)}"/></g>`;
+    });
+    if (!total) s += `<text class="empty" x="${left + pw / 2}" y="${top + ph / 2}" text-anchor="middle">${S.metric === 'games' ? 'Engir leikir' : 'Engir þátttakendur'} á þessu tímabili</text>`;
+    s += '</svg><div class="tip" id="tip" role="status"></div>';
+    box.innerHTML = s;
+    // hover / fókus: ein útskýring með öllum leikjum
+    const tip = $('tip');
+    const show = (g, evX) => {
+      box.querySelectorAll('.col.on').forEach(c => c.classList.remove('on')); g.classList.add('on');
+      const r = rows[+g.dataset.i];
+      tip.textContent = '';
+      const h = document.createElement('div'); h.className = 't'; h.textContent = bucketLabel(r.t, unit, true); tip.appendChild(h);
+      KINDS.forEach(x => {
+        const row = document.createElement('div'); row.className = 'r';
+        const i = document.createElement('i'); i.style.background = col(x.k);
+        const b = document.createElement('b'); b.textContent = fmt(r.v[x.k]);
+        row.append(i, b, document.createTextNode(x.name)); tip.appendChild(row);
+      });
+      const t = document.createElement('div'); t.className = 'r tot';
+      const tb = document.createElement('b'); tb.textContent = fmt(r.tot);
+      const sp = document.createElement('i'); sp.style.background = 'transparent';
+      t.append(sp, tb, document.createTextNode('Samtals')); tip.appendChild(t);
+      const bw2 = box.clientWidth, tw = tip.offsetWidth || 180;
+      const cx = (left + band * (+g.dataset.i) + band / 2) * (bw2 / W);
+      let lx = cx + 14; if (lx + tw > bw2) lx = cx - tw - 14; if (lx < 0) lx = Math.max(0, Math.min(bw2 - tw, cx - tw / 2));
+      tip.style.left = lx + 'px'; tip.style.top = '8px'; tip.classList.add('show');
+    };
+    const hide = () => { tip.classList.remove('show'); box.querySelectorAll('.col.on').forEach(c => c.classList.remove('on')); };
+    box.querySelectorAll('.col').forEach(g => {
+      const hit = g.querySelector('.hit');
+      hit.addEventListener('pointerenter', () => show(g)); hit.addEventListener('pointermove', () => show(g));
+      hit.addEventListener('focus', () => show(g)); hit.addEventListener('blur', hide);
+    });
+    box.querySelector('svg').addEventListener('pointerleave', hide);
+  }
+
+  function renderKinds(D) {
+    const K = D.kinds || {};
+    const maxG = Math.max(1, ...KINDS.map(x => (K[x.k] || {}).games || 0));
+    $('kinds').innerHTML = '<div class="kr h"><div class="nm" style="color:inherit">Leikur</div><div class="track"></div><div class="n">Leikir</div><div class="p">Þátttakendur</div></div>' +
+      KINDS.map(x => {
+        const v = K[x.k] || { games: 0, players: 0 };
+        const pl = x.k === 'gitar' ? '<span title="Gestir í Gítarpartýi eru ekki taldir">–</span>' : fmt(v.players) + (x.k === 'karaoke' ? ' <span title="Söngvarar">söngv.</span>' : '');
+        return `<div class="kr"><div class="nm"><i class="sw" style="background:${col(x.k)}"></i>${x.name}</div>
+          <div class="track" aria-hidden="true">${v.games ? `<div class="bar" style="width:${(v.games / maxG) * 100}%;background:${col(x.k)}"></div>` : ''}</div>
+          <div class="n">${fmt(v.games)}</div><div class="p">${pl}</div></div>`;
+      }).join('');
+  }
+
+  function kindsCell(k) {
+    const parts = KINDS.filter(x => (k || {})[x.k] > 0).map(x => `<span><i class="sw" style="background:${col(x.k)}"></i>${x.name} <b>${fmt(k[x.k])}</b></span>`);
+    return parts.length ? `<div class="kinds">${parts.join('')}</div>` : '<span class="em" style="display:inline">Enginn leikur á tímabilinu</span>';
+  }
+  function renderHosts(D) {
+    const H = D.hosts || [];
+    if (!H.length) { $('hosts').innerHTML = '<p class="sub">Enginn stjórnandi hefur skráð sig inn enn.</p>'; return; }
+    $('hosts').innerHTML = `<table><thead><tr><th>Stjórnandi</th><th class="n">Leikir</th><th>Skipting</th><th class="n">Þátttak.</th><th>Síðasti leikur</th><th>Skráð/ur</th><th></th></tr></thead><tbody>` +
+      H.map(h => {
+        if (!h.user_id) return `<tr class="muted-row"><td><b>Án innskráningar</b><span class="em">Eldri leikir og leikir þegar innskráning var ekki krafist</span></td><td class="n">${fmt(h.games)}</td><td>${kindsCell(h.k)}</td><td class="n">${fmt(h.players)}</td><td class="when">${when(h.last_game)}</td><td>–</td><td></td></tr>`;
+        return `<tr><td><b>${esc(h.name || h.email || 'Án nafns')}</b><span class="em">${esc(h.email || '')}</span>${h.blocked ? ' <span class="pill lok">Lokaður</span>' : ''}</td>
+          <td class="n">${fmt(h.games)}</td><td>${kindsCell(h.k)}</td><td class="n">${fmt(h.players)}</td>
+          <td class="when">${when(h.last_game)}</td><td class="when" title="Síðast á ferðinni ${esc(when(h.last_seen))}">${h.created_at ? dateOnly(h.created_at) : '–'}</td>
+          <td><button class="actbtn" data-block="${esc(h.user_id)}" data-on="${h.blocked ? '0' : '1'}">${h.blocked ? 'Opna' : 'Loka'}</button></td></tr>`;
+      }).join('') + '</tbody></table>';
+  }
+  $('hosts').addEventListener('click', async e => {
+    const b = e.target.closest('[data-block]'); if (!b) return;
+    const block = b.dataset.on === '1';
+    if (block && !b.classList.contains('warn')) {      // tvö skref: fyrst staðfesting
+      b.classList.add('warn'); b.textContent = 'Staðfesta lokun';
+      clearTimeout(b._t); b._t = setTimeout(() => { b.classList.remove('warn'); b.textContent = 'Loka'; }, 4000);
+      return;
+    }
+    b.disabled = true;
+    try { await rpc('usage_block', { p_pin: S.pin, p_user: b.dataset.block, p_blocked: block }); await load(S.pin); }
+    catch (ex) { $('dashErr').textContent = errText(ex); b.disabled = false; }
+  });
+
+  function renderRecent(D) {
+    const all = D.recent || [], R = S.allRecent ? all : all.slice(0, 15);
+    if (!R.length) { $('recent').innerHTML = `<p class="sub">Engir leikir ${PERIOD[S.days]}.</p>`; return; }
+    $('recent').innerHTML = `<table><thead><tr><th>Hvenær</th><th>Leikur</th><th>Kóði</th><th>Heiti</th><th>Stjórnandi</th><th class="n">Þátttak.</th><th class="n">Lög / umf.</th></tr></thead><tbody>` +
+      R.map(r => { const K = KN[r.kind] || { name: r.kind };
+        return `<tr><td class="when">${when(r.created_at)}</td>
+          <td><span class="kname"><i class="sw" style="background:${col(r.kind)}"></i>${esc(K.name)}</span></td>
+          <td><span class="code">${esc(r.code || '–')}</span></td><td>${esc(r.title || '–')}</td>
+          <td>${r.user_id ? esc(r.name || r.email || '') : '<span class="em" style="display:inline">Án innskráningar</span>'}</td>
+          <td class="n">${r.kind === 'gitar' ? '–' : fmt(r.players)}</td><td class="n">${fmt(r.items)}</td></tr>`; }).join('') + '</tbody></table>' +
+      (all.length > R.length ? `<button class="linkbtn more" id="moreRecent">Sýna fleiri (${all.length} nýjustu)</button>` : '');
+    const mb = $('moreRecent'); if (mb) mb.onclick = () => { S.allRecent = true; renderRecent(S.data); };
+  }
+
+  // ---------- Stýringar ----------
+  $('period').addEventListener('click', e => {
+    const b = e.target.closest('button[data-d]'); if (!b || +b.dataset.d === S.days) return;
+    S.days = +b.dataset.d; saveView(); render();   // takkar strax, gögn á eftir
+    load(S.pin).catch(ex => { $('dashErr').textContent = errText(ex); });
+  });
+  $('metric').addEventListener('click', e => {
+    const b = e.target.closest('button[data-m]'); if (!b || b.dataset.m === S.metric) return;
+    S.metric = b.dataset.m; saveView(); render();
+  });
+  $('tableToggle').addEventListener('click', () => {
+    S.table = !S.table; $('chartTable').classList.toggle('hidden', !S.table);
+    $('tableToggle').textContent = S.table ? 'Fela töflu' : 'Sýna sem töflu'; $('tableToggle').setAttribute('aria-expanded', String(S.table));
+  });
+  $('reqLogin').addEventListener('change', async e => {
+    const on = e.target.checked; e.target.disabled = true;
+    try { await rpc('usage_set_login', { p_pin: S.pin, p_on: on }); S.data.require_login = on; }
+    catch (ex) { e.target.checked = !on; $('dashErr').textContent = errText(ex); }
+    e.target.disabled = false;
+  });
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (S.rows && S.data) drawChart(S.rows, S.data.unit); }, 120); });
+
+  // ---------- Byrja ----------
+  let saved = null; try { saved = sessionStorage.getItem('notkun_pin'); } catch (e) {}
+  if (saved) load(saved).catch(ex => showGate(errText(ex))); else showGate();
+})();
+</script>
+</body>
+</html>
