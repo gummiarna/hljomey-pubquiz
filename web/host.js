@@ -88,16 +88,20 @@
   $('qbPin').addEventListener('keydown', e => { if (e.key === 'Enter') $('qbOpen').click(); });
 
   function qDiffOk(d) { const f = $('qDiff').value; return !f || f.includes(String(d)); }
+  // Barnaspurningar eru sér: ekki með í „Allir flokkar“, aðeins þegar flokkurinn er valinn
+  const KIDS = 'Barnaspurningar';
   function qPool() {
-    return (S.bank || []).filter(q => q.active && (!S.qcats.size || S.qcats.has(q.category)) && qDiffOk(q.difficulty));
+    return (S.bank || []).filter(q => q.active && (S.qcats.size ? S.qcats.has(q.category) : q.category !== KIDS) && qDiffOk(q.difficulty));
   }
   function renderCats() {
     const counts = {};
     (S.bank || []).filter(q => q.active && qDiffOk(q.difficulty)).forEach(q => { counts[q.category] = (counts[q.category] || 0) + 1; });
     const cats = [...new Set((S.bank || []).filter(q => q.active).map(q => q.category))].sort((a, b) => a.localeCompare(b, 'is'));
     [...S.qcats].forEach(c => { if (!cats.includes(c)) S.qcats.delete(c); });
+    const chip = c => `<button type="button" data-cat="${esc(c)}" class="${S.qcats.has(c) ? 'on' : ''}">${esc(c)}<small>${counts[c] || 0}</small></button>`;
     $('qCats').innerHTML = `<button type="button" data-cat="" class="${S.qcats.size ? '' : 'on'}">Allir flokkar</button>` +
-      cats.map(c => `<button type="button" data-cat="${esc(c)}" class="${S.qcats.has(c) ? 'on' : ''}">${esc(c)}<small>${counts[c] || 0}</small></button>`).join('');
+      cats.filter(c => c !== KIDS).map(chip).join('') +
+      (cats.includes(KIDS) ? `<div class="catkids"><span>Fyrir krakka (ekki með í „Allir flokkar“):</span>${chip(KIDS)}</div>` : '');
     const active = (S.bank || []).filter(q => q.active).length;
     $('qbInfo').textContent = `${active} virkar spurningar í ${cats.length} flokkum`;
     const n = qPool().length;

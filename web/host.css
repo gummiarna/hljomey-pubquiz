@@ -118,6 +118,7 @@ body { overflow: hidden; }
 .catpick button small { color: var(--muted); margin-left: 5px; font-size: 13px; }
 .catpick button.on { background: var(--accent); border-color: var(--accent); color: #1b1300; font-weight: 500; }
 .catpick button.on small { color: rgba(27,19,0,.7); }
+.catpick .catkids { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; color: var(--muted); font-size: 13.5px; }
 .qfresh { display: flex !important; align-items: center; gap: 8px; color: var(--text) !important; margin: 0 0 12px !important; cursor: pointer; font-size: 14px; }
 .qfresh input { width: 18px; height: 18px; accent-color: var(--accent); }
 .tracklist .qi { width: 44px; height: 44px; flex: 0 0 44px; border-radius: 6px; background: var(--bg2); display: grid; place-items: center; color: var(--accent); font-weight: 900; font-size: 20px; }

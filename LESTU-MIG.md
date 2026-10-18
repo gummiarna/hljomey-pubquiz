@@ -7,6 +7,17 @@ Leikirnir, Pöbbkviss, Tónlistarbingó, Gítarpartý, Karaoke og Hvaða ár?, e
 
 ---
 
+## Uppfærsla: 300 barnaspurningar (október 2026)
+
+Nýr flokkur í spurningabankanum, **Barnaspurningar**, með 300 spurningum fyrir krakka á aldrinum um 6 til 12 ára: dýr, náttúra, geimurinn, líkaminn, Ísland og jólin, ævintýri, teiknimyndir og tölvuleikir, íþróttir, tölur og litir, íslenska, matur og heimurinn.
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald **`spurningar-born.sql`** → **Run**. Neðst stendur hve margar bættust við (300).
+2. **Bluehost**: hladdu upp `stjorn.html`, `host.js` og `host.css`.
+
+Barnaspurningarnar eru **ekki** með þegar **Allir flokkar** er valið, svo þær blandast ekki í venjulegt kviss. Til að halda barnakviss: veldu **Spurningar** og smelltu á **Barnaspurningar** undir „Fyrir krakka“. Erfiðleikinn virkar eins og áður (1 = léttast, fyrir yngstu krakkana). Spurningunum er breytt og eytt á spurningar.html eins og öðrum.
+
+---
+
 ## Uppfærsla: Innskráning stjórnenda og notkun (október 2026)
 
 Stjórnendur, þeir sem búa til leiki, skrá sig nú inn með netfangi og lykilorði. Gestir í símum skrá sig aldrei inn. PIN-in halda sér eins og áður. Á nýrri síðu, **hljomey.is/pubquiz/notkun.html**, sérðu hver bjó til hvaða leiki og hve margir tóku þátt.
