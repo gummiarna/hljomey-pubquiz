@@ -81,3 +81,14 @@ h1, h2, h3, .big, .sec-title { font-weight: 600 !important; letter-spacing: 0.01
 label { font-family: 'Oswald', 'Arial Narrow', sans-serif; letter-spacing: 0.02em; }
 input[type=text], input[type=password], input[type=number], select { border-radius: 6px; }
 .err { border-radius: 6px; }
+
+/* Merki leikjanna (fjall, hús með spilunarhnapp og nótur) framan við heiti á öllum síðum */
+.brand::before {
+  content: "";
+  display: inline-block;
+  width: 1.9em;
+  height: 1.2em;
+  margin-right: 0.45em;
+  vertical-align: -0.15em;
+  background: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 240 150%22%3E%3Cpolygon points=%220,140 45,60 90,100 130,35 175,90 220,55 240,140%22 fill=%22%236FC4DC%22/%3E%3Cpolygon points=%2210,140 55,75 95,110 140,140%22 fill=%22%232E86A6%22/%3E%3Cpolygon points=%2255,140 55,55 90,20 125,55 125,140%22 fill=%22%23fff%22/%3E%3Cpolygon points=%2280,80 80,120 112,100%22 fill=%22%23F2B544%22/%3E%3Cg fill=%22%23F2B544%22%3E%3Cellipse cx=%22183%22 cy=%2240%22 rx=%228%22 ry=%226%22 transform=%22rotate(-20 183 40)%22/%3E%3Cellipse cx=%22211%22 cy=%2232%22 rx=%228%22 ry=%226%22 transform=%22rotate(-20 211 32)%22/%3E%3Crect x=%22188%22 y=%228%22 width=%223.5%22 height=%2231%22/%3E%3Crect x=%22216%22 y=%222%22 width=%223.5%22 height=%2229%22/%3E%3Cpolygon points=%22188,8 219.5,2 219.5,9 188,15%22/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain;
+}

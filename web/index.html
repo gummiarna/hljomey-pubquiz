@@ -51,7 +51,8 @@
   .landing-wrap { width: 100%; max-width: 1040px; margin: 0 auto; padding-top: max(18px, env(safe-area-inset-top)); }
   .hero { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 24px; padding: 28px 0 8px; }
   .home-mark { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 22px; color: var(--text); text-decoration: none; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: .08em; text-transform: uppercase; }
-  .home-mark svg { width: 44px; }
+  .home-mark svg { width: 64px; }
+  .home-mark b { color: var(--accent); font-weight: 600; }
   .kicker { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; margin-bottom: 14px; }
   .hero h1 { font-size: clamp(44px, 8vw, 84px); line-height: .98; margin: 0; font-weight: 900; letter-spacing: -.02em; }
   .hero h1 span { color: var(--accent); }
@@ -134,8 +135,8 @@
     <section class="hero">
       <div class="hero-text">
         <a class="home-mark" href="https://hljomey.is" aria-label="Hljómey forsíða">
-          <svg viewBox="0 0 240 150" aria-hidden="true"><polygon points="0,140 45,60 90,100 130,35 175,90 220,55 240,140" fill="#6FC4DC"/><polygon points="10,140 55,75 95,110 140,140" fill="#2E86A6"/><polygon points="55,140 55,55 90,20 125,55 125,140" fill="#fff"/></svg>
-          <span>Hljómey</span>
+          <svg aria-hidden="true" viewBox="0 0 240 150"><polygon points="0,140 45,60 90,100 130,35 175,90 220,55 240,140" fill="#6FC4DC"/><polygon points="10,140 55,75 95,110 140,140" fill="#2E86A6"/><polygon points="55,140 55,55 90,20 125,55 125,140" fill="#fff"/><polygon points="80,80 80,120 112,100" fill="#F2B544"/><g fill="#F2B544"><ellipse cx="183" cy="40" rx="8" ry="6" transform="rotate(-20 183 40)"/><ellipse cx="211" cy="32" rx="8" ry="6" transform="rotate(-20 211 32)"/><rect x="188" y="8" width="3.5" height="31"/><rect x="216" y="2" width="3.5" height="29"/><polygon points="188,8 219.5,2 219.5,9 188,15"/></g></svg>
+          <span>Hljómey <b>Leikir</b></span>
         </a>
         <div class="kicker">Leikir og söngur</div>
         <h1>Hlustaðu.<br>Syngdu.<br><span>Sigraðu.</span></h1>
