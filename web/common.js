@@ -4,10 +4,10 @@
   // Valmynd leikjanna (nav.modes) verður fellilisti í símum. Virkar líka á valmyndir
   // sem eru teiknaðar seinna með JavaScript (Gítarpartý, Hvaða ár?).
   const pickCss = `.modes-pick{display:none;position:relative;flex:0 0 auto;min-width:0}
-.modes-pick select{appearance:none;-webkit-appearance:none;margin:0;width:auto;max-width:62vw;background:var(--accent);color:var(--accent-ink,#1b1300);border:0;border-radius:999px;padding:9px 36px 9px 16px;font:inherit;font-size:15px;font-weight:600;line-height:1.2;cursor:pointer;text-overflow:ellipsis}
+.modes-pick select{appearance:none;-webkit-appearance:none;margin:0;width:auto;max-width:62vw;background:var(--accent);color:var(--accent-ink,#123647);border:0;border-radius:999px;padding:9px 36px 9px 16px;font:inherit;font-size:15px;font-weight:600;line-height:1.2;cursor:pointer;text-overflow:ellipsis}
 .modes-pick select:focus-visible{outline:2px solid var(--text,#fff);outline-offset:2px}
-.modes-pick select option{background:var(--bg2,var(--panel2,#1f1a2e));color:var(--text,#f6f3ff);font-weight:500}
-.modes-pick::after{content:'';position:absolute;right:16px;top:50%;width:7px;height:7px;border-right:2px solid var(--accent-ink,#1b1300);border-bottom:2px solid var(--accent-ink,#1b1300);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.modes-pick select option{background:var(--bg2,var(--panel2,#102c3a));color:var(--text,#f5fbfc);font-weight:500}
+.modes-pick::after{content:'';position:absolute;right:16px;top:50%;width:7px;height:7px;border-right:2px solid var(--accent-ink,#123647);border-bottom:2px solid var(--accent-ink,#123647);transform:translateY(-70%) rotate(45deg);pointer-events:none}
 @media (max-width:760px){nav.modes[data-pick]{display:none!important}.modes-pick{display:block}.modes-has-pick .brand span{display:none}}`;
   function modesMenu() {
     document.querySelectorAll('nav.modes:not([data-pick])').forEach(nav => {
@@ -116,30 +116,30 @@
   const authMsg = e => { const m = String((e && (e.code || '')) + ' ' + ((e && e.message) || '')); const hit = AUTH_ERR.find(x => x[0].test(m)); return hit ? hit[1] : 'Innskráning tókst ekki: ' + ((e && e.message) || 'óþekkt villa'); };
 
   const authCss = `.pq-auth{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(8,6,14,.72);overflow:auto}
-.pq-auth form{position:relative;width:min(420px,100%);margin:auto;background:var(--card,var(--panel,#2a2340));color:var(--text,#f6f3ff);border:1px solid var(--line,#3b3357);border-radius:18px;padding:22px 20px 18px;box-shadow:0 24px 60px rgba(0,0,0,.5);font-family:inherit}
+.pq-auth form{position:relative;width:min(420px,100%);margin:auto;background:var(--card,var(--panel,#163a4b));color:var(--text,#f5fbfc);border:1px solid var(--line,#255066);border-radius:18px;padding:22px 20px 18px;box-shadow:0 24px 60px rgba(0,0,0,.5);font-family:inherit}
 .pq-auth h2{margin:0 36px 6px 0;font-size:21px;line-height:1.25}
-.pq-auth .pqa-sub{margin:0 0 16px;color:var(--muted,#b3aacb);font-size:14px;line-height:1.45}
-.pq-auth .pqa-x{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:transparent;color:var(--muted,#b3aacb);font-size:24px;line-height:1;cursor:pointer}
+.pq-auth .pqa-sub{margin:0 0 16px;color:var(--muted,#a9c9d4);font-size:14px;line-height:1.45}
+.pq-auth .pqa-x{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:transparent;color:var(--muted,#a9c9d4);font-size:24px;line-height:1;cursor:pointer}
 .pq-auth .pqa-x:hover{color:var(--text,#fff);background:rgba(255,255,255,.06)}
-.pq-auth .pqa-tabs{display:flex;gap:4px;padding:4px;background:var(--bg2,var(--panel2,#1f1a2e));border-radius:999px;margin:0 0 16px}
-.pq-auth .pqa-tabs button{flex:1;border:0;border-radius:999px;padding:9px 10px;background:transparent;color:var(--muted,#b3aacb);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
-.pq-auth .pqa-tabs button[aria-pressed=true]{background:var(--accent,#ffb938);color:var(--accent-ink,#1b1300)}
+.pq-auth .pqa-tabs{display:flex;gap:4px;padding:4px;background:var(--bg2,var(--panel2,#102c3a));border-radius:999px;margin:0 0 16px}
+.pq-auth .pqa-tabs button{flex:1;border:0;border-radius:999px;padding:9px 10px;background:transparent;color:var(--muted,#a9c9d4);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.pq-auth .pqa-tabs button[aria-pressed=true]{background:var(--accent,#f2b544);color:var(--accent-ink,#123647)}
 .pq-auth [hidden]{display:none!important}
-.pq-auth label{display:block;margin:0 0 12px;font-size:13px;font-weight:600;color:var(--muted,#b3aacb)}
+.pq-auth label{display:block;margin:0 0 12px;font-size:13px;font-weight:600;color:var(--muted,#a9c9d4)}
 .pq-auth label small{font-weight:400}
-.pq-auth input{display:block;width:100%;box-sizing:border-box;margin:6px 0 0;padding:11px 12px;border-radius:10px;border:1px solid var(--line,#3b3357);background:var(--bg2,var(--panel2,#1f1a2e));color:var(--text,#f6f3ff);font:inherit;font-size:16px}
-.pq-auth input:focus{outline:2px solid var(--accent,#ffb938);outline-offset:1px;border-color:transparent}
+.pq-auth input{display:block;width:100%;box-sizing:border-box;margin:6px 0 0;padding:11px 12px;border-radius:10px;border:1px solid var(--line,#255066);background:var(--bg2,var(--panel2,#102c3a));color:var(--text,#f5fbfc);font:inherit;font-size:16px}
+.pq-auth input:focus{outline:2px solid var(--accent,#f2b544);outline-offset:1px;border-color:transparent}
 .pq-auth .pqa-err{min-height:0;margin:0 0 10px;color:var(--bad,var(--danger,#ef4d5a));font-size:14px;font-weight:600;line-height:1.4}
 .pq-auth .pqa-err:empty{display:none}
-.pq-auth .pqa-go{display:block;width:100%;border:0;border-radius:12px;padding:13px;background:var(--accent,#ffb938);color:var(--accent-ink,#1b1300);font:inherit;font-size:16px;font-weight:700;cursor:pointer}
+.pq-auth .pqa-go{display:block;width:100%;border:0;border-radius:12px;padding:13px;background:var(--accent,#f2b544);color:var(--accent-ink,#123647);font:inherit;font-size:16px;font-weight:700;cursor:pointer}
 .pq-auth .pqa-go:disabled{opacity:.6;cursor:wait}
-.pq-auth .pqa-foot{margin:12px 0 0;color:var(--muted,#b3aacb);font-size:12.5px;text-align:center;line-height:1.4}
-.pq-acct{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:8px 0 0;font-size:13.5px;color:var(--muted,#b3aacb);line-height:1.3}
+.pq-auth .pqa-foot{margin:12px 0 0;color:var(--muted,#a9c9d4);font-size:12.5px;text-align:center;line-height:1.4}
+.pq-acct{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:8px 0 0;font-size:13.5px;color:var(--muted,#a9c9d4);line-height:1.3}
 .pq-acct[hidden]{display:none}
-.pq-acct b{color:var(--text,#f6f3ff);font-weight:600}
-.pq-acct button{border:1px solid var(--line,#3b3357);background:transparent;color:var(--text,#f6f3ff);border-radius:999px;padding:6px 14px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;line-height:1.2}
-.pq-acct button.pri{background:var(--accent,#ffb938);color:var(--accent-ink,#1b1300);border-color:transparent}
-.pq-acct button:focus-visible{outline:2px solid var(--accent,#ffb938);outline-offset:2px}
+.pq-acct b{color:var(--text,#f5fbfc);font-weight:600}
+.pq-acct button{border:1px solid var(--line,#255066);background:transparent;color:var(--text,#f5fbfc);border-radius:999px;padding:6px 14px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;line-height:1.2}
+.pq-acct button.pri{background:var(--accent,#f2b544);color:var(--accent-ink,#123647);border-color:transparent}
+.pq-acct button:focus-visible{outline:2px solid var(--accent,#f2b544);outline-offset:2px}
 .kk-top+.pq-acct{max-width:980px;margin:8px auto 0;padding:0 4vw}`;
   function authStyles() {
     if (document.getElementById('pq-auth-css')) return;

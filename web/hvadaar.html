@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#15121f">
+<meta name="theme-color" content="#0b1f29">
 <title>Hljómey – Hvaða ár?</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2026-10-15c">
-<link rel="stylesheet" href="host.css?v=2026-10-15f">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2026-10-19h">
+<link rel="stylesheet" href="host.css?v=2026-10-19h">
 <style>
-  :root { --yr: #ffb938; --is: #4fa3ff; }
+  :root { --yr: #f2b544; --is: #4fa3ff; }
   body.player { overflow: auto; }
   .ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
   .toast2 { position: fixed; left: 50%; bottom: calc(80px + env(safe-area-inset-bottom)); transform: translateX(-50%); background: #173d2a; color: #d6ffe6; border: 1px solid #2c6b4a; padding: 11px 16px; border-radius: 12px; z-index: 80; box-shadow: 0 10px 30px rgba(0,0,0,.45); max-width: calc(100vw - 32px); text-align: center; }
@@ -21,7 +21,7 @@
   .badline { color: #ffb3bb; font-size: 14px; }
   .chipsel { display: flex; flex-wrap: wrap; gap: 6px; }
   .chipsel button { background: var(--bg2); border: 1px solid var(--line); color: var(--text); border-radius: 999px; padding: 8px 14px; font-size: 14px; }
-  .chipsel button.on { background: var(--accent); border-color: var(--accent); color: #1b1300; font-weight: 500; }
+  .chipsel button.on { background: var(--accent); border-color: var(--accent); color: #123647; font-weight: 500; }
   .sp-status { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .sp-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: 0 0 10px; }
   .sp-dot.on { background: #1ed760; box-shadow: 0 0 0 4px rgba(30,215,96,.18); }
@@ -86,7 +86,7 @@
   .ha-q h1 span { color: var(--yr); }
   .ha-q .sub { font-size: clamp(18px, 2.2vw, 36px); color: var(--muted); margin-top: 1.5vh; }
   .vinyl { width: clamp(150px, 24vh, 280px); aspect-ratio: 1; border-radius: 50%; margin: 0 auto 3vh;
-           background: radial-gradient(circle, #ffb938 0 14%, #15121f 14.5% 16%, #241d38 16.5% 30%, #1a1529 30.5% 44%, #241d38 44.5% 58%, #1a1529 58.5% 72%, #0f0c18 72.5%); box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+           background: radial-gradient(circle, #f2b544 0 14%, #0b1f29 14.5% 16%, #241d38 16.5% 30%, #1a1529 30.5% 44%, #241d38 44.5% 58%, #1a1529 58.5% 72%, #0f0c18 72.5%); box-shadow: 0 20px 60px rgba(0,0,0,.5); }
   .vinyl.spin { animation: vspin 3.2s linear infinite; }
   @keyframes vspin { to { transform: rotate(360deg); } }
   .qmid2 { display: flex; align-items: center; justify-content: center; gap: 6vw; margin-top: 3vh; }
@@ -106,7 +106,7 @@
   .tl-row .nm { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tl-row .yrs { display: flex; gap: .4vw; overflow: hidden; }
   .tl-row .yrs i { font-style: normal; font-size: .72em; font-weight: 700; background: var(--bg2); border: 1px solid var(--line); border-radius: 8px; padding: .2em .5em; white-space: nowrap; }
-  .tl-row .yrs i.new { background: var(--yr); color: #1b1300; border-color: var(--yr); }
+  .tl-row .yrs i.new { background: var(--yr); color: #123647; border-color: var(--yr); }
   .tl-row .sc { white-space: nowrap; font-weight: 700; }
   .tl-row .sc small { color: var(--muted); font-weight: 500; margin-left: .6em; }
   .winner { text-align: center; color: var(--yr); font-size: clamp(22px, 2.6vw, 44px); font-weight: 900; margin-top: 1.5vh; }
@@ -140,7 +140,7 @@
   .bonus p { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
   .arts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .arts button { background: var(--bg2); border: 1px solid var(--line); color: var(--text); border-radius: 10px; padding: 10px 8px; font-size: 14px; font-weight: 500; min-height: 48px; overflow-wrap: anywhere; }
-  .arts button.on { background: var(--accent); border-color: var(--accent); color: #1b1300; }
+  .arts button.on { background: var(--accent); border-color: var(--accent); color: #123647; }
   .yrpick { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
   .yrpick button { width: 46px; height: 46px; border-radius: 12px; background: var(--bg2); border: 1px solid var(--line); font-size: 22px; font-weight: 700; }
   .yrpick input { flex: 1; text-align: center; font-size: 22px; font-weight: 900; }

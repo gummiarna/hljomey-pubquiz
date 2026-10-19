@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<meta name="theme-color" content="#15121f">
+<meta name="theme-color" content="#123647">
 <title>Hljómey – Leikir og söngur</title>
 <meta name="description" content="Pöbbkviss, tónlistarbingó, gítarpartý, karaoke og Hvaða ár? Hljómeyjar. Taktu þátt með símanum.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=2026-10-15c">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2026-10-19h">
 <style>
   body { min-height: 100dvh; display: flex; flex-direction: column; user-select: none; -webkit-tap-highlight-color: transparent; }
   header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top)); }
@@ -38,7 +38,7 @@
   .result { border-radius: 22px; width: 100%; max-width: 420px; padding: 34px 20px; }
   .result.good { background: var(--good); } .result.bad { background: var(--bad); } .result.none { background: var(--card); }
   .result .pts { font-size: 22px; font-weight: 700; margin-top: 6px; }
-  .badge { display: inline-block; background: var(--accent); color: #1b1300; font-weight: 700; border-radius: 999px; padding: 5px 12px; margin-top: 12px; }
+  .badge { display: inline-block; background: var(--accent); color: #123647; font-weight: 700; border-radius: 999px; padding: 5px 12px; margin-top: 12px; }
   .rank { font-size: 20px; margin-top: 18px; }
   .rank b { color: var(--accent); font-size: 28px; }
   .spinner { width: 46px; height: 46px; border: 5px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -50,6 +50,8 @@
   body.landing header { display: none; }
   .landing-wrap { width: 100%; max-width: 1040px; margin: 0 auto; padding-top: max(18px, env(safe-area-inset-top)); }
   .hero { display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; gap: 24px; padding: 28px 0 8px; }
+  .home-mark { display: inline-flex; align-items: center; gap: 10px; margin-bottom: 22px; color: var(--text); text-decoration: none; font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 22px; letter-spacing: .08em; text-transform: uppercase; }
+  .home-mark svg { width: 44px; }
   .kicker { color: var(--accent); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 13px; margin-bottom: 14px; }
   .hero h1 { font-size: clamp(44px, 8vw, 84px); line-height: .98; margin: 0; font-weight: 900; letter-spacing: -.02em; }
   .hero h1 span { color: var(--accent); }
@@ -131,30 +133,34 @@
   <div id="vJoin" class="landing-wrap">
     <section class="hero">
       <div class="hero-text">
-        <div class="kicker">Hljómey · Leikir og söngur</div>
+        <a class="home-mark" href="https://hljomey.is" aria-label="Hljómey forsíða">
+          <svg viewBox="0 0 240 150" aria-hidden="true"><polygon points="0,140 45,60 90,100 130,35 175,90 220,55 240,140" fill="#6FC4DC"/><polygon points="10,140 55,75 95,110 140,140" fill="#2E86A6"/><polygon points="55,140 55,55 90,20 125,55 125,140" fill="#fff"/></svg>
+          <span>Hljómey</span>
+        </a>
+        <div class="kicker">Leikir og söngur</div>
         <h1>Hlustaðu.<br>Syngdu.<br><span>Sigraðu.</span></h1>
         <p class="lead">Pöbbkviss, tónlistarbingó, gítarpartý, karaoke og „Hvaða ár?“ fyrir partíið, pöbbinn og stofuna heima. Síminn þinn er stjórntækið og stóri skjárinn sýnir hvað er að gerast.</p>
       </div>
       <svg class="hero-art" viewBox="0 0 320 260" aria-hidden="true">
         <defs>
           <radialGradient id="vg" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#2f2748"/><stop offset="1" stop-color="#0f0c18"/></radialGradient>
-          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffb938"/><stop offset="1" stop-color="#e5484d"/></linearGradient>
+          <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2b544"/><stop offset="1" stop-color="#ff6f59"/></linearGradient>
         </defs>
         <g class="spin"><circle cx="190" cy="120" r="105" fill="url(#vg)"/>
-          <circle cx="190" cy="120" r="88" fill="none" stroke="#3b3357" stroke-width="1"/>
-          <circle cx="190" cy="120" r="72" fill="none" stroke="#3b3357" stroke-width="1"/>
-          <circle cx="190" cy="120" r="56" fill="none" stroke="#3b3357" stroke-width="1"/>
+          <circle cx="190" cy="120" r="88" fill="none" stroke="#255066" stroke-width="1"/>
+          <circle cx="190" cy="120" r="72" fill="none" stroke="#255066" stroke-width="1"/>
+          <circle cx="190" cy="120" r="56" fill="none" stroke="#255066" stroke-width="1"/>
           <path d="M120 70 A88 88 0 0 1 170 34" stroke="#ffffff22" stroke-width="6" fill="none" stroke-linecap="round"/>
-          <circle cx="190" cy="120" r="30" fill="url(#lg)"/><circle cx="190" cy="120" r="5" fill="#15121f"/></g>
+          <circle cx="190" cy="120" r="30" fill="url(#lg)"/><circle cx="190" cy="120" r="5" fill="#0b1f29"/></g>
         <g class="eq" transform="translate(18 150)">
-          <rect x="0"  width="14" rx="7" y="30" height="60" fill="#e5484d"/>
-          <rect x="22" width="14" rx="7" y="0"  height="90" fill="#3e63dd"/>
-          <rect x="44" width="14" rx="7" y="40" height="50" fill="#e8a317"/>
-          <rect x="66" width="14" rx="7" y="15" height="75" fill="#2f9e5b"/>
-          <rect x="88" width="14" rx="7" y="50" height="40" fill="#ffb938"/>
+          <rect x="0"  width="14" rx="7" y="30" height="60" fill="#ff6f59"/>
+          <rect x="22" width="14" rx="7" y="0"  height="90" fill="#2e86a6"/>
+          <rect x="44" width="14" rx="7" y="40" height="50" fill="#e0a53a"/>
+          <rect x="66" width="14" rx="7" y="15" height="75" fill="#2e9e74"/>
+          <rect x="88" width="14" rx="7" y="50" height="40" fill="#f2b544"/>
         </g>
-        <g class="note n1" fill="#ffb938"><circle cx="60" cy="72" r="9"/><rect x="66" y="30" width="4" height="44"/><path d="M70 30 q18 6 14 22 q-4-10-14-10z"/></g>
-        <g class="note n2" fill="#b3aacb"><circle cx="292" cy="228" r="7"/><rect x="297" y="196" width="3" height="34"/></g>
+        <g class="note n1" fill="#f2b544"><circle cx="60" cy="72" r="9"/><rect x="66" y="30" width="4" height="44"/><path d="M70 30 q18 6 14 22 q-4-10-14-10z"/></g>
+        <g class="note n2" fill="#a9c9d4"><circle cx="292" cy="228" r="7"/><rect x="297" y="196" width="3" height="34"/></g>
       </svg>
     </section>
 
@@ -174,16 +180,16 @@
       <div class="game-grid">
         <article class="game">
           <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
-            <rect x="0" y="0" width="300" height="170" rx="18" fill="#1f1a2e"/>
+            <rect x="0" y="0" width="300" height="170" rx="18" fill="#102c3a"/>
             <g transform="translate(26 22)">
-              <rect x="0" y="0" width="112" height="56" rx="10" fill="#e5484d"/><path d="M24 38 l10-18 l10 18z" fill="#fff"/><rect x="52" y="24" width="44" height="7" rx="3.5" fill="#ffffffaa"/>
-              <rect x="120" y="0" width="112" height="56" rx="10" fill="#3e63dd"/><path d="M152 18 l9 10 l-9 10 l-9-10z" fill="#fff"/><rect x="172" y="24" width="44" height="7" rx="3.5" fill="#ffffffaa"/>
-              <rect x="0" y="66" width="112" height="56" rx="10" fill="#e8a317"/><circle cx="34" cy="94" r="9" fill="#fff"/><rect x="52" y="90" width="44" height="7" rx="3.5" fill="#ffffffaa"/>
-              <rect x="120" y="66" width="112" height="56" rx="10" fill="#2f9e5b"/><rect x="144" y="85" width="17" height="17" fill="#fff"/><rect x="172" y="90" width="44" height="7" rx="3.5" fill="#ffffffaa"/>
+              <rect x="0" y="0" width="112" height="56" rx="10" fill="#ff6f59"/><path d="M24 38 l10-18 l10 18z" fill="#fff"/><rect x="52" y="24" width="44" height="7" rx="3.5" fill="#ffffffaa"/>
+              <rect x="120" y="0" width="112" height="56" rx="10" fill="#2e86a6"/><path d="M152 18 l9 10 l-9 10 l-9-10z" fill="#fff"/><rect x="172" y="24" width="44" height="7" rx="3.5" fill="#ffffffaa"/>
+              <rect x="0" y="66" width="112" height="56" rx="10" fill="#e0a53a"/><circle cx="34" cy="94" r="9" fill="#fff"/><rect x="52" y="90" width="44" height="7" rx="3.5" fill="#ffffffaa"/>
+              <rect x="120" y="66" width="112" height="56" rx="10" fill="#2e9e74"/><rect x="144" y="85" width="17" height="17" fill="#fff"/><rect x="172" y="90" width="44" height="7" rx="3.5" fill="#ffffffaa"/>
             </g>
-            <g transform="translate(264 36)"><circle r="22" fill="#15121f"/><circle r="18" fill="none" stroke="#3b3357" stroke-width="5"/>
-              <circle r="18" fill="none" stroke="#ffb938" stroke-width="5" stroke-dasharray="80 113" transform="rotate(-90)" stroke-linecap="round"/>
-              <text y="6" text-anchor="middle" font-size="15" font-weight="900" fill="#fff" font-family="Rubik, sans-serif">5</text></g>
+            <g transform="translate(264 36)"><circle r="22" fill="#0b1f29"/><circle r="18" fill="none" stroke="#255066" stroke-width="5"/>
+              <circle r="18" fill="none" stroke="#f2b544" stroke-width="5" stroke-dasharray="80 113" transform="rotate(-90)" stroke-linecap="round"/>
+              <text y="6" text-anchor="middle" font-size="15" font-weight="900" fill="#fff" font-family="Oswald, sans-serif">5</text></g>
           </svg>
           <div class="game-body">
             <h3>Pöbbkviss</h3>
@@ -199,10 +205,10 @@
 
         <article class="game">
           <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
-            <rect x="0" y="0" width="300" height="170" rx="18" fill="#1f1a2e"/>
+            <rect x="0" y="0" width="300" height="170" rx="18" fill="#102c3a"/>
             <g transform="translate(85 13)" id="bingoArt"></g>
-            <g transform="translate(22 60)" fill="#ffb938"><circle cx="10" cy="40" r="8"/><rect x="15" y="4" width="3.5" height="38"/><path d="M18.5 4 q14 5 11 18 q-3-8-11-8z"/></g>
-            <text x="252" y="92" text-anchor="middle" font-size="22" font-weight="900" fill="#ffb938" font-family="Rubik, sans-serif" transform="rotate(-12 252 92)">BINGÓ!</text>
+            <g transform="translate(22 60)" fill="#f2b544"><circle cx="10" cy="40" r="8"/><rect x="15" y="4" width="3.5" height="38"/><path d="M18.5 4 q14 5 11 18 q-3-8-11-8z"/></g>
+            <text x="252" y="92" text-anchor="middle" font-size="22" font-weight="900" fill="#f2b544" font-family="Oswald, sans-serif" transform="rotate(-12 252 92)">BINGÓ!</text>
           </svg>
           <div class="game-body">
             <h3>Tónlistarbingó</h3>
@@ -218,24 +224,24 @@
 
         <article class="game">
           <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
-            <rect x="0" y="0" width="300" height="170" rx="18" fill="#1f1a2e"/>
+            <rect x="0" y="0" width="300" height="170" rx="18" fill="#102c3a"/>
             <g transform="translate(22 20)">
-              <rect width="150" height="130" rx="12" fill="#2a2340"/>
-              <g font-family="Rubik, sans-serif" font-weight="900" font-size="14" fill="#ffb938">
+              <rect width="150" height="130" rx="12" fill="#163a4b"/>
+              <g font-family="Oswald, sans-serif" font-weight="900" font-size="14" fill="#f2b544">
                 <text x="14" y="27">Am</text><text x="74" y="27">E7</text>
                 <text x="14" y="67">Dm</text><text x="92" y="67">G</text>
                 <text x="14" y="107">C</text><text x="62" y="107">F</text><text x="108" y="107">E</text>
               </g>
-              <g fill="#3b3357"><rect x="14" y="34" width="118" height="7" rx="3.5"/><rect x="14" y="74" width="96" height="7" rx="3.5"/><rect x="14" y="114" width="122" height="7" rx="3.5"/></g>
+              <g fill="#255066"><rect x="14" y="34" width="118" height="7" rx="3.5"/><rect x="14" y="74" width="96" height="7" rx="3.5"/><rect x="14" y="114" width="122" height="7" rx="3.5"/></g>
             </g>
             <g transform="translate(192 14)">
-              <rect width="86" height="144" rx="16" fill="#15121f" stroke="#3b3357" stroke-width="3"/>
-              <rect x="29" y="9" width="28" height="5" rx="2.5" fill="#3b3357"/>
-              <rect x="12" y="24" width="40" height="14" rx="7" fill="#ffb938"/><circle cx="20" cy="31" r="3" fill="#1b1300"/>
-              <g fill="#b3aacb"><rect x="12" y="50" width="60" height="6" rx="3"/><rect x="12" y="62" width="48" height="6" rx="3"/><rect x="12" y="74" width="56" height="6" rx="3"/></g>
-              <g fill="#b3aacb" opacity=".45"><rect x="12" y="94" width="62" height="6" rx="3"/><rect x="12" y="106" width="42" height="6" rx="3"/><rect x="12" y="118" width="52" height="6" rx="3"/></g>
+              <rect width="86" height="144" rx="16" fill="#0b1f29" stroke="#255066" stroke-width="3"/>
+              <rect x="29" y="9" width="28" height="5" rx="2.5" fill="#255066"/>
+              <rect x="12" y="24" width="40" height="14" rx="7" fill="#f2b544"/><circle cx="20" cy="31" r="3" fill="#123647"/>
+              <g fill="#a9c9d4"><rect x="12" y="50" width="60" height="6" rx="3"/><rect x="12" y="62" width="48" height="6" rx="3"/><rect x="12" y="74" width="56" height="6" rx="3"/></g>
+              <g fill="#a9c9d4" opacity=".45"><rect x="12" y="94" width="62" height="6" rx="3"/><rect x="12" y="106" width="42" height="6" rx="3"/><rect x="12" y="118" width="52" height="6" rx="3"/></g>
             </g>
-            <g transform="translate(172 52)" fill="#e5484d"><circle cx="6" cy="36" r="6.5"/><rect x="10.5" y="4" width="3.2" height="33"/><path d="M13.7 4 q11 4 9 15 q-2-7-9-6.5z"/></g>
+            <g transform="translate(172 52)" fill="#ff6f59"><circle cx="6" cy="36" r="6.5"/><rect x="10.5" y="4" width="3.2" height="33"/><path d="M13.7 4 q11 4 9 15 q-2-7-9-6.5z"/></g>
           </svg>
           <div class="game-body">
             <h3>Gítarpartý</h3>
@@ -251,24 +257,24 @@
 
         <article class="game">
           <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
-            <rect x="0" y="0" width="300" height="170" rx="18" fill="#1f1a2e"/>
+            <rect x="0" y="0" width="300" height="170" rx="18" fill="#102c3a"/>
             <g transform="translate(22 16)">
-              <rect width="178" height="108" rx="10" fill="#15121f" stroke="#3b3357" stroke-width="3"/>
-              <circle cx="104" cy="28" r="5" fill="#ff5fa2"/>
-              <rect x="22" y="40" width="134" height="10" rx="5" fill="#3b3357"/><rect x="22" y="40" width="82" height="10" rx="5" fill="#ffb938"/>
-              <rect x="38" y="62" width="102" height="10" rx="5" fill="#3b3357"/>
-              <rect x="56" y="84" width="66" height="7" rx="3.5" fill="#2a2340"/>
-              <rect x="76" y="110" width="26" height="9" fill="#3b3357"/><rect x="60" y="118" width="58" height="5" rx="2.5" fill="#3b3357"/>
+              <rect width="178" height="108" rx="10" fill="#0b1f29" stroke="#255066" stroke-width="3"/>
+              <circle cx="104" cy="28" r="5" fill="#6fc4dc"/>
+              <rect x="22" y="40" width="134" height="10" rx="5" fill="#255066"/><rect x="22" y="40" width="82" height="10" rx="5" fill="#f2b544"/>
+              <rect x="38" y="62" width="102" height="10" rx="5" fill="#255066"/>
+              <rect x="56" y="84" width="66" height="7" rx="3.5" fill="#163a4b"/>
+              <rect x="76" y="110" width="26" height="9" fill="#255066"/><rect x="60" y="118" width="58" height="5" rx="2.5" fill="#255066"/>
             </g>
             <g transform="translate(246 24) rotate(16)">
-              <rect x="-15" y="0" width="30" height="44" rx="15" fill="#ff5fa2"/>
-              <path d="M-15 16h30M-15 25h30" stroke="#15121f" stroke-width="2.4" opacity=".3"/>
-              <rect x="-7" y="44" width="14" height="58" rx="7" fill="#b3aacb"/>
+              <rect x="-15" y="0" width="30" height="44" rx="15" fill="#6fc4dc"/>
+              <path d="M-15 16h30M-15 25h30" stroke="#0b1f29" stroke-width="2.4" opacity=".3"/>
+              <rect x="-7" y="44" width="14" height="58" rx="7" fill="#a9c9d4"/>
             </g>
             <g transform="translate(22 142)">
-              <rect width="84" height="20" rx="10" fill="#2a2340"/><circle cx="10" cy="10" r="6" fill="#ff5fa2"/><rect x="22" y="7" width="50" height="6" rx="3" fill="#b3aacb"/>
-              <rect x="92" width="84" height="20" rx="10" fill="#2a2340"/><circle cx="102" cy="10" r="6" fill="#3b3357"/><rect x="114" y="7" width="44" height="6" rx="3" fill="#6f6590"/>
-              <rect x="184" width="70" height="20" rx="10" fill="#2a2340" opacity=".6"/><circle cx="194" cy="10" r="6" fill="#3b3357"/><rect x="206" y="7" width="36" height="6" rx="3" fill="#6f6590"/>
+              <rect width="84" height="20" rx="10" fill="#163a4b"/><circle cx="10" cy="10" r="6" fill="#6fc4dc"/><rect x="22" y="7" width="50" height="6" rx="3" fill="#a9c9d4"/>
+              <rect x="92" width="84" height="20" rx="10" fill="#163a4b"/><circle cx="102" cy="10" r="6" fill="#255066"/><rect x="114" y="7" width="44" height="6" rx="3" fill="#5f8796"/>
+              <rect x="184" width="70" height="20" rx="10" fill="#163a4b" opacity=".6"/><circle cx="194" cy="10" r="6" fill="#255066"/><rect x="206" y="7" width="36" height="6" rx="3" fill="#5f8796"/>
             </g>
           </svg>
           <div class="game-body">
@@ -284,17 +290,17 @@
         </article>
         <article class="game">
           <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
-            <rect x="0" y="0" width="300" height="170" rx="18" fill="#1f1a2e"/>
-            <path d="M18 132 H282" stroke="#3b3357" stroke-width="3" stroke-linecap="round"/>
-            <g font-family="Rubik, sans-serif" font-weight="900" text-anchor="middle">
-              <g transform="translate(22 66)"><rect width="54" height="58" rx="9" fill="#2a2340"/><text x="27" y="26" font-size="15" fill="#ffb938">1975</text><rect x="9" y="36" width="36" height="5" rx="2.5" fill="#3b3357"/><rect x="9" y="45" width="26" height="5" rx="2.5" fill="#3b3357"/></g>
-              <g transform="translate(84 66)"><rect width="54" height="58" rx="9" fill="#2a2340"/><text x="27" y="26" font-size="15" fill="#ffb938">1986</text><rect x="9" y="36" width="36" height="5" rx="2.5" fill="#3b3357"/><rect x="9" y="45" width="22" height="5" rx="2.5" fill="#3b3357"/></g>
-              <rect x="146" y="66" width="54" height="58" rx="9" fill="none" stroke="#ffb938" stroke-width="2.5" stroke-dasharray="6 5"/>
-              <g transform="translate(208 66)"><rect width="54" height="58" rx="9" fill="#2a2340"/><text x="27" y="26" font-size="15" fill="#ffb938">2011</text><rect x="9" y="36" width="36" height="5" rx="2.5" fill="#3b3357"/><rect x="9" y="45" width="30" height="5" rx="2.5" fill="#3b3357"/></g>
-              <g transform="translate(150 12) rotate(-8 27 29)"><rect width="54" height="58" rx="9" fill="#ffb938"/><text x="27" y="40" font-size="30" fill="#1b1300">?</text></g>
+            <rect x="0" y="0" width="300" height="170" rx="18" fill="#102c3a"/>
+            <path d="M18 132 H282" stroke="#255066" stroke-width="3" stroke-linecap="round"/>
+            <g font-family="Oswald, sans-serif" font-weight="900" text-anchor="middle">
+              <g transform="translate(22 66)"><rect width="54" height="58" rx="9" fill="#163a4b"/><text x="27" y="26" font-size="15" fill="#f2b544">1975</text><rect x="9" y="36" width="36" height="5" rx="2.5" fill="#255066"/><rect x="9" y="45" width="26" height="5" rx="2.5" fill="#255066"/></g>
+              <g transform="translate(84 66)"><rect width="54" height="58" rx="9" fill="#163a4b"/><text x="27" y="26" font-size="15" fill="#f2b544">1986</text><rect x="9" y="36" width="36" height="5" rx="2.5" fill="#255066"/><rect x="9" y="45" width="22" height="5" rx="2.5" fill="#255066"/></g>
+              <rect x="146" y="66" width="54" height="58" rx="9" fill="none" stroke="#f2b544" stroke-width="2.5" stroke-dasharray="6 5"/>
+              <g transform="translate(208 66)"><rect width="54" height="58" rx="9" fill="#163a4b"/><text x="27" y="26" font-size="15" fill="#f2b544">2011</text><rect x="9" y="36" width="36" height="5" rx="2.5" fill="#255066"/><rect x="9" y="45" width="30" height="5" rx="2.5" fill="#255066"/></g>
+              <g transform="translate(150 12) rotate(-8 27 29)"><rect width="54" height="58" rx="9" fill="#f2b544"/><text x="27" y="40" font-size="30" fill="#123647">?</text></g>
             </g>
-            <path d="M177 76 v-2" stroke="#ffb938" stroke-width="0"/>
-            <g fill="#e5484d" transform="translate(246 18)"><circle cx="6" cy="30" r="6"/><rect x="10.3" y="2" width="3" height="29"/><path d="M13.3 2 q10 4 8 14 q-2-7-8-6z"/></g>
+            <path d="M177 76 v-2" stroke="#f2b544" stroke-width="0"/>
+            <g fill="#ff6f59" transform="translate(246 18)"><circle cx="6" cy="30" r="6"/><rect x="10.3" y="2" width="3" height="29"/><path d="M13.3 2 q10 4 8 14 q-2-7-8-6z"/></g>
           </svg>
           <div class="game-body">
             <h3>Hvaða ár?</h3>
@@ -380,9 +386,9 @@
     let h = '';
     for (let i = 0; i < 25; i++) {
       const x = (i % 5) * 26, y = Math.floor(i / 5) * 29;
-      const fill = i === 12 ? '#e5484d' : on.includes(i) ? '#ffb938' : '#2a2340';
+      const fill = i === 12 ? '#ff6f59' : on.includes(i) ? '#f2b544' : '#163a4b';
       h += `<rect x="${x}" y="${y}" width="23" height="26" rx="5" fill="${fill}"/>`;
-      if (i !== 12 && !on.includes(i)) h += `<rect x="${x + 5}" y="${y + 11}" width="13" height="4" rx="2" fill="#3b3357"/>`;
+      if (i !== 12 && !on.includes(i)) h += `<rect x="${x + 5}" y="${y + 11}" width="13" height="4" rx="2" fill="#255066"/>`;
     }
     h += '<path d="M11 13 L115 129" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/>';
     g.innerHTML = h;

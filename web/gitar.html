@@ -5,28 +5,32 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hljómey Gítarpartý</title>
 <meta name="description" content="Gítarpartý Hljómeyjar: spilarinn fær lögin með hljómum og allir hinir fylgjast með textanum í símanum.">
-<meta name="theme-color" content="#15121f">
+<meta name="theme-color" content="#0b1f29">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
 <style>
 /* Sömu litir og letur og í Pöbbkvissi og Tónlistarbingói (style.css) */
 :root{
-  --bg:#15121f; --panel:#2a2340; --panel2:#1f1a2e; --line:#3b3357;
-  --text:#f6f3ff; --muted:#b3aacb; --accent:#ffb938; --accent-ink:#1b1300;
-  --chord:#ffb938; --label:#b3aacb; --danger:#ef4d5a; --chorus:rgba(255,185,56,.07);
-  --glow:#2c2250; --radius:14px; --fs:1;
+  --bg:#0b1f29; --panel:#163a4b; --panel2:#102c3a; --line:#255066;
+  --text:#f5fbfc; --muted:#a9c9d4; --accent:#f2b544; --accent-ink:#123647;
+  --chord:#f2b544; --label:#a9c9d4; --danger:#ef4d5a; --chorus:rgba(255,185,56,.07);
+  --glow:#1a4a5e; --radius:14px; --fs:1;
   color-scheme:dark;
 }
 :root[data-theme="light"]{
   --bg:#f7f4ee; --panel:#ffffff; --panel2:#efeae0; --line:#ddd5c6;
-  --text:#15121f; --muted:#5e5873; --accent:#c98400; --accent-ink:#ffffff;
+  --text:#0b1f29; --muted:#5e5873; --accent:#c98400; --accent-ink:#ffffff;
   --chord:#a65f00; --label:#6b5f8a; --danger:#c43d2c; --chorus:rgba(201,132,0,.08);
   --glow:#efe6ff;
   color-scheme:light;
 }
 *{box-sizing:border-box}
-html,body{margin:0;color:var(--text);font-family:Rubik,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;color:var(--text);font-family:Literata,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+
+/* Hljómey: Oswald í fyrirsögnum og hnöppum, eins og á hljomey.is */
+h1,h2,h3,button,.brand,.btn,nav,.modes,label{font-family:Oswald,"Arial Narrow",sans-serif}
+.brand{text-transform:uppercase;letter-spacing:.06em;font-weight:600}
 html{background:var(--bg)}
 body{min-height:100vh;min-height:100dvh;background:radial-gradient(1200px 700px at 20% -10%,var(--glow) 0%,transparent 60%) no-repeat,var(--bg)}
 button,input,textarea,select{font:inherit;color:inherit}
@@ -145,14 +149,14 @@ a{color:var(--accent)}
 .row.now .n{color:var(--accent)}
 
 /* ----- QR ----- */
-.qr{position:fixed;inset:0;z-index:60;background:radial-gradient(1200px 700px at 20% -10%,#2c2250 0%,transparent 60%) no-repeat,#15121f;color:#f6f3ff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
+.qr{position:fixed;inset:0;z-index:60;background:radial-gradient(1200px 700px at 20% -10%,#1a4a5e 0%,transparent 60%) no-repeat,#0b1f29;color:#f5fbfc;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
 .qr .box{background:#fff;border-radius:22px;padding:16px;width:min(78vw,62vh,520px);aspect-ratio:1}
 .qr .box svg{width:100%;height:100%;display:block}
 .qr h2{margin:0;font-size:clamp(24px,4vw,44px);font-weight:900}
-.qr .c{font-size:clamp(48px,9vw,110px);font-weight:900;letter-spacing:.08em;line-height:1;color:#ffb938}
-.qr p{margin:0;color:#b3aacb;font-size:clamp(14px,2vw,20px);word-break:break-all}
-.qr .x{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;background:#1f1a2e;border-color:#3b3357;color:#f6f3ff}
-.qr p b{color:#f6f3ff}
+.qr .c{font-size:clamp(48px,9vw,110px);font-weight:900;letter-spacing:.08em;line-height:1;color:#f2b544}
+.qr p{margin:0;color:#a9c9d4;font-size:clamp(14px,2vw,20px);word-break:break-all}
+.qr .x{position:absolute;top:max(14px,env(safe-area-inset-top));right:14px;background:#102c3a;border-color:#255066;color:#f5fbfc}
+.qr p b{color:#f5fbfc}
 
 /* ----- Upphafssíða / söngbók ----- */
 .wrap{max-width:760px;margin:0 auto;padding:20px 16px 130px}
@@ -397,7 +401,7 @@ function applyTheme() {
   else document.documentElement.setAttribute('data-theme', t);
   var light = t === 'light' || (t === 'auto' && window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches);
   var meta = document.querySelector('meta[name=theme-color]');
-  if (meta) meta.setAttribute('content', light ? '#f7f4ee' : '#15121f');
+  if (meta) meta.setAttribute('content', light ? '#f7f4ee' : '#0b1f29');
 }
 // Partýið er sjálfgefið dökkt (kvöld!) nema notandi velji annað
 if (LS.get('theme', null) === null) LS.set('theme', 'dark');

@@ -71,7 +71,7 @@ body { overflow: hidden; }
   .pod { width: min(24vw, 320px); text-align: center; }
   .pod .name { font-size: clamp(20px, 2.6vw, 44px); font-weight: 900; margin-bottom: 1vh; overflow-wrap: anywhere; }
   .pod .pts { color: var(--muted); font-size: clamp(14px, 1.6vw, 26px); margin-bottom: 1vh; }
-  .pod .block { border-radius: 14px 14px 0 0; display: grid; place-items: start center; padding-top: 2vh; font-size: clamp(40px, 6vw, 100px); font-weight: 900; color: #1b1300; }
+  .pod .block { border-radius: 14px 14px 0 0; display: grid; place-items: start center; padding-top: 2vh; font-size: clamp(40px, 6vw, 100px); font-weight: 900; color: #123647; }
   .pod.p1 .block { height: 40vh; background: var(--accent); }
   .pod.p2 .block { height: 28vh; background: #cfd3e6; }
   .pod.p3 .block { height: 20vh; background: #d99a63; }
@@ -91,7 +91,7 @@ body { overflow: hidden; }
 /* Val á leik */
 .modes { display: flex; gap: 6px; background: var(--bg2); border: 1px solid var(--line); border-radius: 999px; padding: 4px; overflow-x: auto; max-width: 100%; scrollbar-width: none; }
 .modes a { color: var(--muted); text-decoration: none; padding: 7px 14px; border-radius: 999px; font-size: 15px; font-weight: 500; white-space: nowrap; }
-.modes a.on { background: var(--accent); color: #1b1300; }
+.modes a.on { background: var(--accent); color: #123647; }
 
 /* Tegund leiks: tónlist / spurningar / blandað */
 .gtype { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
@@ -116,7 +116,7 @@ body { overflow: hidden; }
 .catpick { display: flex; flex-wrap: wrap; gap: 6px; }
 .catpick button { background: var(--bg2); border: 1px solid var(--line); color: var(--text); border-radius: 999px; padding: 7px 13px; font-size: 14px; }
 .catpick button small { color: var(--muted); margin-left: 5px; font-size: 13px; }
-.catpick button.on { background: var(--accent); border-color: var(--accent); color: #1b1300; font-weight: 500; }
+.catpick button.on { background: var(--accent); border-color: var(--accent); color: #123647; font-weight: 500; }
 .catpick button.on small { color: rgba(27,19,0,.7); }
 .catpick .catkids { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 6px; color: var(--muted); font-size: 13.5px; }
 .qfresh { display: flex !important; align-items: center; gap: 8px; color: var(--text) !important; margin: 0 0 12px !important; cursor: pointer; font-size: 14px; }
