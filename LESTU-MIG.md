@@ -7,6 +7,28 @@ Leikirnir, Pöbbkviss, Tónlistarbingó, Gítarpartý, Karaoke og Hvaða ár?, e
 
 ---
 
+## Uppfærsla: Jólabingó Hljómeyjar (október 2026)
+
+Netleikur sem allir geta spilað í eigin síma, eitt lag á dag 1.–24. desember. Hver leikmaður fær sitt eigið 4×4 spjald með 16 listamönnum. Kl. 12 opnast lag dagsins; sá sem svarar rétt hver flytur lagið fær listamanninn merktan, ef hann er á spjaldinu. Fimmta hvert rétt svar gefur jóker sem setja má á hvaða reit sem er. Sá sem byrjar seint getur svarað eldri lögunum.
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald **`jolabingo.sql`** → **Run**. Neðst stendur „Jólabingó tilbúið“.
+2. Vefurinn fer sjálfkrafa á leikir.hljomey.is (Vercel). Á Bluehost: hladdu upp `jolabingo.html`, `jolabingo.js`, `jolabingo-stjorn.html` og `index.html`.
+3. **Stjórnun**: opnaðu **jolabingo-stjorn.html** og sláðu inn aðal-PIN (gestapin virkar ekki hér, því þar sjást netföng).
+   - **Stillingar**: fyrsti dagur (sjálfgefið 1. desember 2026), fjöldi daga (24), klukkan hvað lagið opnar (12) og hve mörg rétt svör gefa jóker (5).
+   - **Lög dagsins**: fyrir hvern dag, leitaðu að lagi á Deezer, staðfestu nafn listamannsins og þrjú röng svör (eða stokkaðu þau úr pottinum). Hver listamaður má aðeins vera einu sinni.
+   - **Aukanöfn**: 6–8 nöfn sem eru á spjöldunum en ekki lag neins dags, svo potturinn sé um 30 nöfn.
+   - Skráning opnast þegar öll lögin eru komin inn og potturinn er a.m.k. 16 nöfn. Fólk getur skráð sig strax og fengið spjald, þótt fyrsta lagið opni ekki fyrr en 1. desember.
+   - **Leikmenn og vinningar**: sía eftir línu, tveimur línum, fullu spjaldi eða póstlista, **Draga vinningshafa** velur einn af handahófi, og **Sækja CSV** gefur listann með netföngum.
+4. Leikmenn sem haka við póstlistann fara beint á póstlista hljomey.is (`newsletter_subscribers`, merkt `jolabingo`). Það er sérstakt hak, ekki skilyrði fyrir að spila.
+
+Athugaðu:
+
+- Lag dagsins (og rétta svarið) sést ekki fyrr en dagurinn opnast; allt fer í gegnum föll í gagnagrunninum.
+- Spjöldin eru búin til þegar fólk skráir sig, úr pottinum eins og hann er þá. Kláraðu lögin og aukanöfnin áður en þú auglýsir leikinn.
+- Sama netfang í öðru tæki opnar sama spjaldið. Vinningar eru sendir á netfangið, svo það skiptir ekki máli hver opnar spjaldið.
+
+---
+
 ## Uppfærsla: 300 barnaspurningar (október 2026)
 
 Nýr flokkur í spurningabankanum, **Barnaspurningar**, með 300 spurningum fyrir krakka á aldrinum um 6 til 12 ára: dýr, náttúra, geimurinn, líkaminn, Ísland og jólin, ævintýri, teiknimyndir og tölvuleikir, íþróttir, tölur og litir, íslenska, matur og heimurinn.

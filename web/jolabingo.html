@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1f29">
+<title>Jólabingó Hljómeyjar</title>
+<meta name="description" content="Eitt lag á dag fram að jólum. Hlustaðu, svaraðu hver flytur lagið og merktu við á þínu eigin bingóspjaldi.">
+<meta property="og:title" content="Jólabingó Hljómeyjar">
+<meta property="og:description" content="Eitt lag á dag fram að jólum. Allir geta spilað með.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2026-10-19h">
+<style>
+  html { background: var(--bg); }
+  body { height: auto; min-height: 100%; }
+  :root { --snow: rgba(255,255,255,.08); }
+  body { min-height: 100dvh; -webkit-tap-highlight-color: transparent; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 14px 40px; padding-bottom: max(40px, env(safe-area-inset-bottom)); }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 14px 2px; padding-top: max(14px, env(safe-area-inset-top)); }
+  header a.brand { color: inherit; text-decoration: none; font-family: 'Oswald', sans-serif; font-size: 20px; letter-spacing: .06em; }
+  header .me { font-size: 14px; color: var(--muted); max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  h1, h2, h3 { font-family: 'Oswald', sans-serif; font-weight: 600; letter-spacing: .01em; }
+
+  .hero { position: relative; border-radius: 26px; overflow: hidden; padding: 28px 22px 24px; margin-top: 4px;
+          background: radial-gradient(500px 260px at 90% -10%, rgba(242,181,68,.35), transparent 60%), linear-gradient(160deg, #123647, #0b1f29); border: 1px solid var(--line); }
+  .hero h1 { margin: 0; font-size: 44px; line-height: 1; }
+  .hero h1 span { color: var(--accent); }
+  .hero p { margin: 12px 0 0; color: var(--muted); font-size: 17px; line-height: 1.5; }
+  .flakes { position: absolute; inset: 0; pointer-events: none; opacity: .55; }
+  .steps3 { display: grid; gap: 10px; margin: 18px 0 0; padding: 0; list-style: none; counter-reset: s; }
+  .steps3 li { display: flex; gap: 12px; align-items: flex-start; font-size: 15px; line-height: 1.45; }
+  .steps3 li::before { counter-increment: s; content: counter(s); flex: 0 0 30px; height: 30px; border-radius: 15px; background: var(--accent); color: #123647; font-weight: 800; display: grid; place-items: center; font-family: system-ui, sans-serif; }
+
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 20px; margin-top: 14px; }
+  .panel h2 { margin: 0 0 6px; font-size: 24px; }
+  .panel p { margin: 0 0 14px; color: var(--muted); }
+  input[type=email] { width: 100%; background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; outline: none; }
+  .field { margin-bottom: 14px; }
+  .check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--text); line-height: 1.45; margin: 4px 0 16px; cursor: pointer; }
+  .check input { width: 22px; height: 22px; flex: 0 0 22px; accent-color: var(--accent); margin: 0; }
+  .panel .btn.full { width: 100%; font-size: 18px; padding: 14px; }
+  .fine { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
+  .fine a { color: var(--muted); }
+
+  .stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+  .stat { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px 10px; text-align: center; }
+  .stat b { display: block; font-family: 'Oswald', sans-serif; font-size: 28px; line-height: 1.1; color: var(--accent); }
+  .stat span { font-size: 12px; color: var(--muted); }
+
+  .today { margin-top: 14px; background: linear-gradient(160deg, #163a4b, #102c3a); border: 1px solid var(--line); border-radius: 22px; padding: 18px; }
+  .today .kick { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-family: system-ui, sans-serif; }
+  .today h2 { margin: 4px 0 12px; font-size: 26px; }
+  .play { display: flex; align-items: center; gap: 14px; width: 100%; background: var(--bg2); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; text-align: left; }
+  .play .ic { flex: 0 0 48px; height: 48px; border-radius: 24px; background: var(--accent); color: #123647; display: grid; place-items: center; }
+  .play .ic svg { width: 22px; height: 22px; fill: currentColor; }
+  .play .wave { height: 40px; flex: 1; justify-content: flex-start; gap: 4px; }
+  .play .wave i { width: 6px; height: 8px; }
+  .play .wave.on i { animation-name: wv2; }
+  @keyframes wv2 { 0%,100% { height: 8px; } 50% { height: 36px; } }
+  .q { margin: 16px 0 8px; font-size: 15px; color: var(--muted); }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .opts button { min-height: 64px; border-radius: 14px; color: #fff; font-weight: 700; font-size: 16px; padding: 10px; text-align: left; display: flex; gap: 8px; align-items: center; line-height: 1.2; }
+  .opts button i { font-style: normal; opacity: .8; }
+  .opts button.dim { opacity: .35; }
+  .opts button.right { outline: 3px solid #fff; }
+  .result { display: flex; gap: 14px; align-items: center; margin-top: 14px; padding: 12px; border-radius: 16px; background: var(--bg2); border: 1px solid var(--line); }
+  .result img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: var(--card); }
+  .result b { display: block; font-size: 17px; }
+  .result span { color: var(--muted); font-size: 14px; }
+  .verdict { margin-top: 12px; font-weight: 700; font-size: 17px; }
+  .verdict.good { color: var(--good); } .verdict.bad { color: #ffb3a8; }
+  .wait { text-align: center; padding: 10px 0 4px; }
+  .wait b { font-family: 'Oswald', sans-serif; font-size: 34px; color: var(--accent); display: block; }
+
+  .sec { margin: 22px 2px 8px; display: flex; justify-content: space-between; align-items: baseline; }
+  .sec h3 { margin: 0; font-size: 20px; }
+  .sec span { font-size: 13px; color: var(--muted); }
+  .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; }
+  .cell { aspect-ratio: 1; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 5px; display: flex; align-items: center; justify-content: center;
+          text-align: center; font-size: clamp(11px, 3.3vw, 15px); line-height: 1.15; overflow-wrap: break-word; hyphens: auto; position: relative; color: var(--text); }
+  .cell.long { font-size: clamp(9px, 2.6vw, 12.5px); }
+  .cell.ok { background: var(--accent); border-color: var(--accent); color: #123647; font-weight: 700; }
+  .cell.ok::after { content: ''; position: absolute; inset: 12%; border: 3px solid rgba(18,54,71,.3); border-radius: 50%; }
+  .cell.joker::before { content: '★'; position: absolute; top: 3px; right: 5px; font-size: 12px; }
+  .cell.pick { outline: 2px dashed var(--accent); outline-offset: -4px; cursor: pointer; }
+  .cell.won { animation: pop .5s; }
+  .jokerbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; padding: 12px 14px; border-radius: 14px; background: rgba(242,181,68,.12); border: 1px solid rgba(242,181,68,.4); font-size: 14px; }
+
+  .doors { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+  .door { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--line); background: var(--snow); display: grid; place-items: center; font-family: 'Oswald', sans-serif; font-size: 18px; color: var(--muted); position: relative; }
+  .door.open { background: var(--bg2); color: var(--text); border-color: var(--accent); cursor: pointer; }
+  .door.open::after { content: ''; position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 4px; background: var(--accent); }
+  .door.good { background: rgba(47,191,113,.18); border-color: rgba(47,191,113,.6); color: var(--text); cursor: pointer; }
+  .door.bad { background: rgba(239,77,90,.12); border-color: rgba(239,77,90,.45); color: var(--muted); cursor: pointer; }
+  .door.cur { box-shadow: 0 0 0 2px var(--text) inset; }
+
+  .actions { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+  .actions .btn { flex: 1; }
+  .banner { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; background: rgba(8,20,27,.94); }
+  .banner h1 { font-size: 72px; margin: 0; color: var(--accent); animation: pop .5s; }
+  .banner p { font-size: 18px; max-width: 420px; line-height: 1.5; }
+  .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 10; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet { background: var(--bg2); width: 100%; max-width: 560px; border-radius: 22px 22px 0 0; padding: 20px 16px; padding-bottom: max(20px, env(safe-area-inset-bottom)); }
+  .sheet h2 { margin: 0 0 6px; } .sheet p { margin: 0 0 16px; color: var(--muted); }
+  .sheet .row { display: flex; gap: 8px; } .sheet .row .btn { flex: 1; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 30; background: #4a1822; color: #ffd7dc; border: 1px solid #7a2533; padding: 10px 14px; border-radius: 10px; max-width: 90vw; text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="index.html">HLJÓMEY <span>LEIKIR</span></a>
+    <span class="me hidden" id="me"></span>
+  </header>
+
+  <!-- Skráning -->
+  <section id="vJoin" class="hidden">
+    <div class="hero">
+      <svg class="flakes" viewBox="0 0 400 200" aria-hidden="true"><g fill="#fff"><circle cx="40" cy="30" r="2"/><circle cx="120" cy="70" r="1.5"/><circle cx="300" cy="40" r="2.5"/><circle cx="360" cy="120" r="1.5"/><circle cx="220" cy="20" r="1.5"/><circle cx="80" cy="150" r="2"/><circle cx="250" cy="160" r="1.5"/><circle cx="340" cy="180" r="2"/></g></svg>
+      <h1>Jóla<span>bingó</span><br>Hljómeyjar</h1>
+      <p id="joinLead">Eitt lag á dag fram að jólum. Hlustaðu, svaraðu hver flytur lagið og merktu við á þínu eigin spjaldi.</p>
+      <ol class="steps3">
+        <li>Þú færð þitt eigið spjald með 16 listamönnum sem hafa spilað á Hljómey.</li>
+        <li>Kl. 12 á hverjum degi opnast nýtt lag. Svaraðu rétt hver flytur það og listamaðurinn merkist á spjaldinu, ef hann er þar.</li>
+        <li id="stepJoker">Fimmta hvert rétt svar gefur jóker sem þú setur á hvaða reit sem er. Misstirðu af degi? Eldri lögin bíða eftir þér.</li>
+      </ol>
+    </div>
+    <div class="panel">
+      <h2>Fáðu þitt spjald</h2>
+      <p id="joinStatus">Það kostar ekkert að vera með.</p>
+      <div class="field"><label for="nameIn">Nafn</label><input type="text" id="nameIn" maxlength="40" autocomplete="name"></div>
+      <div class="field"><label for="emailIn">Netfang</label><input type="email" id="emailIn" maxlength="254" autocomplete="email" inputmode="email"></div>
+      <label class="check"><input type="checkbox" id="nlIn"> <span>Já takk, skráðu mig líka á póstlista Hljómeyjar (fréttir af listamönnum og miðasölu).</span></label>
+      <button class="btn full" id="joinBtn">Fá spjaldið mitt</button>
+      <div class="err hidden" id="joinErr"></div>
+      <p class="fine">Netfangið notum við til að hafa samband ef þú vinnur. Sama netfang í öðrum síma opnar sama spjaldið. Vinningar eru dregnir út meðal þeirra sem ná línu, tveimur línum og fullu spjaldi.</p>
+    </div>
+  </section>
+
+  <!-- Leikurinn -->
+  <section id="vGame" class="hidden">
+    <div class="stats">
+      <div class="stat"><b id="sRight">0</b><span>rétt svör</span></div>
+      <div class="stat"><b id="sLines">0</b><span>línur</span></div>
+      <div class="stat"><b id="sJokers">0</b><span>jókerar</span></div>
+    </div>
+
+    <div class="today" id="today"></div>
+
+    <div class="sec"><h3>Spjaldið mitt</h3><span id="cardHint"></span></div>
+    <div class="grid4" id="grid"></div>
+    <div class="jokerbar hidden" id="jokerBar"><span id="jokerTx"></span><button class="btn small ghost" id="jokerCancel">Hætta við</button></div>
+
+    <div class="sec"><h3>Dagatalið</h3><span>Ýttu á opinn dag</span></div>
+    <div class="doors" id="doors"></div>
+
+    <div class="actions">
+      <button class="btn ghost" id="shareBtn">Deila spjaldinu</button>
+      <a class="btn ghost" href="index.html" style="text-align:center;text-decoration:none">Fleiri leikir</a>
+    </div>
+    <p class="fine">Vinningar: dregið er úr þeim sem ná línu, tveimur línum og fullu spjaldi. Vinningshafar fá póst á netfangið sitt.</p>
+  </section>
+</div>
+
+<div class="sheet-bg hidden" id="sheet">
+  <div class="sheet">
+    <h2>Setja jóker hér?</h2>
+    <p id="sheetTx"></p>
+    <div class="row"><button class="btn ghost" id="sheetNo">Hætta við</button><button class="btn" id="sheetYes">Setja jóker</button></div>
+  </div>
+</div>
+<div class="banner hidden" id="banner"></div>
+<div class="toast hidden" id="toast"></div>
+<audio id="audio" preload="none"></audio>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="common.js?v=2026-10-18a"></script>
+<script src="deezer.js?v=2026-10-15a"></script>
+<script src="jolabingo.js?v=2026-10-20a"></script>
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Jólabingó – stjórnun</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2026-10-19h">
+<style>
+  html { background: var(--bg); }
+  body { height: auto; min-height: 100%; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  header a.brand { color: inherit; text-decoration: none; font-family: 'Oswald', sans-serif; font-size: 22px; letter-spacing: .05em; }
+  h1, h2 { font-family: 'Oswald', sans-serif; font-weight: 600; }
+  h1 { margin: 0 0 4px; font-size: 34px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 18px; margin-top: 16px; }
+  .panel h2 { margin: 0 0 12px; font-size: 22px; }
+  .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; align-items: end; }
+  input[type=date], input[type=search], textarea { width: 100%; background: var(--bg2); border: 1px solid var(--line); border-radius: 10px; padding: 11px 12px; color: var(--text); outline: none; font: inherit; }
+  textarea { min-height: 120px; resize: vertical; }
+  .chk { display: flex; gap: 8px; align-items: center; color: var(--text); font-size: 15px; }
+  .chk input { width: 20px; height: 20px; accent-color: var(--accent); }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .kpi { background: var(--bg2); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  .kpi b { display: block; font-family: 'Oswald', sans-serif; font-size: 28px; color: var(--accent); }
+  .kpi span { font-size: 13px; color: var(--muted); }
+  .ok { color: var(--good); } .bad { color: #ffb3a8; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { color: var(--muted); font-weight: 500; }
+  td img { width: 40px; height: 40px; border-radius: 6px; object-fit: cover; display: block; }
+  .tbl { overflow-x: auto; }
+  .editor { background: var(--bg2); border: 1px solid var(--accent); border-radius: 14px; padding: 16px; margin-top: 12px; }
+  .results { display: grid; gap: 6px; margin-top: 10px; max-height: 320px; overflow-y: auto; }
+  .res { display: flex; gap: 10px; align-items: center; padding: 6px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); cursor: pointer; text-align: left; }
+  .res.on { border-color: var(--accent); }
+  .res img { width: 44px; height: 44px; border-radius: 6px; }
+  .res div { flex: 1; } .res small { color: var(--muted); display: block; }
+  .opts4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px; margin-top: 10px; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; background: var(--bg2); border: 1px solid var(--line); }
+  .winner { margin-top: 12px; padding: 14px; border-radius: 12px; background: rgba(242,181,68,.15); border: 1px solid var(--accent); font-size: 18px; }
+  .note { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="brand" href="index.html">HLJÓMEY <span>LEIKIR</span></a>
+    <a class="btn ghost small" href="jolabingo.html" target="_blank" rel="noopener">Opna leikinn ↗</a>
+  </header>
+  <h1>Jólabingó – stjórnun</h1>
+  <p class="muted">Eitt lag á dag. Leikmenn sjá lag dagsins aðeins eftir að dagurinn opnast.</p>
+
+  <section class="panel" id="vPin">
+    <h2>Aðal-PIN</h2>
+    <div class="row"><div><label for="pinIn">PIN</label><input type="password" id="pinIn" autocomplete="current-password"></div><div><button class="btn" id="pinBtn">Opna</button></div></div>
+    <div class="err hidden" id="pinErr"></div>
+  </section>
+
+  <div id="vAdmin" class="hidden">
+    <section class="panel">
+      <h2>Staðan</h2>
+      <div class="kpis" id="kpis"></div>
+      <p class="note" id="ready"></p>
+    </section>
+
+    <section class="panel">
+      <h2>Stillingar</h2>
+      <div class="row">
+        <div><label for="sTitle">Heiti</label><input type="text" id="sTitle"></div>
+        <div><label for="sStart">Fyrsti dagur</label><input type="date" id="sStart"></div>
+        <div><label for="sDays">Fjöldi daga</label><input type="number" id="sDays" min="1" max="31"></div>
+        <div><label for="sHour">Opnar kl.</label><input type="number" id="sHour" min="0" max="23"></div>
+        <div><label for="sJoker">Jóker fyrir hver … rétt svör</label><input type="number" id="sJoker" min="1" max="31"></div>
+        <div><label class="chk"><input type="checkbox" id="sActive"> Opið fyrir skráningu</label></div>
+      </div>
+      <div class="btns"><button class="btn" id="saveSettings">Vista stillingar</button></div>
+      <p class="note">Ekki breyta fyrsta degi eða fjölda daga eftir að leikurinn er hafinn.</p>
+    </section>
+
+    <section class="panel">
+      <h2>Lög dagsins</h2>
+      <p class="note">Hver dagur: veldu lag á Deezer, staðfestu nafn listamannsins og þrjú röng svör. Hver listamaður má aðeins vera einu sinni.</p>
+      <div class="tbl"><table><thead><tr><th>Dagur</th><th></th><th>Listamaður</th><th>Lag</th><th>Opnar</th><th>Svör</th><th></th></tr></thead><tbody id="dayRows"></tbody></table></div>
+      <div id="editor"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Aukanöfn í pottinum</h2>
+      <p class="note">Spjöldin eru 16 nöfn úr pottinum: listamenn dagana og þessi aukanöfn. Mælt er með 6–8 aukanöfnum (t.d. Vinum Hljómeyjar), svo potturinn sé um 30 nöfn. Eitt nafn í línu. Breyttu þessu áður en fólk skráir sig.</p>
+      <textarea id="extraIn"></textarea>
+      <div class="btns"><button class="btn" id="saveExtra">Vista aukanöfn</button></div>
+    </section>
+
+    <section class="panel">
+      <h2>Leikmenn og vinningar</h2>
+      <div class="row">
+        <div><label for="fStage">Sýna</label>
+          <select id="fStage"><option value="all">Alla</option><option value="line">Ná línu</option><option value="two">Ná tveimur línum</option><option value="full">Fullt spjald</option><option value="nl">Á póstlista</option></select></div>
+        <div class="btns" style="margin:0"><button class="btn" id="drawBtn">Draga vinningshafa</button><button class="btn ghost" id="csvBtn">Sækja CSV</button></div>
+      </div>
+      <div id="winner"></div>
+      <div class="tbl" style="margin-top:12px"><table><thead><tr><th>Nafn</th><th>Netfang</th><th>Rétt</th><th>Línur</th><th>Fullt</th><th>Póstlisti</th></tr></thead><tbody id="playerRows"></tbody></table></div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="common.js?v=2026-10-18a"></script>
+<script src="deezer.js?v=2026-10-15a"></script>
+<script>
+(function () {
+  const { client, esc } = window.PQ;
+  const $ = id => document.getElementById(id);
+  const MAN = ['jan.', 'feb.', 'mars', 'apr.', 'maí', 'júní', 'júlí', 'ág.', 'sep.', 'okt.', 'nóv.', 'des.'];
+  const ERR = { rangt_pin: 'Rangt PIN. Aðeins aðal-PIN virkar hér.', gestapin_ekki: 'Gestapin dugar ekki hér. Notaðu aðal-PIN.',
+    jb_valkostir: 'Rétta svarið verður að vera eitt af fjórum svörum.', svor_eins: 'Svörin fjögur verða að vera ólík.',
+    jb_listamadur_tvisvar: 'Þessi listamaður er þegar lag annars dags.' };
+  let pin = sessionStorage.getItem('jb_pin') || '';
+  let A = null, players = [], edit = null;
+
+  async function call(fn, args) {
+    const { data, error } = await client.rpc(fn, Object.assign({ p_pin: pin }, args || {}));
+    if (error) { const k = Object.keys(ERR).find(k => (error.message || '').includes(k)); throw new Error(k ? ERR[k] : 'Villa: ' + error.message); }
+    return data;
+  }
+  const dags = iso => { const d = new Date(iso); return d.getDate() + '. ' + MAN[d.getMonth()] + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
+  const stokka = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+
+  $('pinBtn').onclick = async () => { pin = $('pinIn').value.trim(); await hlada(true); };
+  $('pinIn').onkeydown = e => { if (e.key === 'Enter') $('pinBtn').click(); };
+
+  async function hlada(fraPin) {
+    try {
+      A = await call('jb_admin_get');
+      players = await call('jb_admin_players');
+      sessionStorage.setItem('jb_pin', pin);
+      $('vPin').classList.add('hidden'); $('vAdmin').classList.remove('hidden');
+      teikna();
+    } catch (e) {
+      if (fraPin) { $('pinErr').textContent = e.message; $('pinErr').classList.remove('hidden'); }
+      $('vPin').classList.remove('hidden');
+    }
+  }
+
+  function teikna() {
+    const s = A.settings; const dagar = A.days.length; const pool = A.pool.length;
+    $('kpis').innerHTML = [
+      [A.players, 'leikmenn'], [A.newsletter, 'skráðu sig á póstlistann'],
+      [dagar + ' / ' + s.days, 'dagar með lagi'], [pool, 'nöfn í pottinum'],
+      [A.days.filter(d => d.open).length, 'lög opin']
+    ].map(([b, t]) => `<div class="kpi"><b>${esc(b)}</b><span>${esc(t)}</span></div>`).join('');
+    const tilbuid = dagar >= s.days && pool >= 16 && s.active;
+    $('ready').innerHTML = tilbuid ? '<span class="ok">Tilbúið: fólk getur skráð sig og fengið spjald.</span>'
+      : '<span class="bad">Ekki opið fyrir skráningu: ' + [dagar < s.days ? 'vantar lög fyrir ' + (s.days - dagar) + ' daga' : '', pool < 16 ? 'potturinn þarf a.m.k. 16 nöfn' : '', !s.active ? 'slökkt á skráningu' : ''].filter(Boolean).join(', ') + '.</span>';
+    $('sTitle').value = s.title; $('sStart').value = s.start_date; $('sDays').value = s.days; $('sHour').value = s.open_hour; $('sJoker').value = s.joker_every; $('sActive').checked = s.active;
+    $('extraIn').value = A.extra.join('\n');
+    const byDay = Object.fromEntries(A.days.map(d => [d.day, d]));
+    let rows = '';
+    for (let i = 1; i <= s.days; i++) {
+      const d = byDay[i];
+      rows += `<tr><td><b>${i}</b></td><td>${d && d.cover ? `<img src="${esc(d.cover)}" alt="">` : ''}</td><td>${d ? esc(d.artist) : '<span class="bad">Vantar</span>'}</td>
+        <td>${d ? esc(d.song) : ''}</td><td>${d ? esc(dags(d.opens)) + (d.open ? ' <span class="pill">opið</span>' : '') : ''}</td>
+        <td>${d ? d.answers + (d.answers ? ' (' + Math.round(100 * d.right / d.answers) + '% rétt)' : '') : ''}</td>
+        <td><button class="btn small ghost" data-e="${i}">${d ? 'Breyta' : 'Velja lag'}</button></td></tr>`;
+    }
+    $('dayRows').innerHTML = rows;
+    $('dayRows').querySelectorAll('[data-e]').forEach(b => b.onclick = () => opnaRitil(+b.dataset.e));
+    teiknaLeikmenn();
+  }
+
+  // ---------- Ritill fyrir einn dag ----------
+  function opnaRitil(day) {
+    const d = A.days.find(x => x.day === day);
+    edit = d ? { day, artist: d.artist, deezer_id: d.deezer_id, song: d.song, cover: d.cover, wrong: d.options.filter((_, i) => i !== d.correct) }
+             : { day, artist: '', deezer_id: null, song: '', cover: '', wrong: [] };
+    teiknaRitil();
+    $('editor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function rongSvor() {
+    const adrir = A.pool.filter(n => n.toLowerCase() !== (edit.artist || '').toLowerCase());
+    edit.wrong = stokka(adrir).slice(0, 3);
+  }
+
+  function teiknaRitil() {
+    if (!edit) { $('editor').innerHTML = ''; return; }
+    if (edit.wrong.length < 3) rongSvor();
+    $('editor').innerHTML = `<div class="editor"><h2 style="margin:0 0 10px">Dagur ${edit.day}</h2>
+      <div class="row"><div style="grid-column:1/-1"><label for="dzQ">Leita á Deezer (lag og/eða flytjandi)</label><input type="search" id="dzQ" placeholder="t.d. Jógvan Hansen"></div></div>
+      <div class="results" id="dzRes"></div>
+      <div class="row" style="margin-top:12px">
+        <div><label for="eArtist">Listamaður (rétta svarið)</label><input type="text" id="eArtist" value="${esc(edit.artist)}"></div>
+        <div><label for="eSong">Heiti lags</label><input type="text" id="eSong" value="${esc(edit.song)}"></div>
+      </div>
+      <label style="margin-top:12px">Röng svör</label>
+      <div class="opts4">${[0, 1, 2].map(i => `<input type="text" data-w="${i}" value="${esc(edit.wrong[i] || '')}">`).join('')}</div>
+      <div class="btns"><button class="btn ghost small" id="eShuffle">Stokka röng svör úr pottinum</button></div>
+      <div class="btns"><button class="btn" id="eSave">Vista dag ${edit.day}</button><button class="btn ghost" id="eCancel">Hætta við</button>
+        ${A.days.some(x => x.day === edit.day) ? '<button class="btn ghost" id="eDel">Eyða</button>' : ''}</div>
+      <div class="err hidden" id="eErr"></div></div>`;
+    let timer;
+    $('dzQ').oninput = () => { clearTimeout(timer); timer = setTimeout(leita, 400); };
+    $('eArtist').oninput = e => { edit.artist = e.target.value; };
+    $('eSong').oninput = e => { edit.song = e.target.value; };
+    $('editor').querySelectorAll('[data-w]').forEach(inp => inp.oninput = () => { edit.wrong[+inp.dataset.w] = inp.value; });
+    $('eShuffle').onclick = () => { rongSvor(); teiknaRitil(); };
+    $('eCancel').onclick = () => { edit = null; teiknaRitil(); };
+    if ($('eDel')) $('eDel').onclick = async () => { if (!confirm('Eyða laginu fyrir dag ' + edit.day + '?')) return; await call('jb_admin_day_delete', { p_day: edit.day }); edit = null; await hlada(); };
+    $('eSave').onclick = vista;
+  }
+
+  let hljod = new Audio();
+  async function leita() {
+    const q = $('dzQ').value.trim(); if (!q) { $('dzRes').innerHTML = ''; return; }
+    try {
+      const r = await window.PQDeezer.dz('/search', { q, limit: 15 });
+      const lög = (r.data || []).filter(t => t.preview);
+      $('dzRes').innerHTML = lög.map(t => `<button class="res${edit.deezer_id === t.id ? ' on' : ''}" data-id="${t.id}"><img src="${esc(t.album.cover_medium)}" alt="">
+        <div><b>${esc(window.PQDeezer.cleanTitle(t.title_short || t.title))}</b><small>${esc(t.artist.name)} · ${esc(t.album.title)}</small></div>
+        <span class="btn small ghost" data-p="${esc(t.preview)}">▶</span></button>`).join('') || '<p class="muted">Ekkert fannst.</p>';
+      $('dzRes').querySelectorAll('.res').forEach((b, i) => b.onclick = e => {
+        const t = lög[i];
+        if (e.target.dataset.p) { e.stopPropagation(); if (!hljod.paused && hljod.src === e.target.dataset.p) hljod.pause(); else { hljod.src = e.target.dataset.p; hljod.play(); } return; }
+        edit.deezer_id = t.id; edit.song = window.PQDeezer.cleanTitle(t.title_short || t.title); edit.cover = t.album.cover_big || t.album.cover_medium;
+        const fundinn = A.pool.find(n => n.toLowerCase() === t.artist.name.toLowerCase());
+        edit.artist = fundinn || t.artist.name;
+        $('eArtist').value = edit.artist; $('eSong').value = edit.song;
+        $('dzRes').querySelectorAll('.res').forEach(x => x.classList.toggle('on', x === b));
+      });
+    } catch (e) { $('dzRes').innerHTML = '<p class="bad">' + esc(e.message) + '</p>'; }
+  }
+
+  async function vista() {
+    const err = $('eErr'); err.classList.add('hidden');
+    try {
+      const rett = edit.artist.trim();
+      if (!rett) throw new Error('Sláðu inn nafn listamannsins.');
+      if (!edit.deezer_id) throw new Error('Veldu lag af Deezer.');
+      const rong = edit.wrong.map(w => (w || '').trim());
+      if (rong.some(w => !w)) throw new Error('Fylltu inn þrjú röng svör.');
+      const options = stokka([rett].concat(rong));
+      await call('jb_admin_day', { p_day: edit.day, p_artist: rett, p_deezer_id: edit.deezer_id, p_song: edit.song, p_cover: edit.cover, p_options: options, p_correct: options.indexOf(rett) });
+      hljod.pause(); edit = null; await hlada();
+    } catch (e) { err.textContent = e.message; err.classList.remove('hidden'); }
+  }
+
+  // ---------- Stillingar og pottur ----------
+  $('saveSettings').onclick = async () => {
+    try {
+      await call('jb_admin_settings', { p_title: $('sTitle').value, p_start: $('sStart').value, p_days: +$('sDays').value, p_open_hour: +$('sHour').value, p_joker_every: +$('sJoker').value, p_active: $('sActive').checked });
+      await hlada();
+    } catch (e) { alert(e.message); }
+  };
+  $('saveExtra').onclick = async () => {
+    try { await call('jb_admin_extra', { p_names: $('extraIn').value.split('\n').map(s => s.trim()).filter(Boolean) }); await hlada(); }
+    catch (e) { alert(e.message); }
+  };
+
+  // ---------- Leikmenn ----------
+  function sia() {
+    const f = $('fStage').value;
+    return players.filter(p => f === 'all' || (f === 'line' && p.lines >= 1) || (f === 'two' && p.lines >= 2) || (f === 'full' && p.full) || (f === 'nl' && p.newsletter));
+  }
+  function teiknaLeikmenn() {
+    $('playerRows').innerHTML = sia().map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.email)}</td><td>${p.correct}</td><td>${p.lines}</td><td>${p.full ? '✓' : ''}</td><td>${p.newsletter ? '✓' : ''}</td></tr>`).join('')
+      || '<tr><td colspan="6" class="muted">Enginn ennþá.</td></tr>';
+  }
+  $('fStage').onchange = () => { $('winner').innerHTML = ''; teiknaLeikmenn(); };
+  $('drawBtn').onclick = () => {
+    const l = sia(); if (!l.length) { $('winner').innerHTML = '<p class="muted">Enginn í þessum hópi.</p>'; return; }
+    const w = l[Math.floor(Math.random() * l.length)];
+    $('winner').innerHTML = `<div class="winner">🎁 <b>${esc(w.name)}</b> · ${esc(w.email)}<br><span class="muted" style="font-size:14px">Dregið úr ${l.length} leikmönnum (${esc($('fStage').selectedOptions[0].textContent.toLowerCase())}).</span></div>`;
+  };
+  $('csvBtn').onclick = () => {
+    const l = sia(); const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const csv = ['nafn,netfang,rétt svör,svarað,línur,fullt spjald,póstlisti,skráð'].concat(l.map(p => [p.name, p.email, p.correct, p.answered, p.lines, p.full ? 'já' : 'nei', p.newsletter ? 'já' : 'nei', p.created_at].map(q).join(','))).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' })); a.download = 'jolabingo-leikmenn.csv'; a.click();
+  };
+
+  if (pin) hlada();
+})();
+</script>
+</body>
+</html>
