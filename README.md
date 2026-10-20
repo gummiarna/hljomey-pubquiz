@@ -1,6 +1,6 @@
 # Hljómey – tónlistarleikir
 
-Vefsíðan á **[hljomey.is/pubquiz](https://hljomey.is/pubquiz)**: fimm leikir þar sem síminn er svarhnappurinn, söngbókin eða tímalínan.
+Vefsíðan á **[leikir.hljomey.is](https://leikir.hljomey.is)**: fimm leikir þar sem síminn er svarhnappurinn, söngbókin eða tímalínan.
 
 | Leikur | Stjórnandi | Hvað gerist |
 | --- | --- | --- |
@@ -18,6 +18,6 @@ Vefsíðan á **[hljomey.is/pubquiz](https://hljomey.is/pubquiz)**: fimm leikir 
 - `setup.sql`, `bingo.sql`, `gitar.sql`, `themes.sql`, `spurningar.sql`, `karaoke.sql`, `hvadaar.sql`, `innskraning.sql`, `gestapin.sql` – gagnagrunnurinn í Supabase, keyrt í þessari röð (`gestapin.sql` alltaf síðast). `innskraning.sql` krefst innskráningar stjórnenda (Supabase Auth, netfang og lykilorð) og skráir notkun. `spurningar.sql` inniheldur líka 208 byrjunarspurningar; `spurningar-heimurinn.sql` (300 um allan heiminn) og `spurningar-born.sql` (300 barnaspurningar, sér flokkur) bæta við bankann og `web/hvadaar-listi.js` byrjunarlistann fyrir Hvaða ár?.
 - `LESTU-MIG.md` – uppsetning skref fyrir skref.
 
-**Vercel (prufa):** verkefnið `hljomey-leikir` á Vercel er tengt þessu safni og birtir `web/` á [hljomey-leikir.vercel.app](https://hljomey-leikir.vercel.app) við hverja breytingu á `main`. `scripts/vercel-config.mjs` skrifar `config.js` úr umhverfisbreytunum `SUPABASE_URL`, `SUPABASE_ANON_KEY` og `EVENT_TAG` í Vercel.
+**Vercel:** verkefnið `hljomey-leikir` á Vercel er tengt þessu safni og birtir `web/` á [leikir.hljomey.is](https://leikir.hljomey.is) við hverja breytingu á `main`. Gamla slóðin hljomey.is/pubquiz vísar hingað. `scripts/vercel-config.mjs` skrifar `config.js` úr umhverfisbreytunum `SUPABASE_URL`, `SUPABASE_ANON_KEY` og `EVENT_TAG` í Vercel.
 
 `web/config.js` er hér með staðgenglum. Raunverulegu Supabase-lyklarnir eru aðeins í útgáfunni á vefþjóninum og eiga ekki heima í þessu repo.

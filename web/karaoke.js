@@ -601,7 +601,7 @@
           <li>Búðu til verkefni (t.d. „Hljomey karaoke“).</li>
           <li><b>APIs &amp; Services → Library</b> → leitaðu að <b>YouTube Data API v3</b> → <b>Enable</b>.</li>
           <li><b>APIs &amp; Services → Credentials → Create credentials → API key</b>.</li>
-          <li>Takmarkaðu lykilinn: <b>Websites</b> → bættu við <code>https://hljomey.is/*</code> og <code>https://www.hljomey.is/*</code>, og <b>Restrict key</b> → YouTube Data API v3.</li>
+          <li>Takmarkaðu lykilinn: <b>Websites</b> → bættu við <code>https://leikir.hljomey.is/*</code>, og <b>Restrict key</b> → YouTube Data API v3.</li>
           <li>Afritaðu lykilinn og límdu hann hér.</li></ol>
         <div class="row"><div><label for="sKey">API-lykill</label><input type="text" id="sKey" placeholder="AIza…" autocomplete="off" spellcheck="false"></div>
           <div style="flex:0 1 160px"><label for="sPin">PIN stjórnanda</label><input type="password" id="sPin" autocomplete="off" value="${esc(store.get('pq_pin') || '')}"></div>
