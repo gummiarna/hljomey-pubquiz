@@ -104,7 +104,9 @@
     return A.touched;
   }
   const AUTH_ERR = [
+    [/otp_expired|token has expired|expired/i, 'Kóðinn er útrunninn eða rangur. Biddu um nýjan kóða.'],
     [/invalid login credentials|invalid_credentials/i, 'Rangt netfang eða lykilorð.'],
+    [/otp|token.*invalid|invalid.*token/i, 'Rangur kóði. Athugaðu tölurnar og reyndu aftur.'],
     [/already registered|already been registered|user_already_exists|email_exists/i, 'Þetta netfang er þegar með aðgang. Veldu „Skrá inn“.'],
     [/password.*(at least|characters|short)|weak_password/i, 'Lykilorðið þarf að vera a.m.k. 6 stafir.'],
     [/email not confirmed|email_not_confirmed/i, 'Netfangið hefur ekki verið staðfest. Hafðu samband við umsjónarmann síðunnar.'],
@@ -134,6 +136,9 @@
 .pq-auth .pqa-go{display:block;width:100%;border:0;border-radius:12px;padding:13px;background:var(--accent,#f2b544);color:var(--accent-ink,#123647);font:inherit;font-size:16px;font-weight:700;cursor:pointer}
 .pq-auth .pqa-go:disabled{opacity:.6;cursor:wait}
 .pq-auth .pqa-foot{margin:12px 0 0;color:var(--muted,#a9c9d4);font-size:12.5px;text-align:center;line-height:1.4}
+.pq-auth .pqa-lnk{border:0;padding:0;background:none;color:var(--muted,#a9c9d4);font:inherit;text-decoration:underline;cursor:pointer}
+.pq-auth .pqa-lnk:hover{color:var(--text,#fff)}
+.pq-auth .pqa-code{font-size:26px!important;letter-spacing:.35em;text-align:center;font-variant-numeric:tabular-nums}
 .pq-acct{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:6px 10px;margin:8px 0 0;font-size:13.5px;color:var(--muted,#a9c9d4);line-height:1.3}
 .pq-acct[hidden]{display:none}
 .pq-acct b{color:var(--text,#f5fbfc);font-weight:600}
@@ -148,6 +153,8 @@
   function cancelled() { const e = new Error('innskraning_haett'); e.code = 'innskraning_haett'; return e; }
 
   // Opnar innskráningargluggann. Skilar notandanum þegar innskráning tekst, hafnar ef hætt er við.
+  // Innskráning með kóða í tölvupósti: netfang → 6–8 stafa kóði → (nafn í fyrsta skipti). Engin lykilorð.
+  // Varaleið með lykilorði er falin bak við smáan hlekk, fyrir eldri aðganga ef pósturinn bregst.
   function openLogin(opts) {
     opts = opts || {};
     if (A.modal) return A.modal;
@@ -158,29 +165,35 @@
     const ov = document.createElement('div'); ov.className = 'pq-auth';
     ov.innerHTML = `<form role="dialog" aria-modal="true" aria-labelledby="pqa-h" novalidate>
       <button type="button" class="pqa-x" aria-label="Loka">×</button>
-      <h2 id="pqa-h"></h2>
-      <p class="pqa-sub">${esc(opts.message || 'Stjórnendur skrá sig inn til að búa til leiki. Gestir í símum þurfa aldrei að skrá sig inn.')}</p>
-      <div class="pqa-tabs"><button type="button" data-m="in">Skrá inn</button><button type="button" data-m="up">Nýr aðgangur</button></div>
-      <label class="pqa-name">Nafn <small>(sést aðeins umsjónarmanni síðunnar)</small><input name="name" autocomplete="name" maxlength="60"></label>
-      <label>Netfang<input name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false"></label>
-      <label><span class="pqa-pwl">Lykilorð</span><input name="password" type="password" minlength="6"></label>
+      <h2 id="pqa-h">Innskráning stjórnanda</h2>
+      <p class="pqa-sub"></p>
+      <label class="pqa-s pqa-s-email">Netfang<input name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false"></label>
+      <label class="pqa-s pqa-s-code">Kóði úr tölvupóstinum<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="10" pattern="[0-9]*" class="pqa-code"></label>
+      <label class="pqa-s pqa-s-name">Nafn <small>(sést aðeins umsjónarmanni síðunnar)</small><input name="name" autocomplete="name" maxlength="60"></label>
+      <label class="pqa-s pqa-s-pw">Lykilorð<input name="password" type="password" autocomplete="current-password"></label>
       <div class="pqa-err" role="alert"></div>
       <button type="submit" class="pqa-go"></button>
-      <p class="pqa-foot">Gleymt lykilorð? Hafðu samband við umsjónarmann síðunnar.</p>
+      <p class="pqa-foot pqa-s pqa-s-code"><button type="button" class="pqa-lnk" data-a="resend">Senda kóða aftur</button> · <button type="button" class="pqa-lnk" data-a="other">Annað netfang</button></p>
+      <p class="pqa-foot pqa-s pqa-s-email"><button type="button" class="pqa-lnk" data-a="pw">Skrá inn með lykilorði (eldri aðgangar)</button></p>
+      <p class="pqa-foot pqa-s pqa-s-pw"><button type="button" class="pqa-lnk" data-a="email">Fá kóða í tölvupósti í staðinn</button></p>
     </form>`;
     document.body.appendChild(ov);
-    const f = ov.querySelector('form'), err = ov.querySelector('.pqa-err'), go = ov.querySelector('.pqa-go');
-    let mode = opts.mode === 'up' ? 'up' : 'in';
-    function setMode(m) {
-      mode = m; err.textContent = '';
-      ov.querySelector('#pqa-h').textContent = m === 'up' ? 'Nýr aðgangur stjórnanda' : 'Innskráning stjórnanda';
-      ov.querySelectorAll('.pqa-tabs button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.m === m)));
-      ov.querySelector('.pqa-name').hidden = m !== 'up';
-      ov.querySelector('.pqa-pwl').textContent = m === 'up' ? 'Lykilorð (a.m.k. 6 stafir)' : 'Lykilorð';
-      f.password.autocomplete = m === 'up' ? 'new-password' : 'current-password';
-      go.textContent = m === 'up' ? 'Búa til aðgang' : 'Skrá inn';
+    const f = ov.querySelector('form'), err = ov.querySelector('.pqa-err'), go = ov.querySelector('.pqa-go'), sub = ov.querySelector('.pqa-sub');
+    const BASE_SUB = opts.message || 'Stjórnendur skrá sig inn til að búa til leiki. Gestir í símum þurfa aldrei að skrá sig inn.';
+    let step = 'email', sentAt = 0;
+    const GO = { email: 'Senda kóða', code: 'Skrá inn', name: 'Áfram', pw: 'Skrá inn' };
+    function setStep(st) {
+      step = st; err.textContent = '';
+      ov.querySelectorAll('.pqa-s').forEach(el => { el.hidden = !el.classList.contains('pqa-s-' + st); });
+      go.textContent = GO[st];
+      ov.querySelector('#pqa-h').textContent = st === 'name' ? 'Velkomin(n)!' : 'Innskráning stjórnanda';
+      sub.textContent = st === 'code' ? `Við sendum kóða á ${f.email.value.trim()}. Hann gildir í klukkustund. Athugaðu ruslpóstinn ef hann skilar sér ekki.`
+        : st === 'name' ? 'Hvað heitirðu? Nafnið sést aðeins umsjónarmanni síðunnar.'
+        : BASE_SUB;
+      const first = { email: f.email, code: f.code, name: f.name, pw: f.password }[st];
+      setTimeout(() => first && first.focus(), 30);
     }
-    setMode(mode);
+    setStep('email');
     function close(ok, v) {
       ov.remove(); document.removeEventListener('keydown', onKey, true); A.modal = null;
       try { if (prev && prev.focus) prev.focus(); } catch (e) {}
@@ -199,29 +212,62 @@
     f.addEventListener('input', () => { err.textContent = ''; });
     ov.querySelector('.pqa-x').onclick = () => close(false, cancelled());
     ov.addEventListener('mousedown', e => { if (e.target === ov) close(false, cancelled()); });
-    ov.querySelectorAll('.pqa-tabs button').forEach(b => b.onclick = () => { setMode(b.dataset.m); (mode === 'up' ? f.name : f.email).focus(); });
+
+    async function sendCode() {
+      const email = f.email.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setStep('email'); err.textContent = 'Sláðu inn netfang.'; return false; }
+      const r = await client.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+      if (r.error) throw r.error;
+      sentAt = Date.now();
+      return true;
+    }
+    async function finish(user) {
+      setUser(user);
+      const p = await touch();
+      if (p && p.blocked) { err.textContent = ERRORS.adgangur_lokadur; return; }
+      if (!p || !p.name) { setStep('name'); return; }
+      close(true, A.user);
+    }
+    ov.querySelectorAll('.pqa-lnk').forEach(b => b.onclick = async () => {
+      const a = b.dataset.a;
+      if (a === 'other') { f.code.value = ''; setStep('email'); }
+      else if (a === 'pw') setStep('pw');
+      else if (a === 'email') setStep('email');
+      else if (a === 'resend') {
+        const bid = Math.ceil((sentAt + 60000 - Date.now()) / 1000);
+        if (bid > 0) { err.textContent = `Bíddu í ${bid} sekúndur áður en þú biður um nýjan kóða.`; return; }
+        try { if (await sendCode()) sub.textContent = `Nýr kóði var sendur á ${f.email.value.trim()}.`; } catch (ex) { err.textContent = authMsg(ex); }
+      }
+    });
+
     f.onsubmit = async e => {
       e.preventDefault(); err.textContent = '';
-      const email = f.email.value.trim(), password = f.password.value, name = f.name.value.trim().replace(/\s+/g, ' ');
-      if (mode === 'up' && !name) { err.textContent = 'Sláðu inn nafn.'; f.name.focus(); return; }
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = 'Sláðu inn netfang.'; f.email.focus(); return; }
-      if (password.length < 6) { err.textContent = 'Lykilorðið þarf að vera a.m.k. 6 stafir.'; f.password.focus(); return; }
-      const label = go.textContent; go.disabled = true; go.textContent = mode === 'up' ? 'Bý til aðgang…' : 'Skrái inn…';
+      const label = go.textContent; go.disabled = true;
       try {
-        const r = mode === 'up'
-          ? await client.auth.signUp({ email, password, options: { data: { name } } })
-          : await client.auth.signInWithPassword({ email, password });
-        if (r.error) throw r.error;
-        const s = r.data && r.data.session;
-        if (!s) { err.textContent = 'Aðgangurinn var búinn til en netfangið þarf staðfestingu. Hafðu samband við umsjónarmann síðunnar.'; return; }
-        setUser(s.user);
-        const p = await touch(mode === 'up' ? name : null);
-        if (p && p.blocked) { err.textContent = ERRORS.adgangur_lokadur; return; }
-        close(true, A.user);
+        if (step === 'email') {
+          go.textContent = 'Sendi kóða…';
+          if (await sendCode()) setStep('code');
+        } else if (step === 'code') {
+          const token = f.code.value.replace(/\D/g, '');
+          if (token.length < 6) { err.textContent = 'Sláðu inn kóðann úr tölvupóstinum.'; f.code.focus(); return; }
+          go.textContent = 'Skrái inn…';
+          const r = await client.auth.verifyOtp({ email: f.email.value.trim(), token, type: 'email' });
+          if (r.error) throw r.error;
+          await finish(r.data.session.user);
+        } else if (step === 'name') {
+          const name = f.name.value.trim().replace(/\s+/g, ' ');
+          if (!name) { err.textContent = 'Sláðu inn nafn.'; f.name.focus(); return; }
+          await touch(name);
+          close(true, A.user);
+        } else if (step === 'pw') {
+          go.textContent = 'Skrái inn…';
+          const r = await client.auth.signInWithPassword({ email: f.email.value.trim(), password: f.password.value });
+          if (r.error) throw r.error;
+          await finish(r.data.session.user);
+        }
       } catch (ex) { err.textContent = authMsg(ex); }
-      finally { go.disabled = false; go.textContent = label; }
+      finally { go.disabled = false; if (go.textContent.endsWith('…')) go.textContent = label; }
     };
-    setTimeout(() => (mode === 'up' ? f.name : f.email).focus(), 30);
     return A.modal;
   }
   function ensureLogin(opts) { return A.user ? Promise.resolve(A.user) : openLogin(opts); }
