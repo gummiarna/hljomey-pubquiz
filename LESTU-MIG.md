@@ -7,6 +7,17 @@ Leikirnir, Pöbbkviss, Tónlistarbingó, Gítarpartý, Karaoke og Hvaða ár?, e
 
 ---
 
+## Uppfærsla: Bingó með tölum og lukkuhjóli (október 2026)
+
+Hefðbundið bingó með tölum 1–75. Stjórnandinn snýr lukkuhjóli á stóra skjánum og leikmenn merkja tölurnar á spjaldi í símanum.
+
+1. Opnaðu **SQL Editor** í Supabase, límdu inn allt innihald `talnabingo.sql` og smelltu á **Run**. Neðst á að standa „Talnabingó tilbúið“.
+2. Stjórnandi opnar **leikir.hljomey.is/talnabingo-stjorn.html** (líka tengill neðst á forsíðunni: „Bingó“).
+3. Veldu mynstrin í þeirri röð sem á að spila þau: Ein lína, B, I, N, G, O, X eða Allt spjaldið. Sláðu inn PIN og smelltu á **Búa til bingó**.
+4. Leikmenn skanna QR-kóðann eða slá kóðann inn á forsíðunni og fá sitt spjald: B 1–15, I 16–30, N 31–45, G 46–60, O 61–75 og fríreit í miðjunni.
+5. **Snúa** (eða bilstöng) snýr hjólinu. Þjónninn velur töluna af handahófi, svo enginn getur séð hana fyrir. Talan birtist í símunum þegar hjólið stöðvast. Allar komnar tölur sjást á töflunni við hliðina á hjólinu.
+6. Leikmaður ýtir á BINGÓ og kerfið staðfestir að allar merktu tölurnar séu komnar upp. Rangt BINGÓ læsir hnappnum fram að næstu tölu. Fleiri geta fengið vinning á sömu tölu.
+
 ## Uppfærsla: Jólabingó Hljómeyjar (október 2026)
 
 Netleikur sem allir geta spilað í eigin síma, eitt lag á dag 1.–24. desember. Hver leikmaður fær sitt eigið 4×4 spjald með 16 listamönnum. Kl. 12 opnast lag dagsins; sá sem svarar rétt hver flytur lagið fær listamanninn merktan, ef hann er á spjaldinu. Fimmta hvert rétt svar gefur jóker sem setja má á hvaða reit sem er. Sá sem byrjar seint getur svarað eldri lögunum.

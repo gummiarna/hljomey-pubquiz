@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b1f29">
+<title>Hljómey Bingó</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2026-10-19h">
+<style>
+  body { min-height: 100dvh; display: flex; flex-direction: column; user-select: none; -webkit-tap-highlight-color: transparent; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; padding-top: max(12px, env(safe-area-inset-top)); }
+  header .brand { font-size: 18px; }
+  header .me { font-size: 15px; font-weight: 700; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  main { flex: 1; display: flex; flex-direction: column; padding: 0 10px 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .center { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; width: 100%; max-width: 420px; }
+  .card h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; }
+  .card p { margin: 0 0 18px; color: var(--muted); }
+  .field { margin-bottom: 14px; text-align: left; }
+  #codeIn { text-transform: uppercase; letter-spacing: .3em; font-weight: 700; font-size: 22px; text-align: center; }
+  .card .btn { width: 100%; font-size: 18px; padding: 14px; }
+
+  .wrap { width: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; flex: 1; }
+  .now { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px 12px; margin-bottom: 10px; }
+  .now .ball { width: 58px; height: 58px; font-size: 22px; flex: 0 0 auto; }
+  .now .ball small { font-size: 12px; }
+  .now .t { flex: 1; min-width: 0; font-size: 13px; color: var(--muted); }
+  .now .t b { color: var(--text); font-size: 16px; display: block; }
+  .recent { display: flex; gap: 5px; margin-top: 6px; overflow: hidden; }
+  .recent .ball { width: 26px; height: 26px; font-size: 11px; box-shadow: none; }
+  .ball { border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; color: #fff; line-height: 1; box-shadow: inset 0 -4px 8px rgba(0,0,0,.25); background: var(--line); }
+  .ball.new { animation: pop .5s cubic-bezier(.2,1.6,.4,1); }
+  .patmini { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; width: 34px; flex: 0 0 auto; }
+  .patmini span { aspect-ratio: 1; border-radius: 2px; background: rgba(255,255,255,.12); }
+  .patmini span.h { background: var(--accent); } .patmini span.f { background: rgba(255,255,255,.35); }
+
+  .tbgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; width: 100%; }
+  .hd { text-align: center; font-weight: 900; font-size: clamp(22px, 7vw, 34px); color: #fff; border-radius: 10px; padding: 2px 0; line-height: 1.25; }
+  .cell { aspect-ratio: 1; background: #f4f1ea; border: 0; border-radius: 12px; color: #123647; font-weight: 800; font-size: clamp(20px, 7vw, 34px);
+          display: grid; place-items: center; position: relative; transition: transform .1s; font-family: inherit; padding: 0; }
+  .cell:active { transform: scale(.93); }
+  .cell.marked::after { content: ''; position: absolute; inset: 9%; border-radius: 50%; background: var(--dab, #ff6f59); opacity: .82; mix-blend-mode: multiply; }
+  .cell.marked { color: #fff; }
+  .cell.marked span { position: relative; z-index: 1; }
+  .cell.free { background: linear-gradient(135deg, var(--c0), var(--c2)); color: #fff; font-size: clamp(12px, 3.4vw, 17px); font-weight: 900; }
+  .cell.hint { box-shadow: inset 0 0 0 3px var(--accent); }
+  .cell.shake { animation: shake .4s; }
+  @keyframes shake { 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+
+  .bingo-btn { margin: 14px auto 0; width: 100%; font-size: 30px; font-weight: 900; letter-spacing: .06em; padding: 18px; border-radius: 18px;
+               background: var(--c0); color: #fff; box-shadow: 0 6px 0 rgba(0,0,0,.3); }
+  .bingo-btn:disabled { background: var(--card); color: var(--muted); box-shadow: none; }
+  .opts { display: flex; justify-content: center; margin-top: 10px; }
+  .opts label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); margin: 0; cursor: pointer; }
+  .opts input { width: 18px; height: 18px; accent-color: var(--accent); }
+  .hint { text-align: center; color: var(--muted); font-size: 13px; margin-top: 8px; min-height: 1.2em; }
+
+  .banner { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; background: rgba(21,18,31,.94); }
+  .banner h1 { font-size: 64px; font-weight: 900; color: var(--accent); margin: 0; }
+  .banner p { font-size: 20px; margin: 10px 0 0; }
+  .banner .sub { color: var(--muted); font-size: 16px; }
+  .banner.me h1 { color: var(--good); }
+  .toast2 { position: fixed; left: 50%; bottom: 110px; transform: translateX(-50%); z-index: 25; background: #4a1822; color: #ffd7dc; border: 1px solid #7a2533; padding: 10px 14px; border-radius: 10px; width: max-content; max-width: 90vw; text-align: center; font-size: 15px; }
+  .winners-list { margin-top: 18px; width: 100%; max-width: 360px; }
+  .winners-list div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
+  .winners-list span:first-child { color: var(--muted); }
+  .conn { position: fixed; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">Hljómey <span>Bingó</span></div>
+  <div class="me hidden" id="me"></div>
+</header>
+<main>
+  <div class="center" id="vJoin">
+    <div class="card">
+      <h1>Bingó</h1>
+      <p>Fylgstu með hjólinu, merktu tölurnar á spjaldinu þínu og kallaðu BINGÓ!</p>
+      <div class="field"><label for="codeIn">Leikkóði</label><input type="text" id="codeIn" maxlength="4" autocomplete="off" autocapitalize="characters"></div>
+      <div class="field"><label for="nameIn">Nafn eða lið</label><input type="text" id="nameIn" maxlength="20" autocomplete="nickname"></div>
+      <button class="btn" id="joinBtn">Fá spjald</button>
+      <div class="err hidden" id="joinErr"></div>
+    </div>
+  </div>
+
+  <div class="wrap hidden" id="vCard">
+    <div class="now">
+      <div class="ball" id="nowBall">–</div>
+      <div class="t"><b id="nowText">Bíð eftir fyrstu tölunni</b><div class="recent" id="recent"></div></div>
+      <div class="patmini" id="patMini" title=""></div>
+    </div>
+    <div class="tbgrid" id="grid"></div>
+    <button class="bingo-btn" id="bingoBtn" disabled>BINGÓ!</button>
+    <div class="opts"><label><input type="checkbox" id="helpChk"> Sýna komnar tölur á spjaldinu</label></div>
+    <div class="hint" id="hint"></div>
+  </div>
+</main>
+
+<div class="banner hidden" id="banner"></div>
+<div class="toast2 hidden" id="toast"></div>
+<div class="conn hidden" id="conn">Tengist aftur…</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="common.js?v=2026-10-18a"></script>
+<script src="talnabingo-lib.js?v=2026-10-21a"></script>
+<script src="talnabingo-player.js?v=2026-10-21a"></script>
+</body>
+</html>

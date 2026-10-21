@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hljómey Bingó – stjórnandi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2026-10-19h">
+<link rel="stylesheet" href="host.css?v=2026-10-19h">
+<style>
+  :root { --lB: #ff6f59; --lI: #2e86a6; --lN: #e0a53a; --lG: #2e9e74; --lO: #9b6ee0; }
+  .pat-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+  .pat-pick button { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px 10px; color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
+  .pat-pick button.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .pat-pick button b { font-size: 14px; font-weight: 600; }
+  .pat-pick button i { position: absolute; top: 6px; left: 8px; font-style: normal; font-weight: 900; font-size: 13px; color: #123647; background: var(--accent); border-radius: 999px; min-width: 20px; height: 20px; display: none; place-items: center; }
+  .pat-pick button.on i { display: grid; }
+  .pat { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; width: 70px; }
+  .pat span { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,.1); }
+  .pat span.h { background: var(--accent); }
+  .pat span.f { background: rgba(255,255,255,.35); }
+  .order { margin-top: 12px; color: var(--muted); font-size: 14px; }
+  .order b { color: var(--text); }
+
+  /* Spilun */
+  .tb-play { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 3vw; align-items: center; min-height: 0; }
+  .wheelbox { position: relative; width: min(74vh, 40vw); aspect-ratio: 1; margin: 0 auto; }
+  .wheelbox svg.wheel { width: 100%; height: 100%; display: block; transition: transform 5.2s cubic-bezier(.12,.7,.12,1); filter: drop-shadow(0 18px 40px rgba(0,0,0,.45)); }
+  .wheelbox .pointer { position: absolute; top: -2.2%; left: 50%; width: 9%; transform: translateX(-50%); z-index: 2; filter: drop-shadow(0 3px 4px rgba(0,0,0,.5)); }
+  .hub { position: absolute; inset: 31%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #e9eef2 60%, #c5d0d8); color: #123647;
+         display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 6px 24px rgba(0,0,0,.45), inset 0 -6px 14px rgba(0,0,0,.12); z-index: 1; }
+  .hub .l { font-size: min(5.4vh, 3vw); font-weight: 900; line-height: 1; letter-spacing: .04em; }
+  .hub .n { font-size: min(13vh, 7.2vw); font-weight: 900; line-height: .95; }
+  .hub .q { font-size: min(3vh, 1.7vw); font-weight: 700; color: #4b6573; text-align: center; padding: 0 10%; }
+  .hub.pop .n, .hub.pop .l { animation: hubpop .6s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes hubpop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .wheel .seg.done { opacity: .28; }
+
+  .right { display: flex; flex-direction: column; gap: 2.2vh; min-width: 0; }
+  .nowrow { display: flex; align-items: center; gap: 2vw; }
+  .nowrow .big { font-size: clamp(40px, 6vw, 110px); font-weight: 900; line-height: 1; min-width: 3.6em; }
+  .nowrow .cnt { color: var(--muted); font-size: clamp(15px, 1.5vw, 26px); }
+  .nowrow .cnt b { color: var(--text); font-size: 1.3em; }
+  .recent { display: flex; gap: .8vw; flex-wrap: wrap; }
+  .ball { width: clamp(34px, 3.6vw, 62px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font-weight: 900; color: #fff; font-size: clamp(13px, 1.4vw, 24px); box-shadow: inset 0 -4px 8px rgba(0,0,0,.25); }
+  .ball small { display: none; }
+  .board { display: grid; grid-template-columns: auto repeat(15, 1fr); gap: .4vw; }
+  .board .lt { font-weight: 900; font-size: clamp(18px, 2.2vw, 40px); color: #fff; border-radius: 10px; display: grid; place-items: center; padding: 0 .8vw; }
+  .board .nm { aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; font-size: clamp(11px, 1.15vw, 22px); color: rgba(255,255,255,.28); background: rgba(255,255,255,.04); font-weight: 600; transition: background .3s, color .3s; }
+  .board .nm.on { color: #fff; font-weight: 900; }
+  .board .nm.last { outline: 3px solid #fff; outline-offset: 2px; animation: lastpulse 1.4s ease-in-out infinite; }
+  @keyframes lastpulse { 50% { outline-color: rgba(255,255,255,.25); } }
+  .patrow { display: flex; align-items: center; gap: 1.4vw; background: var(--card); border-radius: 16px; padding: 1.4vh 1.2vw; }
+  .patrow .pat { width: clamp(54px, 5.6vw, 100px); gap: 4px; }
+  .patrow .t { font-size: clamp(14px, 1.3vw, 22px); color: var(--muted); }
+  .patrow .t b { display: block; color: var(--text); font-size: clamp(20px, 2.2vw, 40px); }
+  .stages { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; justify-content: flex-end; }
+  .stages span { padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); font-size: clamp(12px, 1.1vw, 18px); }
+  .stages span.cur { background: var(--accent); color: #123647; border-color: var(--accent); font-weight: 700; }
+  .stages span.done { text-decoration: line-through; opacity: .6; }
+
+  /* BINGÓ */
+  .claim { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vh; }
+  .claimgrid { flex: 1; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 3vw; align-items: center; min-height: 0; }
+  .claimgrid .claim { text-align: center; }
+  .claim h1 { font-size: clamp(60px, 9vw, 170px); font-weight: 900; margin: 0; color: var(--accent); line-height: 1; letter-spacing: .02em; }
+  .claim .who { font-size: clamp(26px, 3.6vw, 60px); font-weight: 900; text-align: center; }
+  .claim .what { font-size: clamp(16px, 1.8vw, 30px); color: var(--muted); }
+  .verified { color: var(--good); font-weight: 700; font-size: clamp(15px, 1.6vw, 26px); }
+  .cards { display: flex; gap: 3vw; justify-content: center; flex-wrap: wrap; }
+  .mini { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: min(60vh, 40vw); }
+  .cards.multi .mini { width: min(38vh, 19vw); }
+  .mini .hd { aspect-ratio: auto; padding: .6vh 0; color: #fff; font-weight: 900; font-size: clamp(14px, 2.4vh, 30px); border-radius: 6px; text-align: center; }
+  .mini .c { aspect-ratio: 1; border-radius: 8px; background: var(--card); display: grid; place-items: center; font-weight: 700; font-size: clamp(12px, 2.6vh, 32px); color: var(--muted); }
+  .cards.multi .mini .c { font-size: clamp(10px, 1.7vh, 20px); }
+  .mini .c.ok { background: var(--good); color: #fff; }
+  .mini .c.win { outline: 3px solid #fff; outline-offset: -3px; }
+  .mini .c.free { background: var(--accent); color: #123647; font-size: clamp(9px, 1.5vh, 16px); }
+  .mini-name { text-align: center; margin-top: 6px; font-weight: 700; }
+
+  .winners { display: flex; flex-direction: column; gap: 1.4vh; width: min(900px, 100%); }
+  .winners div { display: flex; justify-content: space-between; background: var(--card); border-radius: 12px; padding: 1.6vh 1.6vw; font-size: clamp(18px, 2.2vw, 36px); }
+  .winners div span:first-child { color: var(--muted); }
+  .winners div span:last-child { font-weight: 900; }
+  @media (max-width: 800px) { .tb-play, .claimgrid { grid-template-columns: 1fr; } .wheelbox { width: min(86vw, 52vh); } body { overflow: auto; } }
+</style>
+</head>
+<body>
+
+<!-- 1. Stillingar -->
+<section id="setup" class="stage">
+  <div class="setup-wrap">
+    <div class="topline"><div class="brand">Hljómey <span>Bingó</span></div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a class="on" href="talnabingo-stjorn.html">Bingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a></nav></div>
+
+    <div id="resumeBox" class="panel hidden">
+      <div class="resume">
+        <div>Bingó <b id="resumeCode"></b> er enn í gangi.</div>
+        <div class="row"><button class="btn small" id="resumeBtn">Halda áfram</button><button class="btn small ghost" id="discardBtn">Hunsa</button></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>1. Spilað um</h2>
+      <p class="muted" style="margin:-4px 0 14px;font-size:14px">Smelltu á mynstrin í þeirri röð sem á að spila þau. Smelltu aftur til að taka út.</p>
+      <div class="pat-pick" id="patPick"></div>
+      <div class="order" id="order"></div>
+    </div>
+
+    <div class="panel">
+      <h2>2. Stillingar</h2>
+      <div class="grid">
+        <div><label for="title">Heiti</label><input type="text" id="title" value="Hljómey Bingó"></div>
+        <div><label for="sound">Hljóð í hjólinu</label><select id="sound"><option value="1" selected>Já, smellir</option><option value="0">Nei</option></select></div>
+      </div>
+      <p class="muted" style="margin:12px 0 0;font-size:14px">Hver leikmaður fær sitt spjald í símanum: B 1–15, I 16–30, N 31–45, G 46–60, O 61–75 og fríreit í miðjunni. Leikmenn merkja sjálfir og kerfið staðfestir við BINGÓ að allar merktu tölurnar séu komnar upp.</p>
+    </div>
+
+    <div class="launchbar">
+      <div class="lb-info" id="lbInfo"></div>
+      <input type="password" id="pin" autocomplete="off" placeholder="PIN stjórnanda" aria-label="PIN stjórnanda">
+      <button class="btn" id="createBtn">Búa til bingó</button>
+      <div id="createErr" class="err hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Biðsalur -->
+<section id="lobby" class="stage hidden">
+  <div class="topline"><div class="brand" id="lobbyTitle"></div><div class="muted" id="lobbyInfo"></div></div>
+  <div class="lobby">
+    <div class="qr" id="qr"></div>
+    <div>
+      <div class="join-url">Skannaðu QR eða farðu á <b id="joinUrl"></b></div>
+      <div class="code" id="code"></div>
+      <div class="pcount" id="pcount">0 þátttakendur</div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Hjólið -->
+<section id="playing" class="stage hidden">
+  <div class="topline"><div class="brand" id="pTitle"></div><div class="muted" id="pCode"></div></div>
+  <div class="tb-play">
+    <div class="wheelbox">
+      <svg class="pointer" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 46 L2 6 Q0 0 7 0 H33 Q40 0 38 6 Z" fill="#fff"/><circle cx="20" cy="12" r="5" fill="#123647"/></svg>
+      <svg class="wheel" id="wheel" viewBox="-500 -500 1000 1000" aria-hidden="true"></svg>
+      <div class="hub" id="hub"><div class="q">Ýttu á<br>Snúa</div></div>
+    </div>
+    <div class="right">
+      <div class="patrow"><div class="pat" id="curPat"></div><div class="t">Spilað um<b id="curPatName"></b><span id="curPatSub"></span></div><div class="stages" id="stages"></div></div>
+      <div class="nowrow"><div class="big" id="bigNo">–</div><div><div class="cnt"><b id="cnt">0</b> af 75 tölum komnar</div><div class="recent" id="recent" style="margin-top:1vh"></div></div></div>
+      <div class="board" id="board"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. BINGÓ -->
+<section id="claimView" class="stage hidden">
+  <div class="topline"><div class="brand" id="cTitle"></div><div class="muted" id="cCode"></div></div>
+  <div class="claimgrid">
+    <div class="claim">
+      <h1 class="pop">BINGÓ!</h1>
+      <div class="who" id="claimWho"></div>
+      <div class="what" id="claimWhat"></div>
+      <div class="verified">✓ Kerfið hefur staðfest að allar merktu tölurnar eru komnar upp</div>
+    </div>
+    <div class="cards" id="claimCards"></div>
+  </div>
+</section>
+
+<!-- 5. Lok -->
+<section id="final" class="stage hidden">
+  <div class="topline"><div class="brand" id="fTitle"></div><div class="muted">Vinningshafar</div></div>
+  <div class="claim"><div class="winners" id="winners"></div></div>
+</section>
+
+<div class="bar-ctl hidden" id="ctl">
+  <button class="btn" id="primary">Byrja</button>
+  <div class="info" id="ctlInfo"></div>
+  <button class="btn ghost small" id="fsBtn">Fullur skjár</button>
+  <button class="btn ghost small" id="quitBtn">Ljúka</button>
+</div>
+<div class="toast err hidden" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="config.js"></script>
+<script src="common.js?v=2026-10-18a"></script>
+<script src="talnabingo-lib.js?v=2026-10-21a"></script>
+<script src="talnabingo-host.js?v=2026-10-21a"></script>
+</body>
+</html>

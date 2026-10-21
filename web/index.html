@@ -245,6 +245,44 @@
         <article class="game">
           <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
             <rect x="0" y="0" width="300" height="170" rx="18" fill="#102c3a"/>
+            <g transform="translate(86 85)">
+              <circle r="64" fill="#0b1f29"/>
+              <g stroke="#102c3a" stroke-width="1.5">
+                <path d="M0 0 L0 -60 A60 60 0 0 1 57.06 -18.54 Z" fill="#ff6f59"/>
+                <path d="M0 0 L57.06 -18.54 A60 60 0 0 1 35.27 48.54 Z" fill="#2e86a6"/>
+                <path d="M0 0 L35.27 48.54 A60 60 0 0 1 -35.27 48.54 Z" fill="#e0a53a"/>
+                <path d="M0 0 L-35.27 48.54 A60 60 0 0 1 -57.06 -18.54 Z" fill="#2e9e74"/>
+                <path d="M0 0 L-57.06 -18.54 A60 60 0 0 1 0 -60 Z" fill="#9b6ee0"/>
+              </g>
+              <circle r="60" fill="none" stroke="#fff" stroke-width="4"/>
+              <circle r="22" fill="#f4f1ea"/>
+              <text y="7" text-anchor="middle" font-size="20" font-weight="900" fill="#123647" font-family="Oswald, sans-serif">42</text>
+              <path d="M-8 -74 h16 l-8 14z" fill="#fff"/>
+            </g>
+            <g transform="translate(172 30)" font-family="Oswald, sans-serif" font-weight="900" font-size="13" text-anchor="middle" fill="#fff">
+              <rect x="0" y="0" width="20" height="16" rx="4" fill="#ff6f59"/><text x="10" y="12.5">B</text>
+              <rect x="22" y="0" width="20" height="16" rx="4" fill="#2e86a6"/><text x="32" y="12.5">I</text>
+              <rect x="44" y="0" width="20" height="16" rx="4" fill="#e0a53a"/><text x="54" y="12.5">N</text>
+              <rect x="66" y="0" width="20" height="16" rx="4" fill="#2e9e74"/><text x="76" y="12.5">G</text>
+              <rect x="88" y="0" width="20" height="16" rx="4" fill="#9b6ee0"/><text x="98" y="12.5">O</text>
+              <g id="tbArt"></g>
+            </g>
+          </svg>
+          <div class="game-body">
+            <h3>Bingó</h3>
+            <p>Gamla góða bingóið með tölum frá 1 til 75. Stjórnandinn snýr lukkuhjólinu á stóra skjánum og þú merkir tölurnar á spjaldinu í símanum.</p>
+            <ul>
+              <li>B-I-N-G-O spjald með fríreit í miðjunni</li>
+              <li>Ein lína, B, I, N, G eða O, X eða allt spjaldið</li>
+              <li>Lukkuhjól og tölutafla á stóra skjánum</li>
+              <li>Kerfið staðfestir hvert BINGÓ sjálfkrafa</li>
+            </ul>
+          </div>
+        </article>
+
+        <article class="game">
+          <svg class="game-art" viewBox="0 0 300 170" aria-hidden="true">
+            <rect x="0" y="0" width="300" height="170" rx="18" fill="#102c3a"/>
             <g transform="translate(22 20)">
               <rect width="150" height="130" rx="12" fill="#163a4b"/>
               <g font-family="Oswald, sans-serif" font-weight="900" font-size="14" fill="#f2b544">
@@ -350,7 +388,7 @@
       </ol>
       <div class="host-strip">
         <div class="tx"><b>Ætlarðu að stjórna?</b><span>Opnaðu stjórnandasíðuna í tölvu sem er tengd við sjónvarp eða skjávarpa. Gestirnir þurfa bara símann.</span></div>
-        <nav aria-label="Stjórnandasíður"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a><a href="jolabingo-stjorn.html">Jólabingó</a></nav>
+        <nav aria-label="Stjórnandasíður"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="talnabingo-stjorn.html">Bingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a><a href="jolabingo-stjorn.html">Jólabingó</a></nav>
       </div>
     </section>
 
@@ -413,8 +451,21 @@
     h += '<path d="M11 13 L115 129" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".85"/>';
     g.innerHTML = h;
   })();
+  (function () {
+    const g = document.getElementById('tbArt'); if (!g) return;
+    const nums = [[4,19,33,50,64],[9,22,38,47,70],[12,27,0,55,62],[2,30,41,58,73],[15,17,44,49,66]];
+    const dab = { 0: 1, 6: 1, 18: 1, 24: 1, 8: 1 }, col = ['#ff6f59', '#2e86a6', '#e0a53a', '#2e9e74', '#9b6ee0'];
+    let h = '';
+    nums.forEach((row, r) => row.forEach((n, c) => {
+      const x = c * 22, y = 20 + r * 21, i = r * 5 + c;
+      h += `<rect x="${x}" y="${y}" width="20" height="19" rx="4" fill="${n === 0 ? '#f2b544' : '#f4f1ea'}"/>`;
+      if (dab[i] && n) h += `<circle cx="${x + 10}" cy="${y + 9.5}" r="8" fill="${col[c]}" opacity=".85"/>`;
+      h += `<text x="${x + 10}" y="${y + 13.5}" font-size="${n ? 11 : 7}" fill="${dab[i] && n ? '#fff' : '#123647'}">${n || 'FRÍTT'}</text>`;
+    }));
+    g.innerHTML = h;
+  })();
   if (new URLSearchParams(location.search).get('k')) document.body.classList.add('has-code');
 </script>
-<script src="player.js?v=2026-10-15e"></script>
+<script src="player.js?v=2026-10-21a"></script>
 </body>
 </html>
