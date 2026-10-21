@@ -309,7 +309,7 @@ create or replace function public.jb_admin_extra(p_pin text, p_names text[])
 returns void language plpgsql security definer set search_path = public as $$
 begin
   perform _jb_admin(p_pin);
-  delete from jb_extra;
+  delete from jb_extra where true;  -- Supabase leyfir ekki DELETE án WHERE
   insert into jb_extra (name)
     select distinct on (lower(trim(n))) left(trim(n), 60) from unnest(coalesce(p_names, array[]::text[])) n
      where trim(n) <> '' order by lower(trim(n))
