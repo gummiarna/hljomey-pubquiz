@@ -137,7 +137,7 @@
       tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'Spotify Premium ef þú vilt heil lög (annars 30 sek. bútar)'],
       takki: 'Búa til leik',
       stillingar: [
-        ['1. Hljóð', 'Án Spotify spilast 30 sekúndna bútar og ekkert þarf að gera. Með Spotify: smelltu á <b>Tengja Spotify</b>, skráðu þig inn og veldu <b>Tæki</b> sem á að spila. Ef tækið sést ekki: spilaðu eitthvað stutt í Spotify og ýttu á ↻. Hljómey þarf fyrst að bæta netfanginu þínu við Spotify-aðganginn, hafðu samband ef það vantar.'],
+        ['1. Hljóð', 'Án Spotify spilast 30 sekúndna bútar og ekkert þarf að gera. Með Spotify: smelltu á <b>Tengja Spotify</b>, skráðu þig inn og veldu <b>Tæki</b> sem á að spila. Ef tækið sést ekki: spilaðu eitthvað stutt í Spotify og ýttu á ↻. Ef það virkar ekki dugir að nota Deezer í 30 sek. bút.'],
         ['Spotify í síma', 'Opnaðu leikjasíðuna í vafra (Safari eða Chrome), ekki inni í öðru appi. Spotify-appið eitt og sér dugar ekki, síðan þarf að vera opin í vafranum.'],
         ['Lagið byrjar', 'Aðeins með Spotify: í byrjun lags, eða eftir 30 eða 45 sekúndur svo viðlagið komi strax.'],
         ['2. Lögin: Blanda', 'Frá <b>Bara íslensk</b> til <b>Bara erlend</b>.'],
