@@ -6,14 +6,14 @@
   const INNSKRANING = (sida, takki, pinTexti) => ({
     titill: 'Skráðu þig inn sem stjórnandi',
     skref: [
-      `Opnaðu <b>${sida}</b> á tölvunni sem er tengd við skjáinn eða skjávarpann.`,
+      `Opnaðu <b>leikir.hljomey.is/${sida}</b> í símanum, spjaldtölvunni eða tölvunni sem þú stýrir leiknum úr.`,
       `Smelltu á <b>Skrá inn</b> efst til hægri. Glugginn opnast líka sjálfkrafa þegar þú smellir á <b>${takki}</b> án þess að vera innskráð/ur, og ekkert af uppsetningunni tapast.`,
       'Sláðu inn netfangið þitt og smelltu á <b>Senda kóða</b>.',
       'Kóði kemur í tölvupósti eftir nokkrar sekúndur. Sláðu hann inn í reitinn <b>Kóði úr tölvupóstinum</b>. Kom ekkert? Athugaðu ruslpóstinn eða smelltu á <b>Senda kóða aftur</b>.',
       'Í fyrsta skipti biður kerfið um nafnið þitt. Það sést aðeins umsjónarmanni síðunnar.',
       'Þú helst innskráð/ur í þessum vafra þar til þú smellir á <b>Skrá út</b>. Leikur sem er í gangi heldur áfram þótt þú skráir þig út.',
     ],
-    athugid: pinTexti || 'Til viðbótar við innskráninguna þarf <b>PIN stjórnanda</b> til að búa til leik. Fáðu það hjá Hljómey. Gestapin dugar til að búa til og stýra leikjum, en aðal-PIN þarf til að breyta bönkum og stillingum. Gestir í símum skrá sig aldrei inn.',
+    athugid: pinTexti || 'Til viðbótar við innskráninguna þarf <b>PIN</b> til að búa til leik. Þú færð það hjá Hljómey. Gestir í símum skrá sig aldrei inn.',
   });
 
   const LEIKIR = {
@@ -21,12 +21,11 @@
       nafn: 'Pöbbkviss',
       sida: 'stjorn.html',
       inngangur: 'Kerfið spilar bút úr lagi eða ber upp spurningu, og allir svara í símanum. Fljót svör gefa flest stig og stigataflan birtist á stóra skjánum eftir hverja umferð.',
-      tharft: ['Tölvu tengda við skjá og hátalara', 'Netsamband fyrir tölvuna og símana', 'PIN stjórnanda'],
+      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'PIN frá Hljómey'],
       takki: 'Búa til leik',
       stillingar: [
         ['Tónlist / Spurningar / Blandað', 'Efst velurðu tegund kvissins: lagabúta, spurningar úr spurningabankanum, eða hvort tveggja til skiptis.'],
         ['Sækja lög úr', '<b>Leit á Deezer</b> (t.d. „íslenskt 80s“ eða „Eurovision“), <b>Deezer-lagalista</b> (besta leiðin til að stýra þemanu, límdu slóðina), <b>Flytjendum</b> (nöfn aðskilin með kommu) eða <b>Vinsælast núna</b> eftir tegund. Smelltu á <b>Sækja lög</b>.'],
-        ['☆ Vista lagalista', 'Geymir þemað svo það sé valið aftur með einum smelli næst, bæði hér og í Tónlistarbingói.'],
         ['Flokkar og Erfiðleiki', 'Aðeins fyrir spurningar. Veldu einn eða fleiri flokka og erfiðleika frá Létt til Erfitt. Barnaspurningar eru sér flokkur og blandast ekki í „Allir flokkar“.'],
         ['Heiti leiks', 'Birtist á stóra skjánum.'],
         ['Fjöldi laga / Fjöldi spurninga', 'Hve margar umferðir eru spilaðar (sjálfgefið 10).'],
@@ -38,19 +37,19 @@
       leikur: [
         'Smelltu á <b>Búa til leik</b>. QR-kóði og fjögurra stafa kóði birtast á skjánum.',
         'Gestir skanna kóðann eða slá hann inn á forsíðunni ásamt nafni eða liðsnafni.',
-        'Bilstöngin keyrir leikinn áfram: byrja → sýna svar → stigatafla → næsta lag → úrslit.',
+        'Hnappurinn neðst á skjánum (eða bilstöngin á lyklaborði) keyrir leikinn áfram: byrja → sýna svar → stigatafla → næsta lag → úrslit.',
         'Rétt svar gefur 500–1.000 stig eftir hraða og fyrsta rétta svarið +200 í bónus.',
-        'Ef tölvan endurræsist: opnaðu síðuna aftur og veldu <b>Halda áfram</b>. Gestur sem missir samband opnar síðuna aftur og heldur stigunum sínum.',
+        'Ef síminn eða tölvan endurræsist: opnaðu síðuna aftur og veldu <b>Halda áfram</b>. Gestur sem missir samband opnar síðuna aftur og heldur stigunum sínum.',
       ],
     },
     tonlistarbingo: {
       nafn: 'Tónlistarbingó',
       sida: 'bingo-stjorn.html',
       inngangur: 'Hver gestur fær sitt eigið bingóspjald með lögum í símanum. Kerfið spilar búta úr lögunum, gestir merkja þau sem þeir þekkja og kalla BINGÓ.',
-      tharft: ['Tölvu tengda við skjá og hátalara', 'Netsamband fyrir tölvuna og símana', 'PIN stjórnanda'],
+      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'PIN frá Hljómey'],
       takki: 'Búa til bingó',
       stillingar: [
-        ['1. Þema', 'Sama og í Pöbbkvissi: Deezer-leit, lagalisti, flytjendur eða vinsælast núna. Vistuð þemu birtast efst. Smelltu á <b>Sækja lög</b>.'],
+        ['1. Þema', 'Sama og í Pöbbkvissi: Deezer-leit, lagalisti, flytjendur eða vinsælast núna. Tilbúin þemu birtast efst. Smelltu á <b>Sækja lög</b>.'],
         ['Heiti', 'Birtist á stóra skjánum.'],
         ['Stærð spjalds', '<b>5×5</b> (24 lög og fríreitur), <b>4×4</b> (16 lög) eða <b>3×3</b> (8 lög og fríreitur). Minna spjald gefur styttri leik.'],
         ['Lög í potti', 'Hve mörg ólík lög geta komið upp (sjálfgefið 60). Fleiri lög gefa lengri leik.'],
@@ -62,7 +61,7 @@
       ],
       leikur: [
         'Smelltu á <b>Búa til bingó</b> neðst. Gestir skanna QR-kóðann og fá spjaldið sitt.',
-        '<b>Byrja bingó</b> spilar fyrsta lagið. Bilstöngin spilar næsta lag strax og <b>Hlé</b> stöðvar sjálfvirku spilunina.',
+        '<b>Byrja bingó</b> spilar fyrsta lagið. Hnappurinn neðst (eða bilstöngin) spilar næsta lag strax og <b>Hlé</b> stöðvar sjálfvirku spilunina.',
         'Gestir merkja sjálfir og ýta á <b>BINGÓ!</b>. Kerfið staðfestir að öll merktu lögin hafi verið spiluð og sýnir spjald vinningshafans á skjánum.',
         'Falskt BINGÓ læsir hnappnum fram að næsta lagi. Ef fleiri kalla áður en þú heldur áfram vinna allir.',
         'Smelltu á <b>Halda áfram</b> til að spila næsta mynstur, eða <b>Ljúka leik</b>.',
@@ -72,7 +71,7 @@
       nafn: 'Bingó',
       sida: 'talnabingo-stjorn.html',
       inngangur: 'Gamla góða bingóið með tölum frá 1 til 75. Þú snýrð lukkuhjóli á stóra skjánum og gestir merkja tölurnar á B-I-N-G-O spjaldi í símanum.',
-      tharft: ['Tölvu tengda við skjá (hátalari ef þú vilt smellina í hjólinu)', 'Netsamband fyrir tölvuna og símana', 'PIN stjórnanda'],
+      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'PIN frá Hljómey'],
       takki: 'Búa til bingó',
       stillingar: [
         ['1. Spilað um', 'Smelltu á mynstrin í þeirri röð sem á að spila þau. Talan á hverju mynstri sýnir röðina; smelltu aftur til að taka út.'],
@@ -85,7 +84,7 @@
       ],
       leikur: [
         'Smelltu á <b>Búa til bingó</b>. Gestir skanna QR-kóðann og fá spjald: B 1–15, I 16–30, N 31–45, G 46–60, O 61–75 og fríreit í miðjunni.',
-        '<b>Snúa</b> (eða bilstöngin) snýr hjólinu. Talan er valin af handahófi á þjóninum og birtist í símunum þegar hjólið stöðvast.',
+        '<b>Snúa</b> (eða bilstöngin á lyklaborði) snýr hjólinu. Talan er valin af handahófi á þjóninum og birtist í símunum þegar hjólið stöðvast.',
         'Allar komnar tölur sjást á töflunni við hliðina á hjólinu.',
         'Gestir merkja sjálfir. Þeir geta hakað við <b>Sýna komnar tölur á spjaldinu</b> til að fá hjálp.',
         'Við BINGÓ staðfestir kerfið að allar merktu tölurnar séu komnar upp og sýnir spjaldið á skjánum. Rangt BINGÓ læsir hnappnum fram að næstu tölu.',
@@ -96,57 +95,55 @@
       nafn: 'Gítarpartý',
       sida: 'gitar.html',
       inngangur: 'Spilarinn fær lögin með hljómum og allir sem skanna QR-kóðann sjá textann í símanum. Síminn flettir með spilaranum. Engin tónlist er spiluð af netinu.',
-      tharft: ['Tölvu, spjaldtölvu eða síma fyrir spilarann', 'Söngbók með lögunum (fylgir, og þú getur bætt við)'],
+      tharft: ['Síma eða spjaldtölvu fyrir spilarann (tölva virkar líka)', 'Netsamband', 'Gítar og söngglaða gesti'],
       takki: 'Byrja partý',
-      pinTexti: 'Ekkert PIN þarf til að byrja partý. <b>Aðal-PIN</b> þarf aðeins til að breyta söngbókinni. Gestir í símum skrá sig aldrei inn.',
+      pinTexti: 'Ekkert PIN þarf til að byrja partý. Gestir í símum skrá sig aldrei inn.',
       stillingar: [
         ['Söngbókin', 'Hakaðu við lögin fyrir kvöldið. <b>Öll / Íslensk / Erlend</b> sía listann og <b>Röð / A–Ö</b> raðar honum. Partýið fylgir röðinni.'],
-        ['Breyta söngbók', 'Með aðal-PIN: <b>Nýtt lag</b>, heiti og flytjandi, og textinn með hljómum. Hljómur fer í hornklofa á undan atkvæðinu: <code>[Am]Sofðu unga [E7]ástin mín</code>. Lag af gítarsíðu með hljómum fyrir ofan textann má líma beint inn.'],
-        ['Flytja inn', 'Heil PDF-söngbók í einu (t.d. af guitarparty.com). Taktu hak af lögum sem á að sleppa.'],
-        ['Tóntegund og Capó', 'Stillt fyrir hvert lag í lagaritlinum.'],
+        ['Vantar lag?', 'Gestir (og þú í símanum) geta sent inn lag sem vantar undir <b>Senda inn lag</b> í lagalistanum, t.d. afritað af gitargrip.is eða Ultimate Guitar. Hljómarnir raðast sjálfkrafa.'],
         ['Prenta valin lög', 'Býr til söngbók með einu lagi á síðu, eða PDF.'],
       ],
       leikur: [
         'Smelltu á <b>Byrja partý</b>. QR-kóði og fjögurra stafa kóði birtast. Gestir þurfa ekkert nafn.',
-        'Þegar þú flettir á næsta lag fylgja allir símar með. Örvalyklar og fótstig fletta líka.',
+        'Þegar þú flettir á næsta lag fylgja allir símar með. Á tölvu fletta örvalyklar og fótstig líka.',
         '<b>Hljómar</b> sýnir eða felur hljómana. <b>− / +</b> færir lagið um hálftón, líka í símum gesta.',
         'Ýttu á heiti lagsins efst (eða ☰) til að velja lag utan raðar.',
         'Hringlaga takkinn niðri til hægri skrunar sjálfkrafa: hver smellur hækkar hraðann 1 → 2 → 3 → af.',
         '<b>Óskalög</b>: gestir senda hjörtu eða ný lög. Hjartað efst sýnir óskirnar og smellur á lag spilar það.',
-        'Ef tækið endurræsist: opnaðu síðuna aftur og veldu <b>Halda áfram</b>.',
+        'Ef síminn eða tölvan endurræsist: opnaðu síðuna aftur og veldu <b>Halda áfram</b>.',
       ],
     },
     karaoke: {
       nafn: 'Karaoke',
       sida: 'karaoke.html',
       inngangur: 'Sjónvarpið spilar karaoke-myndbönd af YouTube og gestir velja lögin í símanum. Hver fer í biðröð og „Næst á svið“ birtist á milli laga.',
-      tharft: ['Tölvu tengda við sjónvarp og hátalara', 'YouTube-lykil (settur upp einu sinni, sjá Stillingar)', 'Hljóðnema ef þið viljið'],
+      tharft: ['Síma, spjaldtölvu eða tölvu sem spilar myndböndin, helst tengda við sjónvarp og hátalara', 'Netsamband', 'Hljóðnema ef þið viljið'],
       takki: 'Byrja karaoke-kvöld',
-      pinTexti: 'Ekkert PIN þarf til að byrja karaoke-kvöld. <b>Aðal-PIN</b> þarf aðeins til að vista YouTube-lykilinn. Gestir í símum skrá sig aldrei inn.',
+      pinTexti: 'Ekkert PIN þarf til að byrja karaoke-kvöld. Gestir í símum skrá sig aldrei inn.',
       stillingar: [
-        ['YouTube-lykill', 'Leitin þarf ókeypis lykil frá Google. Leiðbeiningarnar eru skref fyrir skref undir ⚙ <b>Stillingar</b> á karaoke-síðunni. Aðal-PIN þarf til að vista hann.'],
         ['Biðtími á milli laga', 'Hve lengi „Næst á svið“ birtist áður en næsta lag byrjar: 5–30 sekúndur.'],
-        ['Lagalistinn', 'Öll lög sem hafa verið valin. Gestir velja þau aftur án þess að leita, og þú getur fjarlægt lög af honum.'],
+        ['Lagalistinn', 'Öll lög sem hafa verið valin á fyrri kvöldum. Gestir velja þau aftur án þess að leita.'],
       ],
       leikur: [
         'Smelltu á <b>Byrja karaoke-kvöld</b>. QR-kóði birtist á sjónvarpinu.',
         'Gestir leita á YouTube í símanum, hlusta á útgáfurnar, velja eina og fara í biðröðina.',
-        'Lögin byrja sjálfkrafa hvert á eftir öðru. Bilstöngin setur á pásu.',
+        'Lögin byrja sjálfkrafa hvert á eftir öðru og hægt er að setja á pásu.',
         'Þú getur raðað biðröðinni, sett lag strax á svið eða tekið lag af lista.',
-        'YouTube leyfir um 100 leitir á dag með ókeypis lyklinum. Lagalistinn kostar engar leitir og það má alltaf líma inn YouTube-slóð.',
+        'Leitirnar á YouTube eru takmarkaðar á hverjum degi. Lagalistinn kostar engar leitir og það má alltaf líma inn YouTube-slóð.',
       ],
     },
     hvadaar: {
       nafn: 'Hvaða ár?',
       sida: 'hvadaar.html',
       inngangur: 'Lag hljómar og hver gestur setur það á réttan stað á sinni eigin tímalínu í símanum. Rétt sett lag fer á tímalínuna, og sá sem fyrst nær settum fjölda spila vinnur.',
-      tharft: ['Tölvu tengda við skjá og hátalara', 'Spotify Premium fyrir heil lög (annars 30 sek. bútar frá Deezer)', 'PIN stjórnanda'],
+      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'PIN frá Hljómey', 'Spotify Premium ef þú vilt heil lög (annars 30 sek. bútar)'],
       takki: 'Búa til leik',
       stillingar: [
-        ['1. Hljóð', 'Tengdu Spotify (Client ID er sett inn einu sinni) og veldu <b>Tæki</b> sem á að spila. Ef tækið sést ekki: spilaðu eitthvað stutt í Spotify og ýttu á ↻. Án Spotify eru notaðir 30 sekúndna bútar frá Deezer.'],
+        ['1. Hljóð', 'Án Spotify spilast 30 sekúndna bútar og ekkert þarf að gera. Með Spotify: smelltu á <b>Tengja Spotify</b>, skráðu þig inn og veldu <b>Tæki</b> sem á að spila. Ef tækið sést ekki: spilaðu eitthvað stutt í Spotify og ýttu á ↻. Hljómey þarf fyrst að bæta netfanginu þínu við Spotify-aðganginn, hafðu samband ef það vantar.'],
+        ['Spotify í síma', 'Opnaðu leikjasíðuna í vafra (Safari eða Chrome), ekki inni í öðru appi. Spotify-appið eitt og sér dugar ekki, síðan þarf að vera opin í vafranum.'],
         ['Lagið byrjar', 'Aðeins með Spotify: í byrjun lags, eða eftir 30 eða 45 sekúndur svo viðlagið komi strax.'],
         ['2. Lögin: Blanda', 'Frá <b>Bara íslensk</b> til <b>Bara erlend</b>.'],
-        ['Aðeins lög með staðfestu ári', 'Hafðu hakað svo ekkert lag sé með vafasamt ártal. Lagabankanum er breytt með aðal-PIN.'],
+        ['Aðeins lög með staðfestu ári', 'Hafðu hakað svo ekkert lag sé með vafasamt ártal.'],
         ['Heiti leiks', 'Birtist á stóra skjánum.'],
         ['Spil til sigurs', 'Hve mörg spil þarf á tímalínuna til að vinna: 5–15 (sjálfgefið 10).'],
         ['Svartími', '30 sek. til 1½ mín., eða ótakmarkaður.'],
@@ -154,38 +151,51 @@
       ],
       leikur: [
         'Smelltu á <b>Búa til leik</b>. Gestir skanna QR-kóðann og fá eitt byrjunarspil með ártali.',
-        'Bilstöngin keyrir leikinn: byrja → afhjúpa árið → staða → næsta lag. Afhjúpað er sjálfkrafa þegar allir hafa svarað eða tíminn er búinn.',
+        'Hnappurinn neðst á skjánum (eða bilstöngin á lyklaborði) keyrir leikinn: byrja → afhjúpa árið → staða → næsta lag. Afhjúpað er sjálfkrafa þegar allir hafa svarað eða tíminn er búinn.',
         'Bónus: að þekkja flytjandann og giska á nákvæmt ár gefur tákn. Þrjú tákn má skipta fyrir aukaspil.',
-        'Ef tölvan endurræsist: opnaðu síðuna aftur og veldu <b>Halda áfram</b>.',
+        'Ef síminn eða tölvan endurræsist: opnaðu síðuna aftur og veldu <b>Halda áfram</b>.',
       ],
     },
     jolabingo: {
       nafn: 'Jólabingó',
-      sida: 'jolabingo-stjorn.html',
-      inngangur: 'Netleikur sem allir spila í eigin síma, eitt lag á dag frá 1. desember. Hver leikmaður fær 4×4 spjald með listamönnum, og rétt svar við lagi dagsins merkir listamanninn.',
-      tharft: ['Aðal-PIN (gestapin virkar ekki, því þar sjást netföng)', 'Lögin fyrir alla dagana áður en leikurinn er auglýstur'],
-      takki: 'Opna',
-      innskraningSleppa: true,
-      stillingar: [
-        ['Heiti', 'Nafn leiksins á síðunni.'],
-        ['Fyrsti dagur og Fjöldi daga', 'Sjálfgefið 1. desember og 24 dagar.'],
-        ['Opnar kl.', 'Hvenær lag dagsins opnast (sjálfgefið kl. 12).'],
-        ['Jóker fyrir hver … rétt svör', 'Hve mörg rétt svör gefa jóker sem setja má á hvaða reit sem er (sjálfgefið 5).'],
-        ['Lög dagsins', 'Fyrir hvern dag: leitaðu á Deezer, staðfestu listamanninn (rétta svarið) og þrjú röng svör. Hver listamaður má aðeins vera einu sinni.'],
-        ['Aukanöfn í pottinum', '6–8 nöfn sem eru á spjöldunum en ekki lag neins dags, svo potturinn sé um 30 nöfn.'],
-        ['Leikmenn og vinningar', 'Síaðu eftir línu, tveimur línum, fullu spjaldi eða póstlista. <b>Draga vinningshafa</b> velur einn af handahófi og CSV gefur listann.'],
+      sida: 'jolabingo.html',
+      reglur: true,
+      inngangur: 'Eitt lag á dag frá 1. desember fram að jólum. Allir spila í eigin síma, hvar sem er, og það kostar ekkert að vera með.',
+      kaflar: [
+        ['Svona byrjarðu', [
+          'Opnaðu <b>leikir.hljomey.is/jolabingo.html</b> og skráðu þig með nafni og netfangi.',
+          'Þú færð þitt eigið spjald með 16 listamönnum sem hafa spilað á Hljómey.',
+          'Netfangið er notað til að hafa samband ef þú vinnur. Sama netfang í öðrum síma opnar sama spjaldið.',
+        ]],
+        ['Reglurnar', [
+          'Kl. 12 á hverjum degi opnast nýtt lag. Hlustaðu og veldu hver flytur það úr fjórum möguleikum.',
+          'Þú færð eitt svar á hvert lag. Ef svarið er rétt og listamaðurinn er á spjaldinu þínu merkist hann.',
+          'Fimmta hvert rétt svar gefur jóker sem þú setur á hvaða reit sem er.',
+          'Misstirðu af degi? Eldri lögin bíða eftir þér, svo það er aldrei of seint að byrja.',
+        ]],
+        ['Vinningar', [
+          'Dregið er úr þeim sem ná einni línu, tveimur línum og fullu spjaldi.',
+          'Lína getur verið lárétt, lóðrétt eða á ská.',
+          'Vinningshafar fá póst á netfangið sitt.',
+        ]],
       ],
-      leikur: [
-        'Skráning opnast þegar öll lögin eru komin inn og potturinn er a.m.k. 16 nöfn.',
-        'Spjöldin verða til þegar fólk skráir sig, svo kláraðu lögin og aukanöfnin áður en þú auglýsir leikinn.',
-        'Lag dagsins og rétta svarið sjást ekki fyrr en dagurinn opnast.',
-        'Leikmenn geta byrjað seint og svarað eldri lögunum.',
-      ],
+
     },
   };
 
   function html(id) {
     const L = LEIKIR[id];
+    if (L.reglur) {
+      let k = 0;
+      return `
+      <div class="lb-haus">
+        <div class="lb-kick">Reglur leiksins</div>
+        <h2 id="lbTitill">${esc(L.nafn)}</h2>
+        <p>${L.inngangur}</p>
+      </div>
+      ${L.kaflar.map(([t, l]) => `<section class="lb-kafli"><h3><span>${++k}</span>${t}</h3><ul>${l.map(x => `<li>${x}</li>`).join('')}</ul></section>`).join('')}
+      <div class="lb-fot"><a class="btn" href="${L.sida}">Fá spjaldið mitt →</a></div>`;
+    }
     const inn = INNSKRANING(L.sida, L.takki, L.pinTexti);
     let n = 0;
     const kafli = (titill, innihald) => `<section class="lb-kafli"><h3><span>${++n}</span>${titill}</h3>${innihald}</section>`;

@@ -150,6 +150,7 @@
   .lb-kafli { margin-top: 24px; }
   .lb-kafli h3 { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; font-size: 20px; font-weight: 800; }
   .lb-kafli h3 span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #123647; font-size: 16px; font-weight: 900; flex: 0 0 auto; }
+  .lb-kafli ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; line-height: 1.55; }
   .lb-kafli ol { margin: 0; padding-left: 22px; display: grid; gap: 8px; line-height: 1.55; }
   .lb-kafli li::marker { color: var(--accent); font-weight: 700; }
   .lb-kafli code { background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 1px 6px; font-size: .92em; }
@@ -239,7 +240,7 @@
       .jol-lb { display: block; margin: 0 0 8px auto; background: none; border: 0; color: var(--muted); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 4px 2px; }
       .jol-lb:hover { color: var(--accent); }
     </style>
-    <button type="button" class="jol-lb" data-leidbeiningar="jolabingo">Leiðbeiningar fyrir stjórnendur Jólabingósins</button>
+    <button type="button" class="jol-lb" data-leidbeiningar="jolabingo">Reglur Jólabingósins</button>
 
     <section class="games">
       <h2 class="sec-title">Hvað er í boði?</h2>
@@ -513,6 +514,6 @@
   if (new URLSearchParams(location.search).get('k')) document.body.classList.add('has-code');
 </script>
 <script src="player.js?v=2026-10-21a"></script>
-<script src="leidbeiningar.js?v=2026-10-22a"></script>
+<script src="leidbeiningar.js?v=2026-10-22c"></script>
 </body>
 </html>
