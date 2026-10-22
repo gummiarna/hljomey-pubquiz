@@ -6,7 +6,7 @@
   const INNSKRANING = (sida, takki, pinTexti) => ({
     titill: 'Skráðu þig inn sem stjórnandi',
     skref: [
-      `Opnaðu <b>leikir.hljomey.is/${sida}</b> í símanum, spjaldtölvunni eða tölvunni sem þú stýrir leiknum úr.`,
+      `Opnaðu <a class="lb-hlekkur" href="${sida}" target="_blank" rel="noopener">stjórnandasíðuna ↗</a> í símanum, spjaldtölvunni eða tölvunni sem þú stýrir leiknum úr.`,
       `Smelltu á <b>Skrá inn</b> efst til hægri. Glugginn opnast líka sjálfkrafa þegar þú smellir á <b>${takki}</b> án þess að vera innskráð/ur, og ekkert af uppsetningunni tapast.`,
       'Sláðu inn netfangið þitt og smelltu á <b>Senda kóða</b>.',
       'Kóði kemur í tölvupósti eftir nokkrar sekúndur. Sláðu hann inn í reitinn <b>Kóði úr tölvupóstinum</b>. Kom ekkert? Athugaðu ruslpóstinn eða smelltu á <b>Senda kóða aftur</b>.',
@@ -163,7 +163,7 @@
       inngangur: 'Eitt lag á dag frá 1. desember fram að jólum. Allir spila í eigin síma, hvar sem er, og það kostar ekkert að vera með.',
       kaflar: [
         ['Svona byrjarðu', [
-          'Opnaðu <b>leikir.hljomey.is/jolabingo.html</b> og skráðu þig með nafni og netfangi.',
+          'Opnaðu <a class="lb-hlekkur" href="jolabingo.html">Jólabingóið</a> og skráðu þig með nafni og netfangi.',
           'Þú færð þitt eigið spjald með 16 listamönnum sem hafa spilað á Hljómey.',
           'Netfangið er notað til að hafa samband ef þú vinnur. Sama netfang í öðrum síma opnar sama spjaldið.',
         ]],
