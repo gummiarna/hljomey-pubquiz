@@ -113,7 +113,9 @@
 
   /* Komið með kóða (QR): skráning efst */
   body.has-code .hero { grid-template-columns: 1fr; padding-top: 6px; }
-  body.has-code .hero-art, body.has-code .lead { display: none; }
+  body.has-code .hero-art, body.has-code .lead, body.has-code .smaletur { display: none; }
+  .lead .stjarna { color: var(--accent); text-decoration: none; font-weight: 700; margin-left: 1px; }
+  .smaletur { margin: 14px 0 0; max-width: 60ch; font-size: 12.5px; line-height: 1.5; color: var(--muted); opacity: .8; user-select: text; }
   body.has-code .hero h1 { font-size: 40px; }
 
   @media (max-width: 760px) {
@@ -180,7 +182,8 @@
         </a>
         <div class="kicker">Leikir og söngur</div>
         <h1>Hlustaðu.<br>Syngdu.<br><span>Sigraðu.</span></h1>
-        <p class="lead">Pöbbkviss, tónlistarbingó, gítarpartý, karaoke og „Hvaða ár?“ fyrir partíið, pöbbinn og stofuna heima. Síminn þinn er stjórntækið og stóri skjárinn sýnir hvað er að gerast.</p>
+        <p class="lead">Pöbbkviss, tónlistarbingó, gítarpartý, karaoke og „Hvaða ár?“ fyrir heimapartýið, vinnustaðinn eða stofuna heima. Síminn þinn er stjórntækið og stóri skjárinn sýnir hvað er að gerast.<a class="stjarna" href="#smaletur" aria-label="Sjá smáa letrið">*</a></p>
+        <p class="smaletur" id="smaletur">*Tónlistarleikir Hljómeyjar eru fríir og eingöngu til gamans gerðir. Hljómey ber enga ábyrgð á þeim sem finnst erfitt að tapa, þeim sem lesa ekki leiðbeiningar, né á því að kerfið virki 100% alltaf. Þetta er einungis skemmtileg viðbót af því við elskum að hafa gaman og lyfta tónlistinni.</p>
       </div>
       <svg class="hero-art" viewBox="0 0 320 260" aria-hidden="true">
         <defs>
