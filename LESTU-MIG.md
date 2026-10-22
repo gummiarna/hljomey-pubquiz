@@ -7,6 +7,17 @@ Leikirnir, Pöbbkviss, Tónlistarbingó, Gítarpartý, Karaoke og Hvaða ár?, e
 
 ---
 
+## Uppfærsla: Innskráning í stað PIN (október 2026)
+
+Stjórnendur sem eru skráðir inn búa til og stýra leikjum án PIN. Aðeins aðal-PIN er eftir, og það þarf bara til að breyta spurningabankanum, lagabankanum í Hvaða ár?, söngbókinni, YouTube-lyklinum, Spotify-stillingunum, þemum, notkunarsíðunni og Jólabingóinu. Gestapinið er tekið úr notkun.
+
+1. **Supabase**: SQL Editor → **New query** → límdu inn allt innihald **`pin-innskraning.sql`** → **Run**. Neðst stendur „Innskráning í stað PIN: tilbúið“.
+2. Á stjórnandasíðunum er PIN-reiturinn falinn. Smelltu á **Aðal-PIN** við hnappinn til að slá það inn. Hafirðu einu sinni slegið það inn í vafranum sést reiturinn áfram.
+3. Lokað er á stjórnanda á notkunarsíðunni með **Loka**. Þá getur hann ekki búið til leiki.
+4. **Neyðarhemill**: ef innskráning er tekin af (notkunarsíðan) þarf aftur aðal-PIN til að búa til leiki.
+
+Ef `gestapin.sql` eða önnur SQL-skrá leikjanna er keyrð aftur þarf að keyra `pin-innskraning.sql` aftur á eftir.
+
 ## Uppfærsla: Bingó með tölum og lukkuhjóli (október 2026)
 
 Hefðbundið bingó með tölum 1–75. Stjórnandinn snýr lukkuhjóli á stóra skjánum og leikmenn merkja tölurnar á spjaldi í símanum.

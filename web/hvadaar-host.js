@@ -269,7 +269,7 @@
       <div id="resumeBox" class="panel hidden"><div class="resume"><div>Leikur <b id="resumeCode"></b> er enn í gangi.</div><div class="row"><button class="btn small" id="resumeBtn">Halda áfram</button><button class="btn small ghost" id="discardBtn">Hunsa</button></div></div></div>
       <div class="panel"><h2>1. Hljóð</h2><div id="spBox"><div class="hint">Sæki stillingar…</div></div></div>
       <div class="panel"><h2>2. Lögin</h2>
-        <div class="bank-sum" id="bankSum"><span class="hint">Opnaðu lagabankann með PIN.</span></div>
+        <div class="bank-sum" id="bankSum"><span class="hint">Skráðu þig inn sem stjórnandi til að sjá lögin.</span></div>
         <div class="row" style="margin-top:12px"><button class="btn ghost" id="openBank">Opna lagabankann</button></div>
         <label style="margin-top:18px">Blanda</label>
         <div class="chipsel" id="mix">${[[100, 'Bara íslensk'], [75, 'Mest íslensk'], [50, 'Jafnt'], [25, 'Mest erlend'], [0, 'Bara erlend']].map(([v, l]) => `<button type="button" data-v="${v}">${l}</button>`).join('')}</div>
@@ -296,6 +296,7 @@
     $('pin').addEventListener('change', () => { if (!S.bank) loadBank(true); });
     renderSp();
     loadBank(true);
+    PQ.client.auth.onAuthStateChange((ev, se) => { if (se && se.user && !S.bank) setTimeout(() => loadBank(true), 0); });
     checkResume();
   }
 
@@ -402,8 +403,8 @@
 
   // ---------- Lagabankinn ----------
   async function loadBank(quiet) {
-    if (!pin()) { if (!quiet) toast('Sláðu inn PIN fyrst.', true); return false; }
-    try { S.bank = await rpc('ha_bank_list', { p_pin: pin() }); store.set('pq_pin', pin()); bankSum(); return true; }
+    if (!pin() && quiet && !(PQ.auth && PQ.auth.user())) return false;
+    try { S.bank = await rpc('ha_bank_list', { p_pin: pin() }); if (pin()) store.set('pq_pin', pin()); bankSum(); return true; }
     catch (e) {
       if (!quiet) toast(isMissing(e) ? 'Keyrðu hvadaar.sql í Supabase fyrst.' : e.message, true);
       const b = $('bankSum'); if (b) b.innerHTML = `<span class="badline">${isMissing(e) ? 'Hvaða ár? er ekki uppsett. Keyrðu hvadaar.sql í Supabase.' : esc(e.message)}</span>`;
@@ -679,7 +680,7 @@
   async function createGame() {
     const err = m => { $('createErr').textContent = m; $('createErr').classList.toggle('hidden', !m); };
     err('');
-    if (!S.bank && !(await loadBank(false))) return err('Sláðu inn rétt PIN svo hægt sé að sækja lagabankann.');
+    if (!S.bank && !(await loadBank(false))) return err('Skráðu þig inn sem stjórnandi svo hægt sé að sækja lögin.');
     const all = usable();
     if (all.length < 12) return err(`Of fá lög koma til greina (${all.length}). Opnaðu lagabankann og staðfestu ár eða taktu hakið af „Aðeins lög með staðfestu ári“.`);
     const mix = store.get('ha_mix') == null ? 50 : store.get('ha_mix');

@@ -344,5 +344,27 @@
   const SHAPES = ['▲', '◆', '●', '■'];
 
   const auth = { user: () => A.user, profile: () => A.profile, ensure: ensureLogin, open: openLogin, signOut, required: loginRequired };
+  // PIN er aðeins fyrir aðalstjórnanda: innskráðir stjórnendur búa til leiki án þess.
+  // Reiturinn er falinn nema PIN sé þegar vistað; „Aðal-PIN“ opnar hann.
+  function felaPin() {
+    const inp = document.getElementById('pin');
+    if (!inp || inp.dataset.pf) return;
+    inp.dataset.pf = '1';
+    if (inp.value || store.get('pq_pin')) return;
+    const lab = document.querySelector('label[for="pin"]');
+    inp.hidden = true; if (lab) lab.hidden = true;
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'pin-opna'; b.textContent = 'Aðal-PIN';
+    b.title = 'Aðeins fyrir umsjónarmann. Innskráðir stjórnendur þurfa ekkert PIN.';
+    b.style.cssText = 'background:none;border:0;color:var(--muted);font-size:13px;text-decoration:underline;cursor:pointer;padding:4px 6px';
+    b.onclick = () => { inp.hidden = false; if (lab) lab.hidden = false; b.remove(); inp.focus(); };
+    inp.after(b);
+  }
+  if (document.querySelector('.pq-host, .launchbar, #setup') || /stjorn|hvadaar/.test(location.pathname)) {
+    const run = () => setTimeout(felaPin, 0);
+    window.addEventListener('load', run);
+    new MutationObserver(run).observe(document.documentElement, { childList: true, subtree: true });
+  }
+
   window.PQ = { client, rpc, store, esc, SHAPES, cfg, auth, withLogin };
 })();

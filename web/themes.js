@@ -158,8 +158,8 @@
       p_pin: p, p_kind: kind, p_value: canon(kind, value),
       p_name: meta.name || '', p_cover: meta.cover || '', p_count: meta.count || null
     });
-    store.set('pq_pin', p);
-    if ($('pin') && !$('pin').value) $('pin').value = p;   // þarf þá ekki að slá PIN aftur inn í skrefi 3
+    if (p) store.set('pq_pin', p);
+    if (p && $('pin') && !$('pin').value) $('pin').value = p;   // þarf þá ekki að slá PIN aftur inn í skrefi 3
     await load();
   }
 
@@ -220,10 +220,9 @@
     try { meta = await metaFor(kind, raw); }
     catch (e) { busy(false); status(esc(e.message), 'bad'); return; }
     const p = pin();
-    if (p) {
-      try { await save(kind, raw, meta, p); busy(false); done(meta); return; }
-      catch (e) { if (e.code !== 'rangt_pin') { busy(false); status(esc(e.message), 'bad'); return; } }
-    }
+    // Innskráður stjórnandi þarf ekkert PIN (innskráningarglugginn opnast ef þarf)
+    try { await save(kind, raw, meta, p); busy(false); done(meta); return; }
+    catch (e) { if (e.code !== 'rangt_pin') { busy(false); status(esc(e.message), 'bad'); return; } }
     busy(false);
     askPinInline(kind, raw, meta, p ? 'Vistaða PIN-númerið passar ekki.' : '');
   }

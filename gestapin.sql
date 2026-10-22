@@ -1,3 +1,6 @@
+-- ATH (október 2026): keyrðu pin-innskraning.sql alltaf strax á eftir þessari skrá.
+-- Þá búa innskráðir stjórnendur til leiki án PIN og aðeins aðal-PIN er notað.
+
 -- =====================================================================
 --  Hljómey – gestapin
 --
@@ -17,23 +20,30 @@
 -- =====================================================================
 
 -- 'host' (aðal-PIN), 'guest' (gestapin) eða null (rangt)
+-- Sjá pin-innskraning.sql: innskráður stjórnandi má búa til leiki án PIN
+-- Hlutverk: 'host' (aðal-PIN), 'guest' (gestapin, ef það er til), 'login' (innskráður stjórnandi) eða null
 create or replace function public._pin_role(p_pin text)
 returns text language sql stable security definer set search_path = public as $$
   select case
-    when coalesce(p_pin, '') = '' then null
-    when p_pin = (select value from app_settings where key = 'host_pin') then 'host'
-    when p_pin = (select value from app_settings where key = 'guest_pin') then 'guest'
+    when coalesce(p_pin, '') <> '' and p_pin = (select value from app_settings where key = 'host_pin') then 'host'
+    when coalesce(p_pin, '') <> '' and p_pin = (select value from app_settings where key = 'guest_pin') then 'guest'
+    when _host_uid() is not null
+         and not exists (select 1 from host_accounts where user_id = _host_uid() and blocked) then 'login'
   end;
 $$;
 
--- Aðal-PIN eða gestapin: má stýra leikjum
+-- Má búa til og stýra leik: aðal-PIN eða innskráður stjórnandi
 create or replace function public._pin_any(p_pin text)
 returns void language plpgsql stable security definer set search_path = public as $$
 begin
-  if _pin_role(p_pin) is null then raise exception 'rangt_pin'; end if;
+  if _pin_role(p_pin) is null then
+    if _host_uid() is null and login_required() then raise exception 'innskraning_vantar'; end if;
+    if exists (select 1 from host_accounts where user_id = _host_uid() and blocked) then raise exception 'adgangur_lokadur'; end if;
+    raise exception 'rangt_pin';
+  end if;
 end $$;
 
--- Satt ef PIN er ekki aðal-PIN (þá er aðgangi hafnað). Gestapin fær sín eigin villuboð.
+-- Satt ef ekki aðal-PIN (þá er aðgangi hafnað). Óbreytt: innskráning dugar ekki hér.
 create or replace function public._pin_not_host(p_pin text)
 returns boolean language plpgsql stable security definer set search_path = public as $$
 declare r text := _pin_role(p_pin);

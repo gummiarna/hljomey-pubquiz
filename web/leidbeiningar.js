@@ -13,7 +13,7 @@
       'Í fyrsta skipti biður kerfið um nafnið þitt. Það sést aðeins umsjónarmanni síðunnar.',
       'Þú helst innskráð/ur í þessum vafra þar til þú smellir á <b>Skrá út</b>. Leikur sem er í gangi heldur áfram þótt þú skráir þig út.',
     ],
-    athugid: pinTexti || 'Til viðbótar við innskráninguna þarf <b>PIN</b> til að búa til leik. Þú færð það hjá Hljómey. Gestir í símum skrá sig aldrei inn.',
+    athugid: pinTexti || 'Innskráningin er allt sem þarf, ekkert PIN. Gestir í símum skrá sig aldrei inn.',
   });
 
   const LEIKIR = {
@@ -21,7 +21,7 @@
       nafn: 'Pöbbkviss',
       sida: 'stjorn.html',
       inngangur: 'Kerfið spilar bút úr lagi eða ber upp spurningu, og allir svara í símanum. Fljót svör gefa flest stig og stigataflan birtist á stóra skjánum eftir hverja umferð.',
-      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'PIN frá Hljómey'],
+      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband'],
       takki: 'Búa til leik',
       stillingar: [
         ['Tónlist / Spurningar / Blandað', 'Efst velurðu tegund kvissins: lagabúta, spurningar úr spurningabankanum, eða hvort tveggja til skiptis.'],
@@ -46,7 +46,7 @@
       nafn: 'Tónlistarbingó',
       sida: 'bingo-stjorn.html',
       inngangur: 'Hver gestur fær sitt eigið bingóspjald með lögum í símanum. Kerfið spilar búta úr lögunum, gestir merkja þau sem þeir þekkja og kalla BINGÓ.',
-      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'PIN frá Hljómey'],
+      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband'],
       takki: 'Búa til bingó',
       stillingar: [
         ['1. Þema', 'Sama og í Pöbbkvissi: Deezer-leit, lagalisti, flytjendur eða vinsælast núna. Tilbúin þemu birtast efst. Smelltu á <b>Sækja lög</b>.'],
@@ -71,7 +71,7 @@
       nafn: 'Bingó',
       sida: 'talnabingo-stjorn.html',
       inngangur: 'Gamla góða bingóið með tölum frá 1 til 75. Þú snýrð lukkuhjóli á stóra skjánum og gestir merkja tölurnar á B-I-N-G-O spjaldi í símanum.',
-      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'PIN frá Hljómey'],
+      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband'],
       takki: 'Búa til bingó',
       stillingar: [
         ['1. Spilað um', 'Smelltu á mynstrin í þeirri röð sem á að spila þau. Talan á hverju mynstri sýnir röðina; smelltu aftur til að taka út.'],
@@ -97,7 +97,6 @@
       inngangur: 'Spilarinn fær lögin með hljómum og allir sem skanna QR-kóðann sjá textann í símanum. Síminn flettir með spilaranum. Engin tónlist er spiluð af netinu.',
       tharft: ['Síma eða spjaldtölvu fyrir spilarann (tölva virkar líka)', 'Netsamband', 'Gítar og söngglaða gesti'],
       takki: 'Byrja partý',
-      pinTexti: 'Ekkert PIN þarf til að byrja partý. Gestir í símum skrá sig aldrei inn.',
       stillingar: [
         ['Söngbókin', 'Hakaðu við lögin fyrir kvöldið. <b>Öll / Íslensk / Erlend</b> sía listann og <b>Röð / A–Ö</b> raðar honum. Partýið fylgir röðinni.'],
         ['Vantar lag?', 'Gestir (og þú í símanum) geta sent inn lag sem vantar undir <b>Senda inn lag</b> í lagalistanum, t.d. afritað af gitargrip.is eða Ultimate Guitar. Hljómarnir raðast sjálfkrafa.'],
@@ -119,7 +118,6 @@
       inngangur: 'Sjónvarpið spilar karaoke-myndbönd af YouTube og gestir velja lögin í símanum. Hver fer í biðröð og „Næst á svið“ birtist á milli laga.',
       tharft: ['Síma, spjaldtölvu eða tölvu sem spilar myndböndin, helst tengda við sjónvarp og hátalara', 'Netsamband', 'Hljóðnema ef þið viljið'],
       takki: 'Byrja karaoke-kvöld',
-      pinTexti: 'Ekkert PIN þarf til að byrja karaoke-kvöld. Gestir í símum skrá sig aldrei inn.',
       stillingar: [
         ['Biðtími á milli laga', 'Hve lengi „Næst á svið“ birtist áður en næsta lag byrjar: 5–30 sekúndur.'],
         ['Lagalistinn', 'Öll lög sem hafa verið valin á fyrri kvöldum. Gestir velja þau aftur án þess að leita.'],
@@ -136,7 +134,7 @@
       nafn: 'Hvaða ár?',
       sida: 'hvadaar.html',
       inngangur: 'Lag hljómar og hver gestur setur það á réttan stað á sinni eigin tímalínu í símanum. Rétt sett lag fer á tímalínuna, og sá sem fyrst nær settum fjölda spila vinnur.',
-      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'PIN frá Hljómey', 'Spotify Premium ef þú vilt heil lög (annars 30 sek. bútar)'],
+      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp, skjávarpi eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband', 'Spotify Premium ef þú vilt heil lög (annars 30 sek. bútar)'],
       takki: 'Búa til leik',
       stillingar: [
         ['1. Hljóð', 'Án Spotify spilast 30 sekúndna bútar og ekkert þarf að gera. Með Spotify: smelltu á <b>Tengja Spotify</b>, skráðu þig inn og veldu <b>Tæki</b> sem á að spila. Ef tækið sést ekki: spilaðu eitthvað stutt í Spotify og ýttu á ↻. Hljómey þarf fyrst að bæta netfanginu þínu við Spotify-aðganginn, hafðu samband ef það vantar.'],

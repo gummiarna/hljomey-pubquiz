@@ -69,23 +69,25 @@
 
   // ---------- Spurningabanki ----------
   function qbView(id) { ['qbLocked', 'qbMissing', 'qbReady'].forEach(v => $(v).classList.toggle('hidden', v !== id)); }
-  async function loadBank(pin) {
-    pin = pin || ($('pin').value || '').trim() || store.get('pq_pin') || '';
+  async function loadBank(pin, beint) {
+    pin = (typeof pin === 'string' && pin) || ($('pin').value || '').trim() || store.get('pq_pin') || '';
     showErr('qErr', '');
-    if (!pin) { qbView('qbLocked'); return; }
+    // Án PIN og innskráningar: bíða eftir að stjórnandinn skrái sig inn (hnappurinn)
+    if (!pin && !beint && !(PQ.auth && PQ.auth.user())) { qbView('qbLocked'); return; }
     try {
       S.bank = await rpc('qb_list', { p_pin: pin });
-      store.set('pq_pin', pin);
-      if (!$('pin').value) $('pin').value = pin;
+      if (pin) store.set('pq_pin', pin);
+      if (pin && !$('pin').value) $('pin').value = pin;
       qbView('qbReady'); renderCats(); autoPick(); updatePick();
     } catch (e) {
       if (/Could not find the function|PGRST202/i.test(e.message) && !e.code) return qbView('qbMissing');
       qbView('qbLocked');
-      if (e.code === 'rangt_pin' && $('qbPin').value) showErr('qErr', e.message);
+      if (beint && e.code) showErr('qErr', e.message);
     }
   }
-  $('qbOpen').onclick = () => loadBank(($('qbPin').value || '').trim());
-  $('qbPin').addEventListener('keydown', e => { if (e.key === 'Enter') $('qbOpen').click(); });
+  $('qbOpen').onclick = () => loadBank('', true);
+  // Þegar stjórnandinn skráir sig inn opnast bankinn sjálfkrafa
+  PQ.client.auth.onAuthStateChange((ev, s) => { if (s && s.user && !S.bank && needsQ()) setTimeout(() => loadBank(), 0); });
 
   function qDiffOk(d) { const f = $('qDiff').value; return !f || f.includes(String(d)); }
   // Barnaspurningar eru sér: ekki með í „Allir flokkar“, aðeins þegar flokkurinn er valinn
