@@ -307,6 +307,10 @@ a{color:var(--accent)}
 @media (max-width:520px){.cols2{grid-template-columns:1fr}}
 .submit textarea{min-height:38vh}
 </style>
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 <div id="app"></div>
@@ -1431,7 +1435,7 @@ document.addEventListener('click', function (e) {
     case 'fs': LS.set('fs', +b.dataset.v); setFs(); openSettings(); break;
     case 'theme': LS.set('theme', b.dataset.v); applyTheme(); openSettings(); break;
     case 'end':
-      if (!confirm('Ljúka partýinu? Símarnir hætta að fylgja þér.')) return;
+      if (!confirm('Ljúka partýinu? Símarnir hætta að fylgja þ��r.')) return;
       closeSheet();
       if (S.unlive) { S.unlive(); S.unlive = null; }
       LS.del('host'); S.code = null; S.token = null; S.reqs = [];
