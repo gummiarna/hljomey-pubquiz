@@ -226,7 +226,7 @@
       <div class="err hidden" id="joinErr"></div>
     </section>
 
-    <a class="jol" href="jolabingo.html">
+    <a class="jol jol-falid" href="jolabingo.html">
       <svg class="jol-snjor" viewBox="0 0 400 140" aria-hidden="true"><g fill="#fff"><circle cx="30" cy="20" r="2"/><circle cx="110" cy="60" r="1.5"/><circle cx="290" cy="30" r="2.5"/><circle cx="370" cy="100" r="1.5"/><circle cx="210" cy="14" r="1.5"/><circle cx="70" cy="120" r="2"/><circle cx="240" cy="110" r="1.5"/></g></svg>
       <span class="jol-kick">Nýtt · 1.–24. desember</span>
       <span class="jol-titill">Jóla<span>bingó</span> Hljómeyjar</span>
@@ -245,8 +245,10 @@
       .jol .btn { display: inline-block; }
       .jol-lb { display: block; margin: 0 0 8px auto; background: none; border: 0; color: var(--muted); font-size: 14px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 4px 2px; }
       .jol-lb:hover { color: var(--accent); }
+      /* Jólabingóið falið þar til nær dregur: taktu jol-falid af til að birta það */
+      .jol-falid { display: none !important; }
     </style>
-    <button type="button" class="jol-lb" data-leidbeiningar="jolabingo">Reglur Jólabingósins</button>
+    <button type="button" class="jol-lb jol-falid" data-leidbeiningar="jolabingo">Reglur Jólabingósins</button>
 
     <section class="games">
       <h2 class="sec-title">Hvað er í boði?</h2>
@@ -441,7 +443,7 @@
       </ol>
       <div class="host-strip">
         <div class="tx"><b>Ætlarðu að stjórna?</b><span>Opnaðu stjórnandasíðuna í tölvu sem er tengd við sjónvarp eða skjávarpa. Gestirnir þurfa bara símann.</span></div>
-        <nav aria-label="Stjórnandasíður"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="talnabingo-stjorn.html">Bingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a><a href="jolabingo-stjorn.html">Jólabingó</a></nav>
+        <nav aria-label="Stjórnandasíður"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="talnabingo-stjorn.html">Bingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a><a class="jol-falid" href="jolabingo-stjorn.html">Jólabingó</a></nav>
       </div>
     </section>
 
