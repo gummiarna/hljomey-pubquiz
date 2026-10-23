@@ -298,7 +298,21 @@
     else el.innerHTML = `<span>${A.req ? 'Stjórnendur skrá sig inn til að búa til leiki' : 'Innskráning stjórnenda'}</span><button type="button" class="pri" data-pqa="in">Skrá inn</button>`;
   }
   function drawChips() { document.querySelectorAll('.pq-acct').forEach(fillChip); }
+  // Hljómey-merkið efst á stjórnendasíðum fer heim á forsíðu leikjanna
+  function brandHome() {
+    document.querySelectorAll('nav.modes').forEach(nav => {
+      const br = nav.parentElement && nav.parentElement.querySelector('.brand');
+      if (!br || br.tagName === 'A' || br.dataset.heim) return;
+      br.dataset.heim = '1';
+      br.setAttribute('role', 'link'); br.tabIndex = 0; br.title = 'Allir leikir';
+      br.style.cursor = 'pointer';
+      const heim = () => { location.href = './'; };
+      br.addEventListener('click', heim);
+      br.addEventListener('keydown', e => { if (e.key === 'Enter') heim(); });
+    });
+  }
   function mountChips() {
+    brandHome();
     let added = false;
     document.querySelectorAll('nav.modes').forEach(nav => {
       if (nav.querySelectorAll('a[href]').length < 3) return;

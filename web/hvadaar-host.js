@@ -265,7 +265,7 @@
   function setupView() {
     S.view = 'setup';
     root.innerHTML = `<section id="setup" class="stage"><div class="setup-wrap">
-      <div class="topline"><div class="brand">Hljómey <span>Hvaða ár?</span></div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a><a class="on" href="hvadaar.html">Hvaða ár?</a></nav></div>
+      <div class="topline"><div class="brand">Hljómey <span>Hvaða ár?</span></div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="talnabingo-stjorn.html">Bingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a><a class="on" href="hvadaar.html">Hvaða ár?</a></nav></div>
       <div id="resumeBox" class="panel hidden"><div class="resume"><div>Leikur <b id="resumeCode"></b> er enn í gangi.</div><div class="row"><button class="btn small" id="resumeBtn">Halda áfram</button><button class="btn small ghost" id="discardBtn">Hunsa</button></div></div></div>
       <div class="panel"><h2>1. Hljóð</h2><div id="spBox"><div class="hint">Sæki stillingar…</div></div></div>
       <div class="panel"><h2>2. Lögin</h2>

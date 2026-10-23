@@ -234,14 +234,35 @@
   }
   dlg.addEventListener('close', () => { try { if (location.hash.startsWith('#leidbeiningar-')) history.replaceState(null, '', location.pathname + location.search); } catch (e) {} });
 
-  // Hnappur á hvert leikjaspjald
+  const SLODIR = { kviss: 'stjorn.html', tonlistarbingo: 'bingo-stjorn.html', talnabingo: 'talnabingo-stjorn.html', gitar: 'gitar.html', karaoke: 'karaoke.html', hvadaar: 'hvadaar.html' };
+  // Hnappar á hvert leikjaspjald
   document.querySelectorAll('[data-leik]').forEach(el => {
     const b = document.createElement('button');
     b.type = 'button';
     b.className = 'lb-takki';
     b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h6M8 11h6"/></svg>Leiðbeiningar';
     b.onclick = () => opna(el.dataset.leik, b);
-    (el.querySelector('.game-body') || el).appendChild(b);
+    // „Spila“ skráir stjórnanda inn (ef þarf) og opnar stjórnandasíðu leiksins
+    const row = document.createElement('div');
+    row.className = 'lb-rod';
+    const slod = SLODIR[el.dataset.leik];
+    if (slod) {
+      const s = document.createElement('button');
+      s.type = 'button';
+      s.className = 'lb-takki lb-spila';
+      s.title = 'Stjórna leik á stórum skjá';
+      s.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>Spila';
+      s.onclick = async () => {
+        const nafn = (el.querySelector('h3') || {}).textContent || 'leiknum';
+        try {
+          if (window.PQ && PQ.auth) await PQ.auth.ensure({ message: `Skráðu þig inn sem stjórnandi til að stjórna ${nafn}. Gestir í símum þurfa aldrei að skrá sig inn.` });
+          location.href = slod;
+        } catch (e) { /* hætt við innskráningu */ }
+      };
+      row.appendChild(s);
+    }
+    row.appendChild(b);
+    (el.querySelector('.game-body') || el).appendChild(row);
   });
   document.querySelectorAll('[data-leidbeiningar]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); opna(b.dataset.leidbeiningar, b); }));
 

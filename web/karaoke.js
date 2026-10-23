@@ -345,7 +345,7 @@
       store.del('kk_host');
     }
     const missing = c.error && isMissing(c.error);
-    app.innerHTML = `<div class="kk-top"><div class="brand">Hljómey</div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="gitar.html">Gítarpartý</a><a class="on" href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a></nav></div>
+    app.innerHTML = `<div class="kk-top"><div class="brand">Hljómey</div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="talnabingo-stjorn.html">Bingó</a><a href="gitar.html">Gítarpartý</a><a class="on" href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a></nav></div>
       <div class="center-wrap">
       <svg class="mic-art" viewBox="0 0 96 96" aria-hidden="true"><circle cx="48" cy="48" r="46" fill="#163a4b"/><rect x="38" y="18" width="20" height="36" rx="10" fill="#6fc4dc"/><path d="M28 46a20 20 0 0 0 40 0M48 66v10M38 78h20" fill="none" stroke="#f2b544" stroke-width="5" stroke-linecap="round"/></svg>
       <div class="brand">Hljómey <span>Karaoke</span></div>

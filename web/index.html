@@ -130,6 +130,11 @@
   .lb-takki { align-self: flex-start; margin-top: 18px; display: inline-flex; align-items: center; gap: 8px; background: transparent; color: var(--text);
               border: 1px solid var(--line); border-radius: 999px; padding: 9px 16px; font-size: 15px; font-weight: 600; cursor: pointer; }
   .lb-takki:hover { border-color: var(--accent); color: var(--accent); }
+  .lb-rod { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; padding-top: 18px; }
+  .lb-rod .lb-takki { margin-top: 0; }
+  .lb-spila { background: var(--accent); border-color: var(--accent); color: #123647; font-weight: 700; }
+  .lb-spila:hover { background: #ffc85c; color: #123647; }
+  .lb-spila svg { fill: currentColor; stroke: none; }
   .lb-takki svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   body.lb-opin { overflow: hidden; }
   dialog.lb { width: min(760px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; border: 1px solid var(--line); border-radius: 22px;
@@ -483,7 +488,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
-<script src="common.js?v=2026-10-22p"></script>
+<script src="common.js?v=2026-10-23a"></script>
 <script>
   // Bingóspjald í myndinni
   (function () {
@@ -515,6 +520,6 @@
   if (new URLSearchParams(location.search).get('k')) document.body.classList.add('has-code');
 </script>
 <script src="player.js?v=2026-10-21a"></script>
-<script src="leidbeiningar.js?v=2026-10-22e"></script>
+<script src="leidbeiningar.js?v=2026-10-23a"></script>
 </body>
 </html>
