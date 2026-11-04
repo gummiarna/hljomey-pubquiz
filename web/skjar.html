@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hljómey – sjónvarpsskjár</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="favicon.ico">
+<link rel="stylesheet" href="style.css">
+<style id="skj-eigin">
+  html, body { margin: 0; min-height: 100%; background: var(--bg, #0b1f29); color: var(--text, #f5fbfc); }
+  .skj-bid { position: fixed; inset: 0; z-index: 9000; display: grid; place-items: center; text-align: center;
+             background: radial-gradient(1200px 700px at 20% -10%, #1a4a5e 0%, transparent 60%), #0b1f29; color: #f5fbfc;
+             font-family: system-ui, sans-serif; padding: 4vh 4vw; }
+  .skj-bid[hidden] { display: none; }
+  .skj-bid .k { font: 700 min(22vw, 30vh)/1 'Oswald', system-ui, sans-serif; letter-spacing: .12em; color: #f2b544; margin: 2vh 0; }
+  .skj-bid h1 { margin: 0; font: 600 min(5vw, 6vh)/1.1 'Oswald', system-ui, sans-serif; letter-spacing: .04em; text-transform: uppercase; }
+  .skj-bid p { margin: 1.2vh auto 0; max-width: 60ch; font-size: min(2.4vw, 3vh); line-height: 1.45; color: #a9c9d4; }
+  .skj-bid b { color: #f5fbfc; }
+  .skj-bid button { margin-top: 4vh; font: 600 min(2.4vw, 3vh) system-ui, sans-serif; padding: 1.4vh 3vw; border-radius: 999px;
+                    border: 0; background: #f2b544; color: #123647; cursor: pointer; }
+  .skj-bid button:focus-visible { outline: 4px solid #f5fbfc; outline-offset: 4px; }
+  .skj-stada { position: fixed; right: 1.5vw; bottom: 1.5vh; z-index: 8999; font: 600 14px system-ui, sans-serif; color: #a9c9d4;
+               background: rgba(11,31,41,.8); border-radius: 999px; padding: 6px 12px; opacity: .7; }
+  body.skj-virkt { cursor: none; }
+  /* Stjórnhnappar sjónvarpsins sjálfs og gluggar eiga ekki heima á stóra skjánum */
+  body.skj-tengt .skj, body.skj-tengt .skj-glugg, body.skj-tengt .pq-auth { display: none !important; }
+</style>
+</head>
+<body>
+<div class="skj-bid" id="bid" data-skjar-ignore="1">
+  <div>
+    <h1>Hljómey · sjónvarpsskjár</h1>
+    <div class="k" id="kodi">····</div>
+    <p>Opnaðu leikinn í símanum, ýttu á <b>📺</b> á vinstri brún skjásins og sláðu inn kóðann.</p>
+    <p id="bidTexti"></p>
+    <button type="button" id="virkja">Ýttu hér (OK) til að kveikja á hljóði og fullum skjá</button>
+  </div>
+</div>
+<div class="skj-stada" id="stada" data-skjar-ignore="1" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.4/dist/morphdom-umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+<script src="config.js"></script>
+<script>
+(function () {
+  const cfg = window.PQ_CONFIG || {};
+  const client = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    realtime: { params: { eventsPerSecond: 20 } }
+  });
+  const $ = id => document.getElementById(id);
+  const STAFIR = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = sessionStorage.getItem('skjar-kodi');
+  if (!code) { code = Array.from(crypto.getRandomValues(new Uint32Array(4)), n => STAFIR[n % STAFIR.length]).join(''); sessionStorage.setItem('skjar-kodi', code); }
+  $('kodi').textContent = code;
+
+  let virkt = false, tengt = false, sidast = 0, hallo = null;
+  const hljod = new Map();
+
+  // Kveikja á hljóði og fullum skjá krefst eins smells (eða OK á fjarstýringu)
+  $('virkja').onclick = () => {
+    virkt = true; document.body.classList.add('skj-virkt');
+    $('virkja').hidden = true;
+    try { const a = new Audio(); a.muted = true; a.play().catch(() => {}); } catch (e) {}
+    try { document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(() => {}); } catch (e) {}
+    try { navigator.wakeLock && navigator.wakeLock.request('screen').catch(() => {}); } catch (e) {}
+    hljod.forEach(a => { if (a.dataset.spilar === '1') a.play().catch(() => {}); });
+  };
+  setTimeout(() => $('virkja').focus(), 300);
+
+  function bidSkjar(texti) {
+    tengt = false; document.body.classList.remove('skj-tengt');
+    $('bid').hidden = false; $('bidTexti').textContent = texti || '';
+    hljod.forEach(a => a.pause());
+  }
+
+  // Aðeins öruggt efni: engar skriftur, enginn atburðakóði, iframe aðeins frá YouTube
+  DOMPurify.addHook('uponSanitizeElement', (node, data) => {
+    if (data.tagName === 'iframe') {
+      const src = node.getAttribute('src') || '';
+      if (!/^https:\/\/(www\.)?(youtube-nocookie\.com|youtube\.com)\//.test(src)) node.remove();
+    }
+  });
+  const hreinsa = html => DOMPurify.sanitize(html, {
+    ADD_TAGS: ['iframe', 'style'], ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'target'],
+    FORBID_TAGS: ['script', 'object', 'embed', 'base', 'meta', 'link', 'form'], WHOLE_DOCUMENT: false,
+  });
+  const leyfdHref = h => { try { const u = new URL(h, location.href); return u.origin === location.origin || u.origin === 'https://fonts.googleapis.com'; } catch (e) { return false; } };
+
+  let stilNodur = [];
+  function setjaStila(list) {
+    stilNodur.forEach(n => n.remove()); stilNodur = [];
+    (list || []).forEach(s => {
+      let n = null;
+      if (s.href && leyfdHref(s.href)) { n = document.createElement('link'); n.rel = 'stylesheet'; n.href = s.href; }
+      else if (typeof s.css === 'string') { n = document.createElement('style'); n.textContent = s.css; }
+      if (n) { document.head.insertBefore(n, $('skj-eigin')); stilNodur.push(n); }
+    });
+  }
+
+  function skjar(p) {
+    sidast = Date.now();
+    if (!tengt) { tengt = true; document.body.classList.add('skj-tengt'); $('bid').hidden = true; }
+    document.documentElement.className = p.hc || '';
+    if (p.hs) document.documentElement.setAttribute('style', p.hs); else document.documentElement.removeAttribute('style');
+    const html = hreinsa(p.html || '');
+    morphdom(document.body, '<body>' + html + '</body>', {
+      childrenOnly: true,
+      onBeforeNodeDiscarded: n => !(n.nodeType === 1 && n.hasAttribute && n.hasAttribute('data-skjar-ignore')),
+      onBeforeElUpdated: (from, to) => !from.isEqualNode(to),
+    });
+    document.body.className = (p.bc || '') + ' skj-tengt' + (virkt ? ' skj-virkt' : '');
+    if (p.bs) document.body.setAttribute('style', p.bs); else document.body.removeAttribute('style');
+    if (p.title) document.title = p.title + ' · sjónvarp';
+  }
+
+  function hljodSkeyti(p) {
+    if (!p || !p.id) return;
+    let a = hljod.get(p.id);
+    if (!a) { a = new Audio(); a.preload = 'auto'; hljod.set(p.id, a); }
+    if (p.src && a.src !== p.src) a.src = p.src;
+    if (typeof p.v === 'number') a.volume = Math.max(0, Math.min(1, p.v));
+    if (typeof p.t === 'number' && Math.abs(a.currentTime - p.t) > 0.6) { try { a.currentTime = p.t; } catch (e) {} }
+    if (p.p) { a.dataset.spilar = '0'; a.pause(); }
+    else { a.dataset.spilar = '1'; if (virkt) a.play().catch(() => {}); }
+  }
+
+  const ch = client.channel('skjar-' + code, { config: { broadcast: { self: false } } });
+  ch.on('broadcast', { event: 'stilar' }, ({ payload }) => setjaStila(payload && payload.list));
+  ch.on('broadcast', { event: 'skjar' }, ({ payload }) => skjar(payload || {}));
+  ch.on('broadcast', { event: 'hljod' }, ({ payload }) => hljodSkeyti(payload));
+  ch.on('broadcast', { event: 'hljodstilling' }, ({ payload }) => { if (payload && !payload.tv) hljod.forEach(a => { a.dataset.spilar = '0'; a.pause(); }); });
+  ch.on('broadcast', { event: 'bless' }, () => bidSkjar('Síminn aftengdist. Bíð eftir að hann tengist aftur…'));
+  ch.subscribe(st => {
+    if (st === 'SUBSCRIBED') {
+      // Biðja símann um allan skjáinn ef hann er þegar tengdur
+      ch.send({ type: 'broadcast', event: 'hallo', payload: {} });
+      clearInterval(hallo);
+      hallo = setInterval(() => { if (!tengt) ch.send({ type: 'broadcast', event: 'hallo', payload: {} }); }, 4000);
+    }
+  });
+})();
+</script>
+</body>
+</html>

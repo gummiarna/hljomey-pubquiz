@@ -13,5 +13,15 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/skjar",
+      "destination": "/skjar.html"
+    },
+    {
+      "source": "/sjonvarp",
+      "destination": "/skjar.html"
+    }
   ]
 }
