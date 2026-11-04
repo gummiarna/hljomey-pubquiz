@@ -228,6 +228,42 @@
       <div class="err hidden" id="joinErr"></div>
     </section>
 
+    <section class="tv-card" aria-labelledby="tvTitill">
+      <svg class="tv-mynd" viewBox="0 0 220 150" aria-hidden="true">
+        <rect x="6" y="6" width="170" height="104" rx="12" fill="#0b1f29" stroke="#2e86a6" stroke-width="4"/>
+        <rect x="20" y="20" width="142" height="76" rx="6" fill="#163a4b"/>
+        <rect x="32" y="32" width="54" height="24" rx="5" fill="#ff6f59"/><rect x="96" y="32" width="54" height="24" rx="5" fill="#2e86a6"/>
+        <rect x="32" y="62" width="54" height="24" rx="5" fill="#e0a53a"/><rect x="96" y="62" width="54" height="24" rx="5" fill="#2e9e74"/>
+        <path d="M70 110 l-12 22 M112 110 l12 22 M50 134 h82" stroke="#2e86a6" stroke-width="4" stroke-linecap="round"/>
+        <rect x="168" y="62" width="44" height="80" rx="9" fill="#0b1f29" stroke="#f2b544" stroke-width="4"/>
+        <rect x="176" y="74" width="28" height="44" rx="3" fill="#163a4b"/><circle cx="190" cy="130" r="4" fill="#f2b544"/>
+        <path d="M150 54 q14 -10 22 6" fill="none" stroke="#f2b544" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 5"/>
+      </svg>
+      <div class="tv-texti">
+        <h2 id="tvTitill">Spilaðu á sjónvarpinu</h2>
+        <p>Stjórnaðu leiknum úr símanum og sýndu hann í fullri stærð á sjónvarpinu, með hljóðinu þar líka. Virkar í vafra snjallsjónvarps, á Fire TV, Chromecast með Google TV eða í tölvu tengdri við sjónvarpið.</p>
+        <ol class="tv-skref">
+          <li>Opnaðu <a href="skjar"><b>leikir.hljomey.is/skjar</b></a> í vafranum í sjónvarpinu og ýttu á OK.</li>
+          <li>Opnaðu leikinn í símanum og ýttu á <b>📺</b> á vinstri brún skjásins.</li>
+          <li>Sláðu inn kóðann af sjónvarpinu. Síminn er nú fjarstýringin.</li>
+        </ol>
+        <a class="btn ghost tv-takki" href="skjar">Opna sjónvarpsskjáinn</a>
+      </div>
+    </section>
+    <style>
+      .tv-card { display: flex; gap: 22px; align-items: center; margin: 18px 0 8px; padding: 22px; border-radius: 20px; background: var(--card); border: 1px solid var(--line); }
+      .tv-mynd { flex: 0 0 200px; width: 200px; height: auto; }
+      .tv-texti { flex: 1; min-width: 0; }
+      .tv-card h2 { margin: 0 0 6px; font-size: 24px; font-weight: 900; }
+      .tv-card p { margin: 0 0 12px; color: var(--muted); line-height: 1.5; }
+      .tv-skref { margin: 0 0 16px; padding-left: 22px; display: grid; gap: 6px; line-height: 1.45; }
+      .tv-skref li::marker { color: var(--accent); font-weight: 700; }
+      .tv-skref a { color: var(--accent); }
+      .tv-takki { display: inline-block; text-decoration: none; width: auto; }
+      body.has-code .tv-card { display: none; }
+      @media (max-width: 760px) { .tv-card { flex-direction: column; align-items: flex-start; } .tv-mynd { flex-basis: auto; width: 160px; } }
+    </style>
+
     <a class="jol jol-falid" href="jolabingo.html">
       <svg class="jol-snjor" viewBox="0 0 400 140" aria-hidden="true"><g fill="#fff"><circle cx="30" cy="20" r="2"/><circle cx="110" cy="60" r="1.5"/><circle cx="290" cy="30" r="2.5"/><circle cx="370" cy="100" r="1.5"/><circle cx="210" cy="14" r="1.5"/><circle cx="70" cy="120" r="2"/><circle cx="240" cy="110" r="1.5"/></g></svg>
       <span class="jol-kick">Nýtt · 1.–24. desember</span>
