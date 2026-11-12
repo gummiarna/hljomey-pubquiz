@@ -91,6 +91,26 @@
         '<b>Halda áfram</b> fer í næsta mynstur. <b>Ljúka</b> sýnir alla vinningshafa.',
       ],
     },
+    arabingo: {
+      nafn: 'Hvaða ár? Bingó',
+      sida: 'arabingo-stjorn.html',
+      inngangur: 'Bingó með spurningum um lögin. Lukkuhjól á stóra skjánum velur flokk, lag spilast og allir svara í símanum. Rétt svar merkir sjálfkrafa reit af þeim flokki á spjaldinu.',
+      tharft: ['Síma, spjaldtölvu eða tölvu til að stýra leiknum. Sjónvarp eða hátalari gera hann skemmtilegri, en síminn dugar', 'Netsamband'],
+      takki: 'Búa til leik',
+      stillingar: [
+        ['Lög', 'Íslensk og erlend, aðeins íslensk eða aðeins erlend. Lögin koma úr lagabanka <i>Hvaða ár?</i> og spilast sem 30 sekúndna bútar.'],
+        ['Svartími', 'Hve lengi gestir hafa til að svara eftir að lagið byrjar.'],
+        ['Flokkarnir', '<b>Áratugur</b>, <b>Árið</b>, <b>Flytjandi</b>, <b>Heiti lagsins</b>, <b>Fyrir eða eftir 2000</b> og <b>Íslenskt</b> (íslenskt lag: hver flytur það?). Íslenski flokkurinn dettur út ef aðeins eru erlend lög.'],
+        ['Spilað um', '<b>Ein lína</b>, <b>X</b> eða <b>Allt spjaldið</b>, í þeirri röð sem þú smellir á þau.'],
+      ],
+      leikur: [
+        'Smelltu á <b>Búa til leik</b>. Gestir skanna QR-kóðann og fá spjald með 24 reitum, fjórum af hverjum flokki, og fríreit í miðjunni.',
+        '<b>Snúa hjólinu</b> (eða bilstöngin) velur flokk. Lagið byrjar þegar hjólið stöðvast og svarmöguleikarnir birtast í símunum.',
+        'Svarið birtist sjálfkrafa þegar tíminn er liðinn eða allir hafa svarað, eða þegar þú smellir á <b>Sýna svar</b>.',
+        'Þeir sem svara rétt fá sjálfkrafa merkt við einn reit af flokknum. Kerfið finnur BINGÓ sjálft og sýnir spjöldin á skjánum.',
+        '<b>Halda áfram</b> fer í næsta mynstur. <b>Ljúka</b> sýnir vinningshafa og hverjir svöruðu oftast rétt.',
+      ],
+    },
     gitar: {
       nafn: 'Gítarpartý',
       sida: 'gitar.html',
@@ -234,7 +254,7 @@
   }
   dlg.addEventListener('close', () => { try { if (location.hash.startsWith('#leidbeiningar-')) history.replaceState(null, '', location.pathname + location.search); } catch (e) {} });
 
-  const SLODIR = { kviss: 'stjorn.html', tonlistarbingo: 'bingo-stjorn.html', talnabingo: 'talnabingo-stjorn.html', gitar: 'gitar.html', karaoke: 'karaoke.html', hvadaar: 'hvadaar.html' };
+  const SLODIR = { kviss: 'stjorn.html', tonlistarbingo: 'bingo-stjorn.html', talnabingo: 'talnabingo-stjorn.html', arabingo: 'arabingo-stjorn.html', gitar: 'gitar.html', karaoke: 'karaoke.html', hvadaar: 'hvadaar.html' };
   // Hnappar á hvert leikjaspjald
   document.querySelectorAll('[data-leik]').forEach(el => {
     const b = document.createElement('button');

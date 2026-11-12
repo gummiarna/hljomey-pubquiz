@@ -43,6 +43,10 @@
       try {
         if (await rpc('karaoke_find', { p_code: code })) { location.href = 'karaoke.html?k=' + encodeURIComponent(code) + '&n=' + encodeURIComponent($('nameIn').value.trim()); return; }
       } catch (err) { /* karaoke.sql ekki uppsett: halda áfram */ }
+      // Hvaða ár? Bingó?
+      try {
+        if (await rpc('hb_find', { p_code: code })) { location.href = 'arabingo.html?k=' + encodeURIComponent(code) + '&n=' + encodeURIComponent($('nameIn').value.trim()); return; }
+      } catch (err) { /* arabingo.sql ekki uppsett: halda áfram */ }
       // Bingó með tölum (lukkuhjól)?
       try {
         if (await rpc('tb_find', { p_code: code })) { location.href = 'talnabingo.html?k=' + encodeURIComponent(code) + '&n=' + encodeURIComponent($('nameIn').value.trim()); return; }

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#0b1f29">
+<title>Hvaða ár? Bingó</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2026-10-19h">
+<style>
+  body { min-height: 100dvh; display: flex; flex-direction: column; user-select: none; -webkit-tap-highlight-color: transparent; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; padding-top: max(12px, env(safe-area-inset-top)); }
+  header .brand { font-size: 15px; white-space: nowrap; }
+  header .me { font-size: 15px; font-weight: 700; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  main { flex: 1; display: flex; flex-direction: column; padding: 0 10px 12px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .center { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; gap: 10px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; width: 100%; max-width: 420px; }
+  .card h1 { margin: 0 0 6px; font-size: 28px; font-weight: 900; }
+  .card p { margin: 0 0 18px; color: var(--muted); }
+  .field { margin-bottom: 14px; text-align: left; }
+  #codeIn { text-transform: uppercase; letter-spacing: .3em; font-weight: 700; font-size: 22px; text-align: center; }
+  .card .btn { width: 100%; font-size: 18px; padding: 14px; }
+
+  .wrap { width: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; flex: 1; gap: 10px; }
+  .box { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; min-height: 92px; }
+  .box .cat { display: inline-block; padding: 3px 10px; border-radius: 999px; color: #fff; font-weight: 800; font-size: 13px; margin-bottom: 6px; }
+  .box h2 { margin: 0 0 10px; font-size: 19px; line-height: 1.25; }
+  .box .muted { color: var(--muted); font-size: 15px; }
+  .opts { display: grid; gap: 8px; }
+  .opts button { display: flex; align-items: center; gap: 10px; text-align: left; background: var(--bg2); border: 2px solid var(--line); border-radius: 12px; padding: 12px; color: var(--text); font: inherit; font-size: 17px; font-weight: 700; }
+  .opts button i { font-style: normal; flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.1); font-size: 14px; }
+  .opts button.picked { border-color: var(--accent); background: rgba(242,181,68,.15); }
+  .opts button.right { border-color: var(--good); background: rgba(47,191,113,.2); }
+  .opts button.wrong { border-color: var(--bad); opacity: .7; }
+  .opts button:disabled { cursor: default; }
+  .tbar { height: 6px; border-radius: 3px; background: rgba(255,255,255,.1); overflow: hidden; margin-bottom: 10px; }
+  .tbar i { display: block; height: 100%; background: var(--accent); width: 100%; transition: width .25s linear; }
+  .res { font-size: 22px; font-weight: 900; margin: 0 0 4px; }
+  .res.ok { color: var(--good); } .res.no { color: var(--bad); }
+  .spin { display: flex; align-items: center; gap: 12px; }
+  .spin .disc { width: 46px; height: 46px; border-radius: 50%; background: conic-gradient(#ff6f59 0 60deg, #e0a53a 0 120deg, #2e86a6 0 180deg, #2e9e74 0 240deg, #9b6ee0 0 300deg, #d55181 0); animation: rot 1s linear infinite; flex: 0 0 auto; }
+  @keyframes rot { to { transform: rotate(360deg); } }
+
+  .hbgrid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; width: 100%; }
+  .cell { aspect-ratio: 1; border-radius: 10px; border: 2px solid var(--cc); background: rgba(255,255,255,.04); color: rgba(255,255,255,.75);
+          display: grid; place-items: center; text-align: center; font-weight: 800; font-size: clamp(9px, 2.8vw, 14px); line-height: 1.05; padding: 2px; position: relative; overflow: hidden; }
+  .cell.on { background: var(--cc); color: #fff; }
+  .cell.on::after { content: '✓'; position: absolute; right: 4px; top: 1px; font-size: 12px; }
+  .cell.now { box-shadow: 0 0 0 3px #fff inset; }
+  .cell.new { animation: pop .6s cubic-bezier(.2,1.6,.4,1); }
+  .cell.free { background: var(--accent); border-color: var(--accent); color: #123647; }
+  .meta { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px; }
+  .meta b { color: var(--text); }
+  .patmini { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; width: 30px; }
+  .patmini span { aspect-ratio: 1; border-radius: 2px; background: rgba(255,255,255,.12); }
+  .patmini span.h { background: var(--accent); } .patmini span.f { background: rgba(255,255,255,.35); }
+
+  .banner { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; background: rgba(11,31,41,.95); }
+  .banner h1 { font-size: 60px; font-weight: 900; color: var(--accent); margin: 0; }
+  .banner p { font-size: 20px; margin: 10px 0 0; }
+  .banner .sub { color: var(--muted); font-size: 16px; }
+  .banner.me h1 { color: var(--good); }
+  .winners-list { margin-top: 18px; width: 100%; max-width: 360px; }
+  .winners-list div { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 17px; }
+  .winners-list span:first-child { color: var(--muted); }
+  .toast2 { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%); z-index: 25; background: #4a1822; color: #ffd7dc; border: 1px solid #7a2533; padding: 10px 14px; border-radius: 10px; width: max-content; max-width: 90vw; text-align: center; font-size: 15px; }
+  .conn { position: fixed; bottom: 4px; left: 50%; transform: translateX(-50%); font-size: 12px; color: var(--muted); }
+</style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<header>
+  <div class="brand">Hljómey <span>Hvaða ár? Bingó</span></div>
+  <div class="me hidden" id="me"></div>
+</header>
+<main>
+  <div class="center" id="vJoin">
+    <div class="card">
+      <h1>Hvaða ár? Bingó</h1>
+      <p>Hlustaðu á lagið, svaraðu í símanum og fáðu reit á spjaldið þitt fyrir hvert rétt svar.</p>
+      <div class="field"><label for="codeIn">Leikkóði</label><input type="text" id="codeIn" maxlength="4" autocomplete="off" autocapitalize="characters"></div>
+      <div class="field"><label for="nameIn">Nafn eða lið</label><input type="text" id="nameIn" maxlength="20" autocomplete="nickname"></div>
+      <button class="btn" id="joinBtn">Fá spjald</button>
+      <div class="err hidden" id="joinErr"></div>
+    </div>
+  </div>
+
+  <div class="wrap hidden" id="vGame">
+    <div class="box" id="box"></div>
+    <div class="hbgrid" id="grid"></div>
+    <div class="meta"><span>Rétt svör: <b id="score">0</b></span><span style="display:flex;gap:8px;align-items:center"><span id="stageName"></span><span class="patmini" id="patMini"></span></span></div>
+  </div>
+</main>
+
+<div class="banner hidden" id="banner"></div>
+<div class="toast2 hidden" id="toast"></div>
+<div class="conn hidden" id="conn">Tengist aftur…</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="common.js?v=2026-10-23a"></script>
+<script src="arabingo-lib.js?v=2026-11-12a"></script>
+<script src="arabingo-player.js?v=2026-11-12a"></script>
+</body>
+</html>

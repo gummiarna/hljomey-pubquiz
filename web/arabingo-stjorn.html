@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="is">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Hvaða ár? Bingó – stjórnandi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2026-10-19h">
+<link rel="stylesheet" href="host.css?v=2026-10-19h">
+<style>
+  .pat-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+  .pat-pick button { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 10px 10px; color: var(--text); display: flex; flex-direction: column; align-items: center; gap: 8px; position: relative; }
+  .pat-pick button.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .pat-pick button b { font-size: 14px; font-weight: 600; }
+  .pat-pick button i { position: absolute; top: 6px; left: 8px; font-style: normal; font-weight: 900; font-size: 13px; color: #123647; background: var(--accent); border-radius: 999px; min-width: 20px; height: 20px; display: none; place-items: center; }
+  .pat-pick button.on i { display: grid; }
+  .pat { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; width: 70px; }
+  .pat span { aspect-ratio: 1; border-radius: 3px; background: rgba(255,255,255,.1); }
+  .pat span.h { background: var(--accent); } .pat span.f { background: rgba(255,255,255,.35); }
+  .order { margin-top: 12px; color: var(--muted); font-size: 14px; } .order b { color: var(--text); }
+  .catlist { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .catlist span { padding: 6px 12px; border-radius: 999px; color: #fff; font-weight: 700; font-size: 14px; }
+
+  /* Spilun */
+  .hb-play { flex: 1; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.25fr); gap: 3vw; align-items: center; min-height: 0; }
+  .wheelbox { position: relative; width: min(70vh, 38vw); aspect-ratio: 1; margin: 0 auto; }
+  .wheelbox svg.wheel { width: 100%; height: 100%; display: block; transition: transform 5.2s cubic-bezier(.12,.7,.12,1); filter: drop-shadow(0 18px 40px rgba(0,0,0,.45)); }
+  .wheelbox .pointer { position: absolute; top: -2.5%; left: 50%; width: 9%; transform: translateX(-50%); z-index: 2; filter: drop-shadow(0 3px 4px rgba(0,0,0,.5)); }
+  .hub { position: absolute; inset: 34%; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, #e9eef2 60%, #c5d0d8); color: #123647;
+         display: grid; place-items: center; text-align: center; box-shadow: 0 6px 24px rgba(0,0,0,.45); z-index: 1; font-weight: 900; font-size: min(3.2vh, 1.8vw); line-height: 1.05; padding: 6%; }
+  .hub.pop { animation: hubpop .6s cubic-bezier(.2,1.6,.4,1); }
+  @keyframes hubpop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+  .right { display: flex; flex-direction: column; gap: 2.2vh; min-width: 0; }
+  .cat { display: inline-flex; align-self: flex-start; padding: .8vh 1.4vw; border-radius: 999px; color: #fff; font-weight: 900; font-size: clamp(18px, 2.2vw, 40px); letter-spacing: .02em; }
+  .q { font-size: clamp(26px, 3.4vw, 64px); font-weight: 900; line-height: 1.1; margin: 0; }
+  .qrow { display: flex; align-items: center; gap: 2vw; }
+  .timer { --p: 100%; width: clamp(70px, 8vw, 140px); aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center;
+           background: conic-gradient(var(--accent) var(--p), rgba(255,255,255,.08) 0); flex: 0 0 auto; }
+  .timer b { width: 78%; aspect-ratio: 1; border-radius: 50%; background: var(--bg); display: grid; place-items: center; font-size: clamp(26px, 3vw, 54px); }
+  .answered { font-size: clamp(16px, 1.6vw, 28px); color: var(--muted); } .answered b { color: var(--text); font-size: 1.6em; }
+  .opts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4vh 1.2vw; }
+  .opts.two { grid-template-columns: 1fr 1fr; }
+  .opt { display: flex; align-items: center; gap: 1vw; background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 1.6vh 1.2vw; font-size: clamp(16px, 1.9vw, 34px); font-weight: 700; min-height: 9vh; transition: opacity .4s, border-color .4s, background .4s; }
+  .opt i { font-style: normal; flex: 0 0 auto; width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.1); font-size: .8em; }
+  .opt.opt-rett { border-color: var(--good); background: rgba(47,191,113,.18); }
+  .opt.opt-rett i { background: var(--good); color: #fff; }
+  .opt.opt-rangt { opacity: .35; }
+  .songrow { display: flex; gap: 1.6vw; align-items: center; background: var(--card); border-radius: 18px; padding: 1.6vh 1.4vw; }
+  .songrow img { width: clamp(70px, 9vw, 160px); aspect-ratio: 1; border-radius: 12px; object-fit: cover; background: var(--line); }
+  .songrow .t { font-size: clamp(20px, 2.4vw, 44px); font-weight: 900; line-height: 1.1; }
+  .songrow .a { font-size: clamp(16px, 1.7vw, 30px); color: var(--muted); }
+  .songrow .y { margin-left: auto; font-size: clamp(36px, 5vw, 96px); font-weight: 900; color: var(--accent); }
+  .stat { font-size: clamp(15px, 1.5vw, 26px); color: var(--muted); } .stat b { color: var(--text); }
+  .patrow { display: flex; align-items: center; gap: 1.2vw; color: var(--muted); font-size: clamp(14px, 1.2vw, 20px); }
+  .patrow .pat { width: clamp(40px, 3.6vw, 64px); gap: 3px; }
+  .patrow b { color: var(--text); }
+
+  /* BINGÓ */
+  .claimgrid { flex: 1; display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 3vw; align-items: center; min-height: 0; }
+  .claim { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2vh; text-align: center; }
+  .claim h1 { font-size: clamp(60px, 9vw, 170px); font-weight: 900; margin: 0; color: var(--accent); line-height: 1; }
+  .claim .who { font-size: clamp(26px, 3.6vw, 60px); font-weight: 900; }
+  .claim .what { font-size: clamp(16px, 1.8vw, 30px); color: var(--muted); }
+  .cards { display: flex; gap: 3vw; justify-content: center; flex-wrap: wrap; }
+  .mini { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: min(56vh, 38vw); }
+  .cards.multi .mini { width: min(36vh, 19vw); }
+  .mini .c { aspect-ratio: 1; border-radius: 8px; display: grid; place-items: center; font-weight: 700; font-size: clamp(9px, 1.5vh, 16px); color: rgba(255,255,255,.55); background: rgba(255,255,255,.06); border: 2px solid var(--cc); text-align: center; padding: 2px; }
+  .mini .c.ok { background: var(--cc); color: #fff; }
+  .mini .c.win { outline: 3px solid #fff; outline-offset: -3px; }
+  .mini .c.free { background: var(--accent); border-color: var(--accent); color: #123647; }
+  .mini-name { text-align: center; margin-top: 6px; font-weight: 700; }
+  .winners { display: flex; flex-direction: column; gap: 1.2vh; width: min(900px, 100%); }
+  .winners div { display: flex; justify-content: space-between; background: var(--card); border-radius: 12px; padding: 1.4vh 1.6vw; font-size: clamp(18px, 2vw, 34px); }
+  .winners div span:first-child { color: var(--muted); }
+  .winners div span:last-child { font-weight: 900; }
+  .winners h3 { margin: 2vh 0 0; color: var(--muted); font-size: clamp(16px, 1.6vw, 26px); }
+  @media (max-width: 800px) { .hb-play, .claimgrid { grid-template-columns: 1fr; } .wheelbox { width: min(80vw, 46vh); } body { overflow: auto; } .opts { grid-template-columns: 1fr; } }
+</style>
+<script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+<!-- 1. Stillingar -->
+<section id="setup" class="stage">
+  <div class="setup-wrap">
+    <div class="topline"><div class="brand">Hljómey <span>Hvaða ár? Bingó</span></div><nav class="modes"><a href="stjorn.html">Pöbbkviss</a><a href="bingo-stjorn.html">Tónlistarbingó</a><a href="talnabingo-stjorn.html">Bingó</a><a class="on" href="arabingo-stjorn.html">Hvaða ár? Bingó</a><a href="gitar.html">Gítarpartý</a><a href="karaoke.html">Karaoke</a><a href="hvadaar.html">Hvaða ár?</a></nav></div>
+
+    <div id="resumeBox" class="panel hidden">
+      <div class="resume">
+        <div>Leikur <b id="resumeCode"></b> er enn í gangi.</div>
+        <div class="row"><button class="btn small" id="resumeBtn">Halda áfram</button><button class="btn small ghost" id="discardBtn">Hunsa</button></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>1. Lögin</h2>
+      <div class="grid">
+        <div><label for="title">Heiti</label><input type="text" id="title" value="Hvaða ár? Bingó"></div>
+        <div><label for="mix">Lög</label><select id="mix"><option value="blandad" selected>Íslensk og erlend</option><option value="is">Aðeins íslensk</option><option value="erl">Aðeins erlend</option></select></div>
+        <div><label for="secs">Svartími</label><select id="secs"><option value="20">20 sekúndur</option><option value="25" selected>25 sekúndur</option><option value="30">30 sekúndur</option><option value="45">45 sekúndur</option></select></div>
+      </div>
+      <div class="catlist" id="catlist"></div>
+      <p class="muted" style="margin:12px 0 0;font-size:14px">Hjólið velur flokk og lag spilast (30 sek. bútur). Allir svara í símanum og þeir sem svara rétt fá sjálfkrafa merkt við reit af þeim flokki á spjaldinu sínu. Lögin koma úr lagabanka <i>Hvaða ár?</i>.</p>
+    </div>
+
+    <div class="panel">
+      <h2>2. Spilað um</h2>
+      <p class="muted" style="margin:-4px 0 14px;font-size:14px">Smelltu á mynstrin í þeirri röð sem á að spila þau.</p>
+      <div class="pat-pick" id="patPick"></div>
+      <div class="order" id="order"></div>
+    </div>
+
+    <div class="launchbar">
+      <div class="lb-info" id="lbInfo"></div>
+      <input type="password" id="pin" autocomplete="off" placeholder="PIN stjórnanda" aria-label="PIN stjórnanda">
+      <button class="btn" id="createBtn">Búa til leik</button>
+      <div id="createErr" class="err hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Biðsalur -->
+<section id="lobby" class="stage hidden">
+  <div class="topline"><div class="brand" id="lobbyTitle"></div><div class="muted" id="lobbyInfo"></div></div>
+  <div class="lobby">
+    <div class="qr" id="qr"></div>
+    <div>
+      <div class="join-url">Skannaðu QR eða farðu á <b id="joinUrl"></b></div>
+      <div class="code" id="code"></div>
+      <div class="pcount" id="pcount">0 þátttakendur</div>
+      <div class="chips" id="chips"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Hjólið og spurningin -->
+<section id="playing" class="stage hidden">
+  <div class="topline"><div class="brand" id="pTitle"></div><div class="muted" id="pCode"></div></div>
+  <div class="hb-play">
+    <div class="wheelbox">
+      <svg class="pointer" viewBox="0 0 40 46" aria-hidden="true"><path d="M20 46 L2 6 Q0 0 7 0 H33 Q40 0 38 6 Z" fill="#fff"/><circle cx="20" cy="12" r="5" fill="#123647"/></svg>
+      <svg class="wheel" id="wheel" viewBox="-500 -500 1000 1000" aria-hidden="true"></svg>
+      <div class="hub" id="hub">Snúðu<br>hjólinu</div>
+    </div>
+    <div class="right" id="right"></div>
+  </div>
+</section>
+
+<!-- 4. BINGÓ -->
+<section id="claimView" class="stage hidden">
+  <div class="topline"><div class="brand" id="cTitle"></div><div class="muted" id="cCode"></div></div>
+  <div class="claimgrid">
+    <div class="claim">
+      <h1 class="pop">BINGÓ!</h1>
+      <div class="who" id="claimWho"></div>
+      <div class="what" id="claimWhat"></div>
+    </div>
+    <div class="cards" id="claimCards"></div>
+  </div>
+</section>
+
+<!-- 5. Lok -->
+<section id="final" class="stage hidden">
+  <div class="topline"><div class="brand" id="fTitle"></div><div class="muted">Úrslit</div></div>
+  <div class="claim" style="flex:1"><div class="winners" id="winners"></div></div>
+</section>
+
+<div class="bar-ctl hidden" id="ctl">
+  <button class="btn" id="primary">Byrja</button>
+  <button class="btn ghost small hidden" id="replay">↺ Lagið aftur</button>
+  <div class="info" id="ctlInfo"></div>
+  <button class="btn ghost small" id="fsBtn">Fullur skjár</button>
+  <button class="btn ghost small" id="quitBtn">Ljúka</button>
+</div>
+<div class="toast err hidden" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="config.js"></script>
+<script src="common.js?v=2026-10-23a"></script>
+<script src="skjar.js?v=2026-11-04a"></script>
+<script src="deezer.js?v=2026-10-15c"></script>
+<script src="arabingo-lib.js?v=2026-11-12a"></script>
+<script src="arabingo-host.js?v=2026-11-12a"></script>
+</body>
+</html>
