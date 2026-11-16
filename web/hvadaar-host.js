@@ -12,6 +12,19 @@
     .replace(/\(.*?\)|\[.*?\]/g, ' ').replace(/\s[-–]\s.*$/, '').replace(/&/g, ' and ').replace(/[^a-z0-9þðæ]+/g, ' ').trim();
   const isMissing = e => /Could not find the function|ha_|PGRST202/i.test(e.message || '') && !e.code;
   const pin = () => (($('pin') && $('pin').value) || store.get('pq_pin') || '').trim();
+  // Lagabankinn er aðeins fyrir aðalstjórnanda: ef PIN vantar eða er rangt er beðið um það og reynt aftur
+  async function pinRpc(fn, args) {
+    try { return await rpc(fn, Object.assign({ p_pin: pin() }, args)); }
+    catch (e) {
+      if (e.code !== 'rangt_pin') throw e;
+      const v = prompt('Lagabankinn er aðeins fyrir umsjónarmann. Sláðu inn aðal-PIN:');
+      if (!v) throw e;
+      if ($('pin')) $('pin').value = v.trim();
+      const r = await rpc(fn, Object.assign({}, args, { p_pin: v.trim() }));
+      store.set('pq_pin', v.trim());
+      return r;
+    }
+  }
 
   // =====================================================================
   //  Spotify (innskráning með PKCE: enginn leynilykill í vafranum)
@@ -233,7 +246,8 @@
   // Elsta árið vinnur (safnplötur og endurútgáfur eru yngri). Sjálfkrafa staðfest aðeins ef
   // MusicBrainz eða byrjunarlistinn er sammála hinum heimildunum.
   function decide(sug) {
-    const vals = Object.values(sug).filter(Boolean);
+    const now = new Date().getFullYear();
+    const vals = Object.values(sug).filter(y => y && y >= 1920 && y <= now);   // t.d. 1900 frá Deezer er villa
     if (!vals.length) return { year: null, verified: false };
     const lo = Math.min(...vals), hi = Math.max(...vals);
     return { year: lo, verified: vals.length >= 2 && lo === hi && !!(sug.musicbrainz || sug.listi) };
@@ -281,7 +295,7 @@
         <div><label for="target">Spil til sigurs</label><select id="target"><option>5</option><option>7</option><option selected>10</option><option>12</option><option>15</option></select></div>
         <div><label for="secs">Svartími</label><select id="secs"><option value="30">30 sek</option><option value="45" selected>45 sek</option><option value="60">1 mín</option><option value="90">1½ mín</option><option value="0">Ótakmarkaður</option></select></div>
         <div><label for="tol">Erfiðleiki</label><select id="tol"><option value="0">Venjulegt</option><option value="3">Létt (±3 ár)</option></select></div>
-        <div><label for="pin">PIN stjórnanda</label><input type="password" id="pin" autocomplete="off"></div>
+        <div><label for="pin">PIN stjórnanda</label><input type="password" id="pin" autocomplete="new-password"></div>
       </div>
       <div class="row" style="margin-top:16px"><button class="btn" id="createBtn">Búa til leik</button></div>
       <div id="createErr" class="err hidden"></div></div>
@@ -315,7 +329,7 @@
           <li>Afritaðu <b>Client ID</b> og límdu hér, ásamt PIN-inu.</li></ol>
         <div class="row" style="margin-top:10px"><div class="grow"><label for="cid">Spotify Client ID</label><input type="text" id="cid" autocomplete="off" spellcheck="false"></div><button class="btn" id="cidSave">Vista</button></div>${modeRow}`;
       $('cidSave').onclick = async () => {
-        try { await rpc('ha_set_client_id', { p_pin: pin(), p_client_id: $('cid').value }); store.set('pq_pin', pin()); toast('Client ID vistað.'); renderSp(); }
+        try { await pinRpc('ha_set_client_id', { p_client_id: $('cid').value }); store.set('pq_pin', pin()); toast('Client ID vistað.'); renderSp(); }
         catch (e) { toast(e.message, true); }
       };
       if (A.mode === 'spotify') A.mode = 'deezer';
@@ -323,7 +337,7 @@
       box.innerHTML = `<div class="sp-status"><span class="sp-dot"></span><span>Spotify er ekki tengt.</span><button class="btn small" id="spLogin">Tengja Spotify</button><button class="btn small ghost" id="cidEdit">Breyta Client ID</button></div>
         <p class="hint" style="margin:8px 0 0">Redirect URI í Spotify-forritinu þarf að vera nákvæmlega: <code>${esc(SP.redirect())}</code></p>${modeRow}`;
       $('spLogin').onclick = () => SP.login();
-      $('cidEdit').onclick = async () => { const v = prompt('Nýtt Spotify Client ID (tómt = fjarlægja):', SP.cid); if (v == null) return; try { await rpc('ha_set_client_id', { p_pin: pin(), p_client_id: v }); renderSp(); } catch (e) { toast(e.message, true); } };
+      $('cidEdit').onclick = async () => { const v = prompt('Nýtt Spotify Client ID (tómt = fjarlægja):', SP.cid); if (v == null) return; try { await pinRpc('ha_set_client_id', { p_client_id: v }); renderSp(); } catch (e) { toast(e.message, true); } };
     } else {
       box.innerHTML = `<div class="sp-status"><span class="sp-dot on"></span><span id="spWho">Spotify er tengt</span>
           <label style="margin:0">Tæki</label><select id="spDev"><option value="">Sæki tæki…</option></select><button class="btn small ghost" id="spRef" title="Endurnýja tækjalista">↻</button>
@@ -357,7 +371,7 @@
     if (!best) return null;
     const x = fromSp(best);
     if (songId && pin()) {
-      rpc('ha_bank_upsert', { p_pin: pin(), p_rows: [{ id: songId, spotify_uri: x.spotify_uri, isrc: x.isrc, cover: x.cover }] })
+      pinRpc('ha_bank_upsert', { p_rows: [{ id: songId, spotify_uri: x.spotify_uri, isrc: x.isrc, cover: x.cover }] })
         .then(() => { const b = (S.bank || []).find(y => y.id === songId); if (b) b.spotify_uri = x.spotify_uri; }).catch(() => {});
     }
     return x.spotify_uri;
@@ -483,7 +497,7 @@
   async function saveRow(id, patch) {
     const s = S.bank.find(x => x.id === id); if (!s) return;
     Object.assign(s, patch);
-    try { await rpc('ha_bank_upsert', { p_pin: pin(), p_rows: [Object.assign({ id }, patch)] }); }
+    try { await pinRpc('ha_bank_upsert', { p_rows: [Object.assign({ id }, patch)] }); }
     catch (e) { toast(e.message, true); }
   }
   async function bankClick(e) {
@@ -495,7 +509,7 @@
     const a = act.dataset.act;
     if (a === 'lang') { await saveRow(id, { lang: s.lang === 'is' ? 'erl' : 'is' }); drawBank(); }
     if (a === 'ok') { if (!s.year) return toast('Settu inn ár fyrst.', true); await saveRow(id, { verified: !s.verified }); drawBank(); }
-    if (a === 'del') { if (!confirm(`Eyða „${s.title}“ úr lagabankanum?`)) return; try { await rpc('ha_bank_delete', { p_pin: pin(), p_ids: [id] }); S.bank = S.bank.filter(x => x.id !== id); drawBank(); } catch (err) { toast(err.message, true); } }
+    if (a === 'del') { if (!confirm(`Eyða „${s.title}“ úr lagabankanum?`)) return; try { await pinRpc('ha_bank_delete', { p_ids: [id] }); S.bank = S.bank.filter(x => x.id !== id); drawBank(); } catch (err) { toast(err.message, true); } }
     if (a === 'play') previewSong(s);
   }
   async function bankChange(e) {
@@ -521,7 +535,7 @@
     if (!rows.length) return toast('Engin óstaðfest lög þar sem allar heimildir eru sammála.');
     if (!confirm(`Staðfesta ${rows.length} lög þar sem allar heimildir eru sammála um árið?`)) return;
     try {
-      await rpc('ha_bank_upsert', { p_pin: pin(), p_rows: rows.map(s => ({ id: s.id, verified: true })) });
+      await pinRpc('ha_bank_upsert', { p_rows: rows.map(s => ({ id: s.id, verified: true })) });
       rows.forEach(s => { s.verified = true; }); drawBank(); toast(`${rows.length} lög staðfest.`);
     } catch (e) { toast(e.message, true); }
   }
@@ -543,7 +557,7 @@
     const flush = async () => {
       if (!batch.length) return;
       const rows = batch; batch = [];
-      try { const r = await rpc('ha_bank_upsert', { p_pin: pin(), p_rows: rows }); added += r.added; saved += r.added + r.updated; }
+      try { const r = await pinRpc('ha_bank_upsert', { p_rows: rows }); added += r.added; saved += r.added + r.updated; }
       catch (e) { toast(e.message, true); }
     };
     for (const it of items) {
@@ -613,7 +627,7 @@
       const all = tracks.map(fromSp);
       const fill = all.filter(x => byKey.has(key(x)) && !byKey.get(key(x)).spotify_uri)
         .map(x => ({ id: byKey.get(key(x)).id, spotify_uri: x.spotify_uri, isrc: x.isrc, cover: x.cover }));
-      if (fill.length) { try { await rpc('ha_bank_upsert', { p_pin: pin(), p_rows: fill }); await loadBank(true); drawBank(); } catch (err) { /* sleppt */ } }
+      if (fill.length) { try { await pinRpc('ha_bank_upsert', { p_rows: fill }); await loadBank(true); drawBank(); } catch (err) { /* sleppt */ } }
       const items = all.filter(x => !byKey.has(key(x)));
       if (!items.length) return toast('Öll lögin í listanum eru þegar í bankanum.' + (fill.length ? ` ${fill.length} þeirra voru tengd Spotify.` : ''));
       runJob('Spotify-lagalisti', items, s => enrich(Object.assign(s, { lang })), 'MusicBrainz leyfir eitt lag á sekúndu');
@@ -646,7 +660,7 @@
       b.disabled = true; b.querySelector('small').textContent = 'Finn ár…';
       try {
         const row = await enrich(s);
-        const r = await rpc('ha_bank_upsert', { p_pin: pin(), p_rows: [row] });
+        const r = await pinRpc('ha_bank_upsert', { p_rows: [row] });
         await loadBank(true); drawBank();
         toast(r.added ? `„${s.title}“ komið í bankann${row.year ? ' (' + row.year + ')' : ''}.` : `„${s.title}“ var þegar í bankanum.`);
         b.querySelector('small').textContent = row.year ? 'Komið · ' + row.year + (row.verified ? ' ✓' : ' – athugaðu árið') : 'Komið – ár vantar';
