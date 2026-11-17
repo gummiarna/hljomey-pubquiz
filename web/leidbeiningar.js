@@ -178,7 +178,7 @@
       nafn: 'Jólabingó',
       sida: 'jolabingo.html',
       reglur: true,
-      inngangur: 'Eitt lag á dag frá 1. desember fram að jólum. Allir spila í eigin síma, hvar sem er, og það kostar ekkert að vera með.',
+      inngangur: 'Eitt lag á dag frá 1. til 18. desember. Allir spila í eigin síma, hvar sem er, og það kostar ekkert að vera með.',
       kaflar: [
         ['Svona byrjarðu', [
           'Opnaðu <a class="lb-hlekkur" href="jolabingo.html">Jólabingóið</a> og skráðu þig með nafni og netfangi.',
@@ -192,7 +192,7 @@
           'Misstirðu af degi? Eldri lögin bíða eftir þér, svo það er aldrei of seint að byrja.',
         ]],
         ['Vinningar', [
-          'Dregið er úr þeim sem ná einni línu, tveimur línum og fullu spjaldi.',
+          'Þrír vinningar: dregið er úr þeim sem ná einni línu, tveimur línum og þremur línum. Hver getur aðeins unnið einu sinni.',
           'Lína getur verið lárétt, lóðrétt eða á ská.',
           'Vinningshafar fá póst á netfangið sitt.',
         ]],

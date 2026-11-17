@@ -238,8 +238,8 @@
     const lyk = 'jolabingo_linur_' + me.player_id;
     const adur = store.get(lyk) || { lines: 0, full: false };
     let titill = null, tx = '';
-    if (S.full && !adur.full) { titill = 'BINGÓ!'; tx = 'Fullt spjald! Þú ert komin(n) í pottinn fyrir stóra vinninginn.'; }
-    else if (S.lines >= 2 && adur.lines < 2) { titill = 'TVÆR LÍNUR!'; tx = 'Þú ert komin(n) í pottinn fyrir tvær línur. Áfram í fullt spjald!'; }
+    if (S.lines >= 3 && adur.lines < 3) { titill = 'BINGÓ!'; tx = 'Þrjár línur! Þú ert komin(n) í pottinn fyrir stóra vinninginn.'; }
+    else if (S.lines >= 2 && adur.lines < 2) { titill = 'TVÆR LÍNUR!'; tx = 'Þú ert komin(n) í pottinn fyrir tvær línur. Áfram í þrjár línur!'; }
     else if (S.lines >= 1 && adur.lines < 1) { titill = 'LÍNA!'; tx = 'Þú ert komin(n) í pottinn fyrir línu. Haltu áfram!'; }
     store.set(lyk, { lines: S.lines, full: S.full });
     if (!titill) return;
@@ -271,7 +271,7 @@
       linur.slice(0, 4).forEach((t, k) => g.fillText(t, x + size / 2, y + size / 2 + (k - (Math.min(linur.length, 4) - 1) / 2) * 36 + 10));
     });
     g.fillStyle = '#a9c9d4'; g.font = '500 38px Literata, Georgia, serif';
-    g.fillText(S.full ? 'Fullt spjald!' : `${S.lines} ${S.lines === 1 ? 'lína' : 'línur'} · ${S.correct} rétt svör`, W / 2, 1190);
+    g.fillText(S.lines >= 3 ? 'BINGÓ! Þrjár línur' : `${S.lines} ${S.lines === 1 ? 'lína' : 'línur'} · ${S.correct} rétt svör`, W / 2, 1190);
     g.fillStyle = '#f5fbfc'; g.font = '600 40px Oswald, sans-serif'; g.fillText('Spilaðu með: leikir.hljomey.is', W / 2, 1265);
     c.toBlob(async blob => {
       const file = new File([blob], 'jolabingo-hljomey.png', { type: 'image/png' });

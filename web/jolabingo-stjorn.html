@@ -102,10 +102,11 @@
       <h2>Leikmenn og vinningar</h2>
       <div class="row">
         <div><label for="fStage">Sýna</label>
-          <select id="fStage"><option value="all">Alla</option><option value="line">Ná línu</option><option value="two">Ná tveimur línum</option><option value="full">Fullt spjald</option><option value="nl">Á póstlista</option></select></div>
+          <select id="fStage"><option value="all">Alla</option><option value="line">Ná línu</option><option value="two">Ná tveimur línum</option><option value="three">Ná þremur línum</option><option value="nl">Á póstlista</option></select></div>
         <div class="btns" style="margin:0"><button class="btn" id="drawBtn">Draga vinningshafa</button><button class="btn ghost" id="csvBtn">Sækja CSV</button></div>
       </div>
       <div id="winner"></div>
+      <div id="drawn"></div>
       <div class="tbl" style="margin-top:12px"><table><thead><tr><th>Nafn</th><th>Netfang</th><th>Rétt</th><th>Línur</th><th>Fullt</th><th>Póstlisti</th></tr></thead><tbody id="playerRows"></tbody></table></div>
     </section>
   </div>
@@ -267,17 +268,33 @@
   // ---------- Leikmenn ----------
   function sia() {
     const f = $('fStage').value;
-    return players.filter(p => f === 'all' || (f === 'line' && p.lines >= 1) || (f === 'two' && p.lines >= 2) || (f === 'full' && p.full) || (f === 'nl' && p.newsletter));
+    return players.filter(p => f === 'all' || (f === 'line' && p.lines >= 1) || (f === 'two' && p.lines >= 2) || (f === 'three' && p.lines >= 3) || (f === 'nl' && p.newsletter));
   }
   function teiknaLeikmenn() {
     $('playerRows').innerHTML = sia().map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.email)}</td><td>${p.correct}</td><td>${p.lines}</td><td>${p.full ? '✓' : ''}</td><td>${p.newsletter ? '✓' : ''}</td></tr>`).join('')
       || '<tr><td colspan="6" class="muted">Enginn ennþá.</td></tr>';
   }
   $('fStage').onchange = () => { $('winner').innerHTML = ''; teiknaLeikmenn(); };
+  // Dregnir vinningshafar geymast í þessum vafra svo enginn vinni tvisvar
+  const DLYK = 'jolabingo_dregnir';
+  const dregnir = () => { try { return JSON.parse(localStorage.getItem(DLYK)) || []; } catch (e) { return []; } };
+  const vistaDregna = l => { try { localStorage.setItem(DLYK, JSON.stringify(l)); } catch (e) {} };
+  function teiknaDregna() {
+    const d = dregnir();
+    $('drawn').innerHTML = d.length ? `<div style="margin-top:12px"><b>Dregnir vinningshafar</b>${d.map(x => `<div class="muted" style="font-size:14px">${esc(x.hopur)}: <b style="color:var(--text)">${esc(x.name)}</b> · ${esc(x.email)}</div>`).join('')}<button class="btn ghost small" id="drawReset" style="margin-top:8px">Hreinsa lista</button></div>` : '';
+    const r = $('drawReset'); if (r) r.onclick = () => { if (confirm('Hreinsa lista yfir dregna vinningshafa?')) { vistaDregna([]); teiknaDregna(); } };
+  }
+  teiknaDregna();
   $('drawBtn').onclick = () => {
-    const l = sia(); if (!l.length) { $('winner').innerHTML = '<p class="muted">Enginn í þessum hópi.</p>'; return; }
+    if ($('fStage').value === 'all' || $('fStage').value === 'nl') { $('winner').innerHTML = '<p class="muted">Veldu fyrst vinningshóp: línu, tvær línur eða þrjár línur.</p>'; return; }
+    const unnid = new Set(dregnir().map(x => (x.email || '').toLowerCase()));
+    const l = sia().filter(p => !unnid.has((p.email || '').toLowerCase()));
+    const hopur = $('fStage').selectedOptions[0].textContent;
+    if (!l.length) { $('winner').innerHTML = `<p class="muted">Enginn í hópnum „${esc(hopur.toLowerCase())}“ sem hefur ekki þegar unnið.${$('fStage').value === 'three' ? ' Dragðu þá úr hópnum „ná tveimur línum“.' : ''}</p>`; return; }
     const w = l[Math.floor(Math.random() * l.length)];
-    $('winner').innerHTML = `<div class="winner">🎁 <b>${esc(w.name)}</b> · ${esc(w.email)}<br><span class="muted" style="font-size:14px">Dregið úr ${l.length} leikmönnum (${esc($('fStage').selectedOptions[0].textContent.toLowerCase())}).</span></div>`;
+    vistaDregna(dregnir().concat({ name: w.name, email: w.email, hopur }));
+    $('winner').innerHTML = `<div class="winner">🎁 <b>${esc(w.name)}</b> · ${esc(w.email)}<br><span class="muted" style="font-size:14px">Dregið úr ${l.length} leikmönnum (${esc(hopur.toLowerCase())}), fyrri vinningshafar undanskildir.</span></div>`;
+    teiknaDregna();
   };
   $('csvBtn').onclick = () => {
     const l = sia(); const q = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
