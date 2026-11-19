@@ -118,7 +118,7 @@
       <h2>Leikmenn og vinningar</h2>
       <div class="row">
         <div><label for="fStage">Sýna</label>
-          <select id="fStage"><option value="all">Alla leikmenn</option><option value="adal">Aðalvinningur (þrjár línur)</option><option value="annar">2. vinningur (tvær línur)</option><option value="thridji">3. vinningur (ein lína)</option><option value="postlisti">Póstlistavinningur (á póstlista)</option></select></div>
+          <select id="fStage"><option value="all">Alla leikmenn</option><option value="adal">Aðalvinningur: hótel + Herjólfur (þrjár línur)</option><option value="annar">2. vinningur: Vöruhúsið (tvær línur)</option><option value="thridji">3. vinningur: Brothers Brewery (ein lína)</option><option value="fjordi">4. vinningur: GOTT (ein lína)</option><option value="fimmti">5. vinningur: Skvísubúðin (ein lína)</option><option value="sjotti">6. vinningur: Partyland (ein lína)</option><option value="postlisti">Póstlistavinningur: Ísbíllinn (á póstlista)</option></select></div>
         <div class="btns" style="margin:0"><button class="btn" id="drawBtn">Draga vinningshafa</button><button class="btn ghost" id="csvBtn">Sækja CSV</button></div>
       </div>
       <div id="winner"></div>
@@ -406,6 +406,9 @@
     { k: 'adal', heiti: 'Aðalvinningur', hopur: 'þrjár línur', min: 3 },
     { k: 'annar', heiti: '2. vinningur', hopur: 'tvær línur', min: 2 },
     { k: 'thridji', heiti: '3. vinningur', hopur: 'ein lína', min: 1 },
+    { k: 'fjordi', heiti: '4. vinningur', hopur: 'ein lína', min: 1 },
+    { k: 'fimmti', heiti: '5. vinningur', hopur: 'ein lína', min: 1 },
+    { k: 'sjotti', heiti: '6. vinningur', hopur: 'ein lína', min: 1 },
     { k: 'postlisti', heiti: 'Póstlistavinningur', hopur: 'á póstlista' }];
   function hopur(f) {
     const v = VINN.find(x => x.k === f);
