@@ -58,7 +58,14 @@ begin
   delete from jb_sponsors where id = p_id;
 end $$;
 
-grant execute on function public.jb_sponsors() to anon, authenticated;
+-- Útgáfunúmer logoa: leikmenn geyma logoin í vafranum og sækja þau aðeins aftur ef þetta breytist
+create or replace function public.jb_sponsors_ver()
+returns text language sql stable security definer set search_path = public as $$
+  select md5(coalesce(string_agg(id::text || sort || days::text || url || plate || strip || share || md5(logo), '|' order by id), ''))
+    from jb_sponsors;
+$$;
+
+grant execute on function public.jb_sponsors(), public.jb_sponsors_ver() to anon, authenticated;
 grant execute on function public.jb_admin_sponsor_save(text, uuid, text, text, text, boolean, boolean, boolean, int[], int),
   public.jb_admin_sponsor_delete(text, uuid) to anon, authenticated;
 

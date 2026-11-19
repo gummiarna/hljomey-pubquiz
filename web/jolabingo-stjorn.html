@@ -194,6 +194,7 @@
     $('dayRows').querySelectorAll('[data-e]').forEach(b => b.onclick = () => opnaRitil(+b.dataset.e));
     teiknaLeikmenn();
     teiknaStyrktar();
+    thjappaStor();
   }
 
   // ---------- Styrktaraðilar ----------
@@ -206,6 +207,26 @@
     $('spRows').querySelectorAll('[data-sp]').forEach(b => b.onclick = () => opnaStyrktar(SP[+b.dataset.sp]));
   }
   $('spNew').onclick = () => opnaStyrktar(null);
+
+  // Þjappa stórum logoum sem voru sett inn áður (einu sinni, sjálfvirkt)
+  let thjappad = false;
+  async function thjappaStor() {
+    if (thjappad) return; thjappad = true;
+    let breytt = false;
+    for (const p of SP) {
+      if (p.logo.length < 30000 || p.logo.startsWith('data:image/svg')) continue;
+      try {
+        const blob = await (await fetch(p.logo)).blob();
+        const nytt = await lesaLogo(new File([blob], 'logo', { type: blob.type }));
+        if (nytt.length < p.logo.length * 0.8) {
+          await call('jb_admin_sponsor_save', { p_id: p.id, p_name: p.name, p_logo: nytt, p_url: p.url, p_plate: p.plate,
+            p_strip: p.strip, p_share: p.share, p_days: p.days, p_sort: p.sort });
+          breytt = true;
+        }
+      } catch (e) {}
+    }
+    if (breytt) { SP = (await client.rpc('jb_sponsors')).data || []; teiknaStyrktar(); }
+  }
 
   function opnaStyrktar(p) {
     spEdit = p ? { id: p.id, name: p.name, url: p.url, logo: p.logo, nyttLogo: null, plate: p.plate, strip: p.strip, share: p.share, days: p.days.slice(), sort: p.sort }
@@ -284,7 +305,7 @@
         const img = new Image();
         img.onerror = () => rej(new Error('Þetta er ekki mynd sem vafrinn les.'));
         img.onload = () => {
-          const k = Math.min(1, 800 / img.width, 400 / img.height);
+          const k = Math.min(1, 600 / img.width, 300 / img.height);
           const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
           const g = c.getContext('2d'); g.drawImage(img, 0, 0, c.width, c.height);
           // Klippa gegnsæjar spássíur svo logoið nýti plássið
@@ -297,8 +318,10 @@
               c.width = w; c.height = h; c.getContext('2d').drawImage(t, 0, 0);
             }
           } catch (e) {}
+          // Minnsta útgáfan valin svo leikmenn þurfi að sækja sem minnst
           let out = c.toDataURL('image/png');
-          if (out.length > 550000) out = c.toDataURL('image/webp', 0.9);
+          const w = c.toDataURL('image/webp', 0.86);
+          if (w.startsWith('data:image/webp') && w.length < out.length) out = w;
           if (out.length > 550000) return rej(new Error('Myndin er of stór. Prófaðu minni útgáfu.'));
           res(out);
         };

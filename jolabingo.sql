@@ -342,13 +342,19 @@ create or replace function public.jb_admin_players(p_pin text)
 returns json language plpgsql security definer set search_path = public as $$
 begin
   perform _jb_admin(p_pin);
-  return (select coalesce(json_agg(r order by r.lines desc, r.correct desc, r.created_at), '[]'::json) from (
-    select p.name, p.email, p.newsletter, p.created_at, p.last_seen,
-           (select count(*) from jb_answers a where a.player_id = p.id and a.correct) as correct,
-           (select count(*) from jb_answers a where a.player_id = p.id) as answered,
-           _bingo_lines(_jb_cells(p.id)) as lines,
-           not (false = any(_jb_cells(p.id))) as full
-      from jb_players p) r);
+  -- Reiknað í einni fyrirspurn svo það ráði við þúsundir leikmanna innan tímamarka
+  return (
+    with c as (select p.id, n.i, n.nafn from jb_players p, unnest(p.card) with ordinality n(nafn, i)),
+     ok as (select c.id, array_agg((j.cell is not null or a.player_id is not null) order by c.i) v
+              from c left join jb_jokers j on j.player_id = c.id and j.cell = c.i
+                     left join jb_days d on lower(d.artist) = lower(c.nafn)
+                     left join jb_answers a on a.player_id = c.id and a.day = d.day and a.correct
+             group by c.id),
+     sv as (select player_id, count(*) filter (where correct) rett, count(*) alls from jb_answers group by player_id)
+    select coalesce(json_agg(r order by r.lines desc, r.correct desc, r.created_at), '[]'::json) from (
+      select p.name, p.email, p.newsletter, p.created_at, p.last_seen, coalesce(sv.rett, 0) as correct, coalesce(sv.alls, 0) as answered,
+             _bingo_lines(ok.v) as lines, not (false = any(ok.v)) as full
+        from jb_players p join ok on ok.id = p.id left join sv on sv.player_id = p.id) r);
 end $$;
 
 -- Aðgangur: anon kallar aðeins á föllin

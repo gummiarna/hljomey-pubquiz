@@ -120,6 +120,18 @@
   }
 
   // ---------- Styrktaraðilar ----------
+  // Logoin eru geymd í vafranum og aðeins sótt aftur ef þeim hefur verið breytt (sparar gagnamagn)
+  async function saekjaStyrktar() {
+    const LYK = 'jolabingo_styrktar';
+    let geymt = null; try { geymt = JSON.parse(localStorage.getItem(LYK)); } catch (e) {}
+    try {
+      const v = await call('jb_sponsors_ver', {});
+      if (geymt && geymt.v === v && Array.isArray(geymt.d)) return geymt.d;
+      const d = await call('jb_sponsors', {});
+      try { localStorage.setItem(LYK, JSON.stringify({ v, d })); } catch (e) {}
+      return d;
+    } catch (e) { return geymt && Array.isArray(geymt.d) ? geymt.d : []; }
+  }
   function logo(p) {
     const inni = `<img src="${esc(p.logo)}" alt="${esc(p.name)}" loading="lazy">`;
     return p.url ? `<a class="sp-logo${p.plate ? ' plate' : ''}" href="${esc(p.url)}" target="_blank" rel="noopener sponsored" title="${esc(p.name)}">${inni}</a>`
@@ -331,7 +343,7 @@
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && me) hlada(true); });
 
   (async function byrja() {
-    const [i, sp] = await Promise.all([call('jb_info', {}).catch(() => null), call('jb_sponsors', {}).catch(() => [])]);
+    const [i, sp] = await Promise.all([call('jb_info', {}).catch(() => null), saekjaStyrktar()]);
     info = i; SP = sp || [];
     if (me) await hlada(); else synaSkraningu();
   })();
