@@ -40,6 +40,17 @@
   .check { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--text); line-height: 1.45; margin: 4px 0 16px; cursor: pointer; }
   .check input { width: 22px; height: 22px; flex: 0 0 22px; accent-color: var(--accent); margin: 0; }
   .panel .btn.full { width: 100%; font-size: 18px; padding: 14px; }
+  .prizes { margin-top: 14px; border-radius: 20px; padding: 20px; background: linear-gradient(160deg, rgba(242,181,68,.16), rgba(242,181,68,.04)); border: 1px solid rgba(242,181,68,.45); }
+  .prizes .kick { font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); font-family: system-ui, sans-serif; }
+  .prizes h2 { margin: 4px 0 14px; font-size: 26px; line-height: 1.15; }
+  .prize { display: flex; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+  .prize:first-of-type { border-top: 0; padding-top: 0; }
+  .prize .n { flex: 0 0 34px; height: 34px; border-radius: 17px; display: grid; place-items: center; background: var(--bg2); border: 1px solid var(--line); font-weight: 800; font-family: system-ui, sans-serif; font-size: 15px; }
+  .prize.main .n { background: var(--accent); border-color: var(--accent); color: #123647; }
+  .prize b { display: block; font-size: 17px; }
+  .prize p { margin: 3px 0 0; font-size: 15px; line-height: 1.45; color: var(--text); }
+  .prize small { display: block; margin-top: 4px; font-size: 13px; color: var(--muted); }
+  .prizes .fine { margin-top: 10px; }
   .fine { font-size: 13px; color: var(--muted); margin-top: 12px; line-height: 1.5; }
   .fine a { color: var(--muted); }
 
@@ -136,6 +147,23 @@
         <li id="stepJoker">Fimmta hvert rétt svar gefur jóker sem þú setur á hvaða reit sem er. Misstirðu af degi? Eldri lögin bíða eftir þér.</li>
       </ol>
     </div>
+    <div class="prizes" id="vinningar">
+      <div class="kick">Vinningar</div>
+      <h2>Vinningar að verðmæti hátt í 200.000 kr.</h2>
+      <div class="prize main"><span class="n">1</span><div><b>Aðalvinningur</b>
+        <p>Nótt fyrir tvo á Hótel Vestmannaeyjum með morgunverði og aðgangi að heitum potti og sauna, tvö armbönd á Hljómey 2027, tvær Hljómey derhúfur, tveir taupokar undir bjórinn og gjafabréf.</p>
+        <small>Dreginn úr þeim sem ná þremur línum</small></div></div>
+      <div class="prize"><span class="n">2</span><div><b>2. vinningur</b>
+        <p>Tvö armbönd á Hljómey 2027, tvær Hljómey derhúfur, tveir taupokar og gjafabréf.</p>
+        <small>Dreginn úr þeim sem ná tveimur línum</small></div></div>
+      <div class="prize"><span class="n">3</span><div><b>3. vinningur</b>
+        <p>Gjafabréf.</p>
+        <small>Dreginn úr þeim sem ná einni línu</small></div></div>
+      <div class="prize"><span class="n">✉</span><div><b>Póstlistavinningur</b>
+        <p>Gjafabréf, dregið út meðal þeirra sem skrá sig á póstlista Hljómeyjar.</p></div></div>
+      <p class="fine">Gjafabréf frá Brothers Brewery, Vöruhúsinu, GOTT og Litlu skvísubúðinni. Aðalvinningurinn er dreginn fyrst. Ef enginn nær þremur línum er hann dreginn úr þeim sem ná tveimur. Hver getur aðeins unnið einu sinni.</p>
+    </div>
+
     <div class="panel">
       <h2>Fáðu þitt spjald</h2>
       <p id="joinStatus">Það kostar ekkert að vera með.</p>
@@ -144,7 +172,7 @@
       <label class="check"><input type="checkbox" id="nlIn"> <span>Já takk, skráðu mig líka á póstlista Hljómeyjar (fréttir af listamönnum og miðasölu).</span></label>
       <button class="btn full" id="joinBtn">Fá spjaldið mitt</button>
       <div class="err hidden" id="joinErr"></div>
-      <p class="fine">Netfangið notum við til að hafa samband ef þú vinnur. Sama netfang í öðrum síma opnar sama spjaldið. Þrír vinningar eru dregnir út: einn meðal þeirra sem ná línu, einn meðal þeirra sem ná tveimur línum og einn meðal þeirra sem ná þremur línum. Hver getur aðeins unnið einu sinni.</p>
+      <p class="fine">Netfangið notum við til að hafa samband ef þú vinnur. Sama netfang í öðrum síma opnar sama spjaldið. Það er valfrjálst að skrá sig á póstlistann.</p>
     </div>
   </section>
 
@@ -170,7 +198,7 @@
       <button class="btn ghost" id="shareBtn">Deila spjaldinu</button>
       <a class="btn ghost" href="index.html" style="text-align:center;text-decoration:none">Fleiri leikir</a>
     </div>
-    <p class="fine">Þrír vinningar: dregið er úr þeim sem ná línu, tveimur línum og þremur línum. Hver getur aðeins unnið einu sinni. Vinningshafar fá póst á netfangið sitt.</p>
+    <p class="fine">Vinningar að verðmæti hátt í 200.000 kr. Aðalvinningurinn (hótelnótt fyrir tvo og armbönd á Hljómey 2027) er dreginn úr þeim sem ná þremur línum, 2. vinningur úr tveimur línum og 3. vinningur úr einni línu. Eitt gjafabréf er dregið út meðal þeirra sem eru á póstlistanum. Hver getur aðeins unnið einu sinni. Vinningshafar fá póst á netfangið sitt.</p>
   </section>
 </div>
 
