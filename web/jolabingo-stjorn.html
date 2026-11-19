@@ -118,7 +118,7 @@
       <h2>Leikmenn og vinningar</h2>
       <div class="row">
         <div><label for="fStage">Sýna</label>
-          <select id="fStage"><option value="all">Alla</option><option value="line">Ná línu</option><option value="two">Ná tveimur línum</option><option value="three">Ná þremur línum</option><option value="nl">Á póstlista</option></select></div>
+          <select id="fStage"><option value="all">Alla leikmenn</option><option value="adal">Aðalvinningur (þrjár línur)</option><option value="annar">2. vinningur (tvær línur)</option><option value="thridji">3. vinningur (ein lína)</option><option value="postlisti">Póstlistavinningur (á póstlista)</option></select></div>
         <div class="btns" style="margin:0"><button class="btn" id="drawBtn">Draga vinningshafa</button><button class="btn ghost" id="csvBtn">Sækja CSV</button></div>
       </div>
       <div id="winner"></div>
@@ -399,7 +399,18 @@
   // ---------- Leikmenn ----------
   function sia() {
     const f = $('fStage').value;
-    return players.filter(p => f === 'all' || (f === 'line' && p.lines >= 1) || (f === 'two' && p.lines >= 2) || (f === 'three' && p.lines >= 3) || (f === 'nl' && p.newsletter));
+    return hopur(f);
+  }
+  // Vinningarnir í þeirri röð sem á að draga þá
+  const VINN = [
+    { k: 'adal', heiti: 'Aðalvinningur', hopur: 'þrjár línur', min: 3 },
+    { k: 'annar', heiti: '2. vinningur', hopur: 'tvær línur', min: 2 },
+    { k: 'thridji', heiti: '3. vinningur', hopur: 'ein lína', min: 1 },
+    { k: 'postlisti', heiti: 'Póstlistavinningur', hopur: 'á póstlista' }];
+  function hopur(f) {
+    const v = VINN.find(x => x.k === f);
+    if (!v) return players;
+    return players.filter(p => v.k === 'postlisti' ? p.newsletter : p.lines >= v.min);
   }
   function teiknaLeikmenn() {
     $('playerRows').innerHTML = sia().map(p => `<tr><td>${esc(p.name)}</td><td>${esc(p.email)}</td><td>${p.correct}</td><td>${p.lines}</td><td>${p.full ? '✓' : ''}</td><td>${p.newsletter ? '✓' : ''}</td></tr>`).join('')
@@ -417,14 +428,21 @@
   }
   teiknaDregna();
   $('drawBtn').onclick = () => {
-    if ($('fStage').value === 'all' || $('fStage').value === 'nl') { $('winner').innerHTML = '<p class="muted">Veldu fyrst vinningshóp: línu, tvær línur eða þrjár línur.</p>'; return; }
-    const unnid = new Set(dregnir().map(x => (x.email || '').toLowerCase()));
-    const l = sia().filter(p => !unnid.has((p.email || '').toLowerCase()));
-    const hopur = $('fStage').selectedOptions[0].textContent;
-    if (!l.length) { $('winner').innerHTML = `<p class="muted">Enginn í hópnum „${esc(hopur.toLowerCase())}“ sem hefur ekki þegar unnið.${$('fStage').value === 'three' ? ' Dragðu þá úr hópnum „ná tveimur línum“.' : ''}</p>`; return; }
+    const v = VINN.find(x => x.k === $('fStage').value);
+    if (!v) { $('winner').innerHTML = '<p class="muted">Veldu fyrst vinning í listanum.</p>'; return; }
+    const d = dregnir();
+    if (d.some(x => x.k === v.k) && !confirm(v.heiti + ' hefur þegar verið dreginn. Draga aftur (t.d. ef ekki næst í vinningshafann)?')) return;
+    const ekkiDregnir = VINN.slice(0, VINN.indexOf(v)).filter(x => !d.some(y => y.k === x.k));
+    if (ekkiDregnir.length && !confirm('Þetta á að draga fyrst: ' + ekkiDregnir.map(x => x.heiti).join(', ') + '. Draga samt ' + v.heiti.toLowerCase() + ' núna?')) return;
+    const unnid = new Set(d.map(x => (x.email || '').toLowerCase()));
+    const laus = l => l.filter(p => !unnid.has((p.email || '').toLowerCase()));
+    let l = laus(hopur(v.k)), ur = v.hopur;
+    // Ef enginn laus er í hópnum færist drátturinn niður um eitt stig (3 → 2 → 1 lína)
+    for (let i = VINN.indexOf(v) + 1; !l.length && v.min && i < 3; i++) { l = laus(hopur(VINN[i].k)); ur = VINN[i].hopur + ', því enginn laus var með ' + v.hopur; }
+    if (!l.length) { $('winner').innerHTML = `<p class="muted">Enginn í hópnum „${esc(v.hopur)}“ sem hefur ekki þegar unnið.</p>`; return; }
     const w = l[Math.floor(Math.random() * l.length)];
-    vistaDregna(dregnir().concat({ name: w.name, email: w.email, hopur }));
-    $('winner').innerHTML = `<div class="winner">🎁 <b>${esc(w.name)}</b> · ${esc(w.email)}<br><span class="muted" style="font-size:14px">Dregið úr ${l.length} leikmönnum (${esc(hopur.toLowerCase())}), fyrri vinningshafar undanskildir.</span></div>`;
+    vistaDregna(d.concat({ k: v.k, name: w.name, email: w.email, hopur: v.heiti }));
+    $('winner').innerHTML = `<div class="winner">🎁 <b>${esc(v.heiti)}:</b> ${esc(w.name)} · ${esc(w.email)}<br><span class="muted" style="font-size:14px">Dregið úr ${l.length} ${l.length === 1 ? 'leikmanni' : 'leikmönnum'} (${esc(ur)}), fyrri vinningshafar undanskildir.</span></div>`;
     teiknaDregna();
   };
   $('csvBtn').onclick = () => {
