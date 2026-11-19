@@ -192,7 +192,8 @@
           'Misstirðu af degi? Eldri lögin bíða eftir þér, svo það er aldrei of seint að byrja.',
         ]],
         ['Vinningar', [
-          'Þrír vinningar: dregið er úr þeim sem ná einni línu, tveimur línum og þremur línum. Hver getur aðeins unnið einu sinni.',
+          'Vinningar að verðmæti yfir 200.000 kr. Aðalvinningurinn er dreginn úr þeim sem ná þremur línum, 2. vinningur úr tveimur línum og 3.–5. vinningur úr einni línu. Einn vinningur er dreginn meðal þeirra sem eru á póstlistanum.',
+          'Hver getur aðeins unnið einu sinni. Ef ekki eru nógu margir með línu er dregið úr öllum þátttakendum.',
           'Lína getur verið lárétt, lóðrétt eða á ská.',
           'Vinningshafar fá póst á netfangið sitt.',
         ]],
