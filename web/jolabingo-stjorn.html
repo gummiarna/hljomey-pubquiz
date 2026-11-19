@@ -44,6 +44,14 @@
   .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; background: var(--bg2); border: 1px solid var(--line); }
   .winner { margin-top: 12px; padding: 14px; border-radius: 12px; background: rgba(242,181,68,.15); border: 1px solid var(--accent); font-size: 18px; }
   .note { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+  .sp-logo { display: inline-grid; place-items: center; width: 120px; height: 56px; border-radius: 10px; padding: 6px; background: var(--bg2); border: 1px solid var(--line); }
+  .sp-logo.plate { background: #fff; }
+  .sp-logo img { max-width: 100%; max-height: 100%; object-fit: contain; width: auto; height: auto; border-radius: 0; }
+  .daychips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .daychips button { min-width: 40px; padding: 7px 8px; border-radius: 9px; border: 1px solid var(--line); background: var(--card); color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
+  .daychips button.on { background: var(--accent); border-color: var(--accent); color: #123647; }
+  .daychips button:disabled { opacity: .35; cursor: not-allowed; }
+  .prev { margin-top: 12px; padding: 14px; border-radius: 12px; background: linear-gradient(160deg, #123647, #0b1f29); border: 1px solid var(--line); }
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -99,6 +107,14 @@
     </section>
 
     <section class="panel">
+      <h2>Styrktaraðilar</h2>
+      <p class="note">Logo birtast á þremur stöðum: í rönd undir spjaldinu, sem „Lag dagsins í boði …“ á þeim dögum sem aðilinn á, og neðst á myndinni sem fólk deilir. Best er PNG eða SVG með gegnsæjum bakgrunni. Dökk logo þurfa hvítan grunn því leikurinn er dökkur.</p>
+      <div class="tbl"><table><thead><tr><th>Logo</th><th>Nafn</th><th>Dagar</th><th>Birtist</th><th></th></tr></thead><tbody id="spRows"></tbody></table></div>
+      <div class="btns"><button class="btn" id="spNew">Bæta við styrktaraðila</button></div>
+      <div id="spEditor"></div>
+    </section>
+
+    <section class="panel">
       <h2>Leikmenn og vinningar</h2>
       <div class="row">
         <div><label for="fStage">Sýna</label>
@@ -123,9 +139,10 @@
   const MAN = ['jan.', 'feb.', 'mars', 'apr.', 'maí', 'júní', 'júlí', 'ág.', 'sep.', 'okt.', 'nóv.', 'des.'];
   const ERR = { rangt_pin: 'Rangt PIN. Aðeins aðal-PIN virkar hér.', gestapin_ekki: 'Gestapin dugar ekki hér. Notaðu aðal-PIN.',
     jb_valkostir: 'Rétta svarið verður að vera eitt af fjórum svörum.', svor_eins: 'Svörin fjögur verða að vera ólík.',
-    jb_listamadur_tvisvar: 'Þessi listamaður er þegar lag annars dags.' };
+    jb_listamadur_tvisvar: 'Þessi listamaður er þegar lag annars dags.',
+    jb_styrkt_nafn: 'Sláðu inn nafn styrktaraðilans.', jb_styrkt_logo: 'Veldu logo.', jb_styrkt_dagur: 'Einhver dagur er þegar í boði annars styrktaraðila.' };
   let pin = sessionStorage.getItem('jb_pin') || '';
-  let A = null, players = [], edit = null;
+  let A = null, players = [], edit = null, SP = [], spEdit = null;
 
   async function call(fn, args) {
     const { data, error } = await client.rpc(fn, Object.assign({ p_pin: pin }, args || {}));
@@ -142,6 +159,7 @@
     try {
       A = await call('jb_admin_get');
       players = await call('jb_admin_players');
+      SP = (await client.rpc('jb_sponsors')).data || [];
       sessionStorage.setItem('jb_pin', pin);
       $('vPin').classList.add('hidden'); $('vAdmin').classList.remove('hidden');
       teikna();
@@ -175,6 +193,119 @@
     $('dayRows').innerHTML = rows;
     $('dayRows').querySelectorAll('[data-e]').forEach(b => b.onclick = () => opnaRitil(+b.dataset.e));
     teiknaLeikmenn();
+    teiknaStyrktar();
+  }
+
+  // ---------- Styrktaraðilar ----------
+  const logoHtml = p => `<span class="sp-logo${p.plate ? ' plate' : ''}"><img src="${esc(p.logo)}" alt="${esc(p.name)}"></span>`;
+  function teiknaStyrktar() {
+    $('spRows').innerHTML = SP.map((p, i) => `<tr><td>${logoHtml(p)}</td><td><b>${esc(p.name)}</b>${p.url ? `<br><small class="muted">${esc(p.url)}</small>` : ''}</td>
+      <td>${p.days.length ? p.days.map(d => d + '.').join(' ') : '<span class="muted">Engir</span>'}</td>
+      <td>${[p.strip ? 'Rönd' : '', p.days.length ? 'Lag dagsins' : '', p.share ? 'Deilimynd' : ''].filter(Boolean).join(', ') || '<span class="muted">Hvergi</span>'}</td>
+      <td><button class="btn small ghost" data-sp="${i}">Breyta</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">Enginn styrktaraðili ennþá.</td></tr>';
+    $('spRows').querySelectorAll('[data-sp]').forEach(b => b.onclick = () => opnaStyrktar(SP[+b.dataset.sp]));
+  }
+  $('spNew').onclick = () => opnaStyrktar(null);
+
+  function opnaStyrktar(p) {
+    spEdit = p ? { id: p.id, name: p.name, url: p.url, logo: p.logo, nyttLogo: null, plate: p.plate, strip: p.strip, share: p.share, days: p.days.slice(), sort: p.sort }
+               : { id: null, name: '', url: '', logo: '', nyttLogo: null, plate: false, strip: true, share: true, days: [], sort: SP.length };
+    teiknaStyrktarRitil();
+    $('spEditor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function teiknaStyrktarRitil() {
+    const e = spEdit; if (!e) { $('spEditor').innerHTML = ''; return; }
+    const tekid = {};
+    SP.forEach(p => { if (p.id !== e.id) p.days.forEach(d => tekid[d] = p.name); });
+    const logo = e.nyttLogo || e.logo;
+    let chips = '';
+    for (let d = 1; d <= A.settings.days; d++) chips += `<button type="button" data-d="${d}" class="${e.days.includes(d) ? 'on' : ''}" ${tekid[d] ? `disabled title="Í boði ${esc(tekid[d])}"` : ''}>${d}</button>`;
+    $('spEditor').innerHTML = `<div class="editor"><h2 style="margin:0 0 10px">${e.id ? 'Breyta styrktaraðila' : 'Nýr styrktaraðili'}</h2>
+      <div class="row">
+        <div><label for="spName">Nafn</label><input type="text" id="spName" maxlength="80" value="${esc(e.name)}"></div>
+        <div><label for="spUrl">Vefslóð (valfrjálst)</label><input type="text" id="spUrl" placeholder="https://" value="${esc(e.url)}"></div>
+        <div><label for="spSort">Röð</label><input type="number" id="spSort" value="${e.sort}"></div>
+      </div>
+      <label for="spFile" style="margin-top:12px">Logo (PNG, SVG, JPG eða WebP)</label>
+      <input type="file" id="spFile" accept="image/png,image/svg+xml,image/jpeg,image/webp">
+      <div class="btns" style="flex-direction:column;align-items:flex-start;gap:10px">
+        <label class="chk"><input type="checkbox" id="spPlate" ${e.plate ? 'checked' : ''}> Hvítur grunnur á bak við logoið (fyrir dökk logo)</label>
+        <label class="chk"><input type="checkbox" id="spStrip" ${e.strip ? 'checked' : ''}> Sýna í röndinni undir spjaldinu</label>
+        <label class="chk"><input type="checkbox" id="spShare" ${e.share ? 'checked' : ''}> Sýna á myndinni sem fólk deilir</label>
+      </div>
+      <label style="margin-top:12px">„Lag dagsins í boði …“: veldu daga</label>
+      <div class="daychips" id="spDays">${chips}</div>
+      <p class="note">Gráir dagar eru í boði annars styrktaraðila.</p>
+      ${logo ? `<div class="prev"><div class="muted" style="font-size:13px;margin-bottom:8px">Svona lítur logoið út í leiknum</div>${logoHtml({ logo, plate: e.plate, name: e.name })}</div>` : ''}
+      <div class="btns"><button class="btn" id="spSave">Vista</button><button class="btn ghost" id="spCancel">Hætta við</button>${e.id ? '<button class="btn ghost" id="spDel">Eyða</button>' : ''}</div>
+      <div class="err hidden" id="spErr"></div></div>`;
+    $('spName').oninput = ev => e.name = ev.target.value;
+    $('spUrl').oninput = ev => e.url = ev.target.value;
+    $('spSort').oninput = ev => e.sort = +ev.target.value || 0;
+    $('spPlate').onchange = ev => { e.plate = ev.target.checked; teiknaStyrktarRitil(); };
+    $('spStrip').onchange = ev => e.strip = ev.target.checked;
+    $('spShare').onchange = ev => e.share = ev.target.checked;
+    $('spDays').querySelectorAll('button:not([disabled])').forEach(b => b.onclick = () => {
+      const d = +b.dataset.d; e.days = e.days.includes(d) ? e.days.filter(x => x !== d) : e.days.concat(d).sort((a, b) => a - b);
+      b.classList.toggle('on');
+    });
+    $('spFile').onchange = async ev => {
+      const f = ev.target.files[0]; if (!f) return;
+      try { e.nyttLogo = await lesaLogo(f); teiknaStyrktarRitil(); }
+      catch (er) { $('spErr').textContent = er.message; $('spErr').classList.remove('hidden'); }
+    };
+    $('spCancel').onclick = () => { spEdit = null; teiknaStyrktarRitil(); };
+    if ($('spDel')) $('spDel').onclick = async () => {
+      if (!confirm('Eyða ' + e.name + '?')) return;
+      try { await call('jb_admin_sponsor_delete', { p_id: e.id }); spEdit = null; await hlada(); } catch (er) { alert(er.message); }
+    };
+    $('spSave').onclick = async () => {
+      const err = $('spErr'); err.classList.add('hidden');
+      try {
+        if (!e.name.trim()) throw new Error('Sláðu inn nafn styrktaraðilans.');
+        if (!e.logo && !e.nyttLogo) throw new Error('Veldu logo.');
+        let url = e.url.trim(); if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+        await call('jb_admin_sponsor_save', { p_id: e.id, p_name: e.name, p_logo: e.nyttLogo, p_url: url, p_plate: e.plate,
+          p_strip: e.strip, p_share: e.share, p_days: e.days, p_sort: e.sort });
+        spEdit = null; await hlada();
+      } catch (er) { err.textContent = er.message; err.classList.remove('hidden'); }
+    };
+  }
+
+  // Les logo: SVG óbreytt, annað minnkað í mest 800×400 PNG (heldur gegnsæi)
+  function lesaLogo(f) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onerror = () => rej(new Error('Ekki tókst að lesa skrána.'));
+      r.onload = () => {
+        const url = r.result;
+        if (f.type === 'image/svg+xml') { if (url.length > 550000) return rej(new Error('SVG-skráin er of stór (mest um 400 KB).')); return res(url); }
+        const img = new Image();
+        img.onerror = () => rej(new Error('Þetta er ekki mynd sem vafrinn les.'));
+        img.onload = () => {
+          const k = Math.min(1, 800 / img.width, 400 / img.height);
+          const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+          const g = c.getContext('2d'); g.drawImage(img, 0, 0, c.width, c.height);
+          // Klippa gegnsæjar spássíur svo logoið nýti plássið
+          try {
+            const px = g.getImageData(0, 0, c.width, c.height).data; let x0 = c.width, y0 = c.height, x1 = -1, y1 = -1;
+            for (let y = 0; y < c.height; y++) for (let x = 0; x < c.width; x++) if (px[(y * c.width + x) * 4 + 3] > 8) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+            if (x1 >= 0 && (x1 - x0 + 1 < c.width || y1 - y0 + 1 < c.height)) {
+              const m = 4, w = x1 - x0 + 1 + m * 2, h = y1 - y0 + 1 + m * 2, t = document.createElement('canvas'); t.width = w; t.height = h;
+              t.getContext('2d').drawImage(c, x0 - m, y0 - m, w, h, 0, 0, w, h);
+              c.width = w; c.height = h; c.getContext('2d').drawImage(t, 0, 0);
+            }
+          } catch (e) {}
+          let out = c.toDataURL('image/png');
+          if (out.length > 550000) out = c.toDataURL('image/webp', 0.9);
+          if (out.length > 550000) return rej(new Error('Myndin er of stór. Prófaðu minni útgáfu.'));
+          res(out);
+        };
+        img.src = url;
+      };
+      r.readAsDataURL(f);
+    });
   }
 
   // ---------- Ritill fyrir einn dag ----------

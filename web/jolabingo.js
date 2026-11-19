@@ -17,6 +17,7 @@
 
   let me = store.get(KEY);
   let info = null;
+  let SP = [];           // styrktaraðilar
   let S = null;          // staðan úr jb_state
   let valinn = null;     // dagurinn sem sýndur er í „lag dagsins“
   let jokerCell = null;
@@ -115,6 +116,24 @@
     teiknaDag();
     teiknaSpjald();
     teiknaDagatal();
+    teiknaStyrktar();
+  }
+
+  // ---------- Styrktaraðilar ----------
+  function logo(p) {
+    const inni = `<img src="${esc(p.logo)}" alt="${esc(p.name)}" loading="lazy">`;
+    return p.url ? `<a class="sp-logo${p.plate ? ' plate' : ''}" href="${esc(p.url)}" target="_blank" rel="noopener sponsored" title="${esc(p.name)}">${inni}</a>`
+                 : `<span class="sp-logo${p.plate ? ' plate' : ''}" title="${esc(p.name)}">${inni}</span>`;
+  }
+  const dagsStyrktar = day => SP.find(p => (p.days || []).includes(day));
+  function teiknaStyrktar() {
+    const l = SP.filter(p => p.strip);
+    $('sponsors').classList.toggle('hidden', !l.length);
+    $('spRow').innerHTML = l.map(logo).join('');
+  }
+  function iBodi(day) {
+    const p = dagsStyrktar(day);
+    return p ? `<div class="sp-day"><span>Í boði</span>${logo(p)}</div>` : '';
   }
 
   function teiknaDag() {
@@ -122,7 +141,7 @@
     stoppaHljod();
     if (!d) { el.innerHTML = ''; return; }
     if (!d.open) {
-      el.innerHTML = `<div class="kick">Dagur ${d.day}</div><h2>Næsta lag opnar</h2>
+      el.innerHTML = `<div class="kick">Dagur ${d.day}</div><h2>Næsta lag opnar</h2>${iBodi(d.day)}
         <div class="wait"><b id="cd">${nidurtalning(d.opens)}</b><span class="muted">${esc(dags(d.opens))}</span></div>`;
       el.dataset.opens = d.opens;
       return;
@@ -149,7 +168,7 @@
         el.dataset.opens = lokad ? lokad.opens : '';
       }
     }
-    el.innerHTML = `<div class="kick">Dagur ${d.day} · ${esc(dags(d.opens, false))}</div><h2>Lag dagsins</h2>
+    el.innerHTML = `<div class="kick">Dagur ${d.day} · ${esc(dags(d.opens, false))}</div><h2>Lag dagsins</h2>${iBodi(d.day)}
       ${d.deezer_id ? `<button class="play" id="playBtn"><span class="ic"><svg viewBox="0 0 24 24" id="playIc"><path d="M7 4v16l13-8z"/></svg></span>
         <span class="wave" id="wave">${'<i></i>'.repeat(14)}</span><span class="muted" id="playTx">Hlusta</span></button>` : ''}
       <div class="q">Hver flytur lagið?</div><div class="opts">${opts}</div>${nidurstada}`;
@@ -251,7 +270,10 @@
 
   // ---------- Deila spjaldinu ----------
   $('shareBtn').onclick = async () => {
-    const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+    const deili = SP.filter(p => p.share);
+    const myndir = (await Promise.all(deili.map(p => new Promise(res => { const i = new Image(); i.onload = () => res({ p, i }); i.onerror = () => res(null); i.src = p.logo; })))).filter(Boolean);
+    const BAND = myndir.length ? 230 : 0;
+    const W = 1080, H = 1350 + BAND, c = document.createElement('canvas'); c.width = W; c.height = H;
     const g = c.getContext('2d');
     const bg = g.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#123647'); bg.addColorStop(1, '#0b1f29');
     g.fillStyle = bg; g.fillRect(0, 0, W, H);
@@ -259,7 +281,7 @@
     g.fillStyle = '#f2b544'; g.font = '600 92px Oswald, sans-serif'; g.textAlign = 'center';
     g.fillText('JÓLABINGÓ', W / 2, 150);
     g.fillStyle = '#f5fbfc'; g.font = '500 54px Oswald, sans-serif'; g.fillText('HLJÓMEYJAR', W / 2, 225);
-    const pad = 90, gap = 18, size = (W - pad * 2 - gap * 3) / 4, top = 300;
+    const pad = 110, gap = 18, size = (W - pad * 2 - gap * 3) / 4, top = 270;
     S.card.forEach((n, i) => {
       const x = pad + (i % 4) * (size + gap), y = top + Math.floor(i / 4) * (size + gap);
       g.fillStyle = S.ok[i] ? '#f2b544' : '#163a4b';
@@ -271,11 +293,25 @@
       linur.slice(0, 4).forEach((t, k) => g.fillText(t, x + size / 2, y + size / 2 + (k - (Math.min(linur.length, 4) - 1) / 2) * 36 + 10));
     });
     g.fillStyle = '#a9c9d4'; g.font = '500 38px Literata, Georgia, serif';
-    g.fillText(S.lines >= 3 ? 'BINGÓ! Þrjár línur' : `${S.lines} ${S.lines === 1 ? 'lína' : 'línur'} · ${S.correct} rétt svör`, W / 2, 1190);
-    g.fillStyle = '#f5fbfc'; g.font = '600 40px Oswald, sans-serif'; g.fillText('Spilaðu með: leikir.hljomey.is', W / 2, 1265);
+    g.fillText(S.lines >= 3 ? 'BINGÓ! Þrjár línur' : `${S.lines} ${S.lines === 1 ? 'lína' : 'línur'} · ${S.correct} rétt svör`, W / 2, 1205);
+    g.fillStyle = '#f5fbfc'; g.font = '600 40px Oswald, sans-serif'; g.fillText('Spilaðu með: leikir.hljomey.is', W / 2, 1275);
+    if (myndir.length) {
+      g.fillStyle = '#a9c9d4'; g.font = '500 26px Literata, Georgia, serif'; g.fillText('Styrktaraðilar', W / 2, 1365);
+      // Logo í einni eða tveimur röðum, hvert í jafnstórum kassa
+      const raðir = myndir.length > 5 ? 2 : 1, iRod = Math.ceil(myndir.length / raðir);
+      const kb = Math.min(180, (W - 120 - (iRod - 1) * 16) / iRod), kh = raðir === 2 ? 70 : 100;
+      myndir.forEach(({ p, i }, n) => {
+        const r = Math.floor(n / iRod), iThessari = r === raðir - 1 ? myndir.length - r * iRod : iRod;
+        const x0 = (W - (iThessari * kb + (iThessari - 1) * 16)) / 2 + (n - r * iRod) * (kb + 16), y0 = 1390 + r * (kh + 14);
+        if (p.plate) { g.fillStyle = '#fff'; g.beginPath(); g.roundRect(x0, y0, kb, kh, 14); g.fill(); }
+        const iw = i.naturalWidth || i.width || 200, ih = i.naturalHeight || i.height || 100;
+        const k = Math.min((kb - 20) / iw, (kh - 16) / ih), w = iw * k, h = ih * k;
+        try { g.drawImage(i, x0 + (kb - w) / 2, y0 + (kh - h) / 2, w, h); } catch (e) {}
+      });
+    }
     c.toBlob(async blob => {
       const file = new File([blob], 'jolabingo-hljomey.png', { type: 'image/png' });
-      const texti = 'Ég er að spila Jólabingó Hljómeyjar, eitt lag á dag fram að jólum! ' + location.origin + '/jolabingo.html';
+      const texti = 'Ég er að spila Jólabingó Hljómeyjar, eitt lag á dag 1.–18. desember! ' + location.origin + '/jolabingo.html';
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try { await navigator.share({ files: [file], text: texti }); } catch (e) {}
       } else {
@@ -295,7 +331,8 @@
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && me) hlada(true); });
 
   (async function byrja() {
-    try { info = await call('jb_info', {}); } catch (e) { info = null; }
+    const [i, sp] = await Promise.all([call('jb_info', {}).catch(() => null), call('jb_sponsors', {}).catch(() => [])]);
+    info = i; SP = sp || [];
     if (me) await hlada(); else synaSkraningu();
   })();
 })();

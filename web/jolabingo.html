@@ -105,6 +105,14 @@
   .sheet h2 { margin: 0 0 6px; } .sheet p { margin: 0 0 16px; color: var(--muted); }
   .sheet .row { display: flex; gap: 8px; } .sheet .row .btn { flex: 1; }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 30; background: #4a1822; color: #ffd7dc; border: 1px solid #7a2533; padding: 10px 14px; border-radius: 10px; max-width: 90vw; text-align: center; }
+  .sp-logo { display: flex; align-items: center; justify-content: center; width: 112px; height: 56px; padding: 6px 10px; border-radius: 12px; background: rgba(255,255,255,.04); border: 1px solid var(--line); text-decoration: none; flex: 0 0 auto; }
+  .sp-logo.plate { background: #fff; border-color: #fff; }
+  .sp-logo img { max-width: 92px; max-height: 44px; width: auto; height: auto; object-fit: contain; display: block; }
+  .sp-day .sp-logo img { max-height: 32px; }
+  .sp-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  .sp-day { display: flex; align-items: center; gap: 10px; margin: -4px 0 12px; }
+  .sp-day span { font-size: 12px; color: var(--muted); font-family: system-ui, sans-serif; }
+  .sp-day .sp-logo { height: 44px; }
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -153,6 +161,7 @@
     <div class="sec"><h3>Spjaldið mitt</h3><span id="cardHint"></span></div>
     <div class="grid4" id="grid"></div>
     <div class="jokerbar hidden" id="jokerBar"><span id="jokerTx"></span><button class="btn small ghost" id="jokerCancel">Hætta við</button></div>
+    <div class="hidden" id="sponsors"><div class="sec"><h3>Styrktaraðilar</h3><span>Takk fyrir stuðninginn!</span></div><div class="sp-row" id="spRow"></div></div>
 
     <div class="sec"><h3>Dagatalið</h3><span>Ýttu á opinn dag</span></div>
     <div class="doors" id="doors"></div>
@@ -180,6 +189,6 @@
 <script src="config.js"></script>
 <script src="common.js?v=2026-10-23a"></script>
 <script src="deezer.js?v=2026-10-15a"></script>
-<script src="jolabingo.js?v=2026-11-17a"></script>
+<script src="jolabingo.js?v=2026-11-19a"></script>
 </body>
 </html>
