@@ -1,0 +1,25 @@
+name: saekja-logo
+on:
+  push:
+    branches: [tmp-logo-saekja]
+permissions:
+  contents: write
+jobs:
+  s:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          mkdir -p _logo
+          curl -s -X POST https://dcqykqyfkewthxazapli.supabase.co/rest/v1/rpc/jb_sponsors -H "apikey: sb_publishable_KNMf7eTwjsZplWXsoVyT3Q_2BaAJDvk" -H "Content-Type: application/json" -d '{}' -o sp.json
+          python3 - <<'P'
+          import json, base64
+          for i, p in enumerate(json.load(open('sp.json'))):
+              h, d = p['logo'].split(',', 1)
+              ext = 'svg' if 'svg' in h else h.split('/')[1].split(';')[0]
+              open(f"_logo/{i}.{ext}", 'wb').write(base64.b64decode(d))
+              print(i, p['name'], p['plate'], ext)
+          json.dump([{k: v for k, v in p.items() if k != 'logo'} for p in json.load(open('sp.json'))], open('_logo/listi.json', 'w'), ensure_ascii=False)
+          P
+          git config user.name bot && git config user.email bot@example.com
+          git add _logo && git commit -m logo && git push
