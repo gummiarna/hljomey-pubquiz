@@ -442,6 +442,8 @@
     let l = laus(hopur(v.k)), ur = v.hopur;
     // Ef enginn laus er í hópnum færist drátturinn niður um eitt stig (3 → 2 → 1 lína)
     for (let i = VINN.indexOf(v) + 1; !l.length && v.min && i < 3; i++) { l = laus(hopur(VINN[i].k)); ur = VINN[i].hopur + ', því enginn laus var með ' + v.hopur; }
+    // Ef enginn laus er með línu er dregið úr öllum þátttakendum
+    if (!l.length && v.min) { l = laus(players); ur = 'allir þátttakendur, því of fáir náðu línu'; }
     if (!l.length) { $('winner').innerHTML = `<p class="muted">Enginn í hópnum „${esc(v.hopur)}“ sem hefur ekki þegar unnið.</p>`; return; }
     const w = l[Math.floor(Math.random() * l.length)];
     vistaDregna(d.concat({ k: v.k, name: w.name, email: w.email, hopur: v.heiti }));
