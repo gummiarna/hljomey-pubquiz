@@ -7,7 +7,14 @@
 <title>Jólabingó Hljómeyjar</title>
 <meta name="description" content="Eitt lag á dag, 1.–18. desember. Hlustaðu, svaraðu hver flytur lagið og merktu við á þínu eigin bingóspjaldi.">
 <meta property="og:title" content="Jólabingó Hljómeyjar">
-<meta property="og:description" content="Eitt lag á dag, 1.–18. desember. Allir geta spilað með.">
+<meta property="og:description" content="Eitt lag á dag, 1.–18. desember. Vinningar að verðmæti yfir 200.000 kr. Frítt að spila í símanum.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://leikir.hljomey.is/jolabingo">
+<meta property="og:image" content="https://leikir.hljomey.is/og-jolabingo.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="is_IS">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=2026-10-19h">
@@ -125,6 +132,15 @@
   .sp-day { display: flex; align-items: center; gap: 10px; margin: -4px 0 12px; }
   .sp-day span { font-size: 12px; color: var(--muted); font-family: system-ui, sans-serif; }
   .sp-day .sp-logo { height: 44px; }
+  .deila { max-height: 92dvh; overflow-y: auto; }
+  .dval { display: grid; gap: 10px; }
+  .dval button { display: flex; flex-direction: column; gap: 2px; text-align: left; padding: 14px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); color: var(--text); font: inherit; cursor: pointer; }
+  .dval button b { font-size: 18px; } .dval button span { font-size: 14px; color: var(--muted); }
+  .dval button:active { border-color: var(--accent); }
+  #dMynd { display: block; margin: 0 auto 10px; border-radius: 14px; max-width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
+  #dMynd.story { max-height: 56dvh; } #dMynd.faersla { max-height: 52dvh; }
+  .dbid { text-align: center; padding: 60px 0; color: var(--muted); }
+  .sharelink { background: none; border: 0; color: var(--accent); font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; padding: 0; }
 </style>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -174,6 +190,7 @@
       <label class="check"><input type="checkbox" id="nlIn"> <span>Já takk, skráðu mig líka á póstlista Hljómeyjar (fréttir af listamönnum og miðasölu).</span></label>
       <button class="btn full" id="joinBtn">Fá spjaldið mitt</button>
       <div class="err hidden" id="joinErr"></div>
+      <p class="fine" style="text-align:center"><button class="sharelink" id="shareLink">Senda vinum hlekk á leikinn</button></p>
       <p class="fine">Netfangið notum við til að hafa samband ef þú vinnur. Sama netfang í öðrum síma opnar sama spjaldið. Það er valfrjálst að skrá sig á póstlistann.</p>
     </div>
   </section>
@@ -197,7 +214,7 @@
     <div class="doors" id="doors"></div>
 
     <div class="actions">
-      <button class="btn ghost" id="shareBtn">Deila spjaldinu</button>
+      <button class="btn" id="shareBtn">Deila spjaldinu</button>
       <a class="btn ghost" href="index.html" style="text-align:center;text-decoration:none">Fleiri leikir</a>
     </div>
     <p class="fine">Vinningar að verðmæti yfir 200.000 kr. Aðalvinningurinn (hótelnótt fyrir tvo, Herjólfur og armbönd á Hljómey 2027) er dreginn úr þeim sem ná þremur línum, 2. vinningur úr tveimur línum og 3.–5. vinningur úr einni línu. Gjafabréf frá Ísbílnum og Partyland eru dregin út meðal þeirra sem eru á póstlistanum. Hver getur aðeins unnið einu sinni. Vinningshafar fá póst á netfangið sitt.</p>
@@ -211,6 +228,26 @@
     <div class="row"><button class="btn ghost" id="sheetNo">Hætta við</button><button class="btn" id="sheetYes">Setja jóker</button></div>
   </div>
 </div>
+<div class="sheet-bg hidden" id="deila">
+  <div class="sheet deila">
+    <div id="dVal">
+      <h2>Deildu spjaldinu þínu</h2>
+      <p>Búðu til mynd af spjaldinu fyrir Instagram eða Facebook og fáðu vini með.</p>
+      <div class="dval">
+        <button id="dStory"><b>Story</b><span>Instagram og Facebook story</span></button>
+        <button id="dFaersla"><b>Færsla</b><span>Mynd í straum á Facebook eða Instagram</span></button>
+        <button id="dHlekkur"><b>Senda hlekk</b><span>Messenger, SMS eða Facebook</span></button>
+      </div>
+      <button class="btn ghost" id="dLoka" style="width:100%;margin-top:12px">Loka</button>
+    </div>
+    <div id="dForsyn" class="hidden">
+      <div class="dbid" id="dBid">Bý til myndina…</div>
+      <img id="dMynd" alt="Myndin þín">
+      <p class="fine" id="dRad"></p>
+      <div class="row" id="dTakkar"><button class="btn ghost" id="dVista">Vista mynd</button><button class="btn" id="dDeila">Deila</button></div>
+    </div>
+  </div>
+</div>
 <div class="banner hidden" id="banner"></div>
 <div class="toast hidden" id="toast"></div>
 <audio id="audio" preload="none"></audio>
@@ -219,6 +256,6 @@
 <script src="config.js"></script>
 <script src="common.js?v=2026-10-23a"></script>
 <script src="deezer.js?v=2026-10-15a"></script>
-<script src="jolabingo.js?v=2026-11-19b"></script>
+<script src="jolabingo.js?v=2026-11-20a"></script>
 </body>
 </html>

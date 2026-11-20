@@ -22,6 +22,10 @@
     {
       "source": "/sjonvarp",
       "destination": "/skjar.html"
+    },
+    {
+      "source": "/jolabingo",
+      "destination": "/jolabingo.html"
     }
   ]
 }

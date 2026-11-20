@@ -280,57 +280,169 @@
     $('bannerOk').onclick = () => b.classList.add('hidden');
   }
 
-  // ---------- Deila spjaldinu ----------
-  $('shareBtn').onclick = async () => {
-    const deili = SP.filter(p => p.share);
-    const myndir = (await Promise.all(deili.map(p => new Promise(res => { const i = new Image(); i.onload = () => res({ p, i }); i.onerror = () => res(null); i.src = p.logo; })))).filter(Boolean);
-    const BAND = myndir.length ? 230 : 0;
-    const W = 1080, H = 1350 + BAND, c = document.createElement('canvas'); c.width = W; c.height = H;
+  // ---------- Deila ----------
+  const SLOD = location.origin + '/jolabingo';
+  let deiliMynd = null;   // { blob, url, nafn }
+
+  function stadaTexti() {
+    if (!S) return '';
+    if (S.lines >= 3) return 'BINGÓ! Þrjár línur';
+    return `${S.lines} ${S.lines === 1 ? 'lína' : 'línur'} · ${S.correct} rétt ${S.correct === 1 ? 'svar' : 'svör'}`;
+  }
+
+  // Teiknar mynd í stíl auglýsinganna: story (1080×1920) eða færsla (1080×1350)
+  async function teiknaMynd(snid) {
+    const story = snid === 'story', W = 1080, H = story ? 1920 : 1350;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
     const g = c.getContext('2d');
-    const bg = g.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#123647'); bg.addColorStop(1, '#0b1f29');
+    try { await Promise.all(['700 100px Oswald', '600 40px Oswald', '500 40px Oswald', '500 30px Literata', '700 30px Literata', 'italic 400 30px Literata'].map(f => document.fonts.load(f))); } catch (e) {}
+
+    // Bakgrunnur: dökkblátt með gylltum bjarma og snjó
+    let bg = g.createLinearGradient(0, 0, W * .6, H); bg.addColorStop(0, '#163f52'); bg.addColorStop(.45, '#102c3a'); bg.addColorStop(1, '#0b1f29');
     g.fillStyle = bg; g.fillRect(0, 0, W, H);
-    try { await document.fonts.load('600 80px Oswald'); } catch (e) {}
-    g.fillStyle = '#f2b544'; g.font = '600 92px Oswald, sans-serif'; g.textAlign = 'center';
-    g.fillText('JÓLABINGÓ', W / 2, 150);
-    g.fillStyle = '#f5fbfc'; g.font = '500 54px Oswald, sans-serif'; g.fillText('HLJÓMEYJAR', W / 2, 225);
-    const pad = 110, gap = 18, size = (W - pad * 2 - gap * 3) / 4, top = 270;
+    const glow = (x, y, r, col) => { const rg = g.createRadialGradient(x, y, 0, x, y, r); rg.addColorStop(0, col); rg.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = rg; g.fillRect(0, 0, W, H); };
+    glow(W * .85, -60, 620, 'rgba(242,181,68,.26)'); glow(0, H + 40, 640, 'rgba(46,134,166,.32)');
+    let fr = 11; const r = () => (fr = (fr * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < W * H / 9000; i++) { g.globalAlpha = .15 + r() * .5; g.fillStyle = '#fff'; g.beginPath(); g.arc(r() * W, r() * H, .8 + r() * 2.4, 0, 7); g.fill(); }
+    g.globalAlpha = 1;
+    const flaga = (x, y, k, o) => { g.save(); g.translate(x, y); g.scale(k, k); g.strokeStyle = `rgba(255,255,255,${o})`; g.lineWidth = 2; g.lineCap = 'round';
+      for (let a = 0; a < 3; a++) { g.rotate(Math.PI / 3); g.beginPath(); g.moveTo(-14, 0); g.lineTo(14, 0); [8, -8].forEach(s => { g.moveTo(s, 0); g.lineTo(s + Math.sign(s) * 4, -4); g.moveTo(s, 0); g.lineTo(s + Math.sign(s) * 4, 4); }); g.stroke(); }
+      g.restore(); };
+    for (let i = 0; i < 8; i++) flaga(r() < .5 ? 30 + r() * 90 : W - 30 - r() * 90, 80 + r() * (H - 160), 1 + r() * 1.5, .12 + r() * .2);
+
+    g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+    let y = story ? 190 : 70;
+
+    // Merki Hljómeyjar
+    const mk = story ? .42 : .34, mw = 240 * mk, tx = 'HLJÓMEY';
+    g.font = `600 ${story ? 34 : 28}px Oswald, sans-serif`; g.letterSpacing = '5px';
+    const tw = g.measureText(tx).width, mx = (W - (mw + 16 + tw)) / 2;
+    g.save(); g.translate(mx, y); g.scale(mk, mk);
+    const poly = (pts, col) => { g.fillStyle = col; g.beginPath(); pts.forEach(([a, b], i) => i ? g.lineTo(a, b) : g.moveTo(a, b)); g.closePath(); g.fill(); };
+    poly([[0,140],[45,60],[90,100],[130,35],[175,90],[220,55],[240,140]], '#6FC4DC'); poly([[10,140],[55,75],[95,110],[140,140]], '#2E86A6');
+    poly([[55,140],[55,55],[90,20],[125,55],[125,140]], '#F5FBFC'); g.fillStyle = '#F2B544'; g.fillRect(80, 70, 20, 22);
+    g.restore();
+    g.fillStyle = '#f5fbfc'; g.textAlign = 'left'; g.fillText(tx, mx + mw + 16, y + 140 * mk - 4); g.textAlign = 'center'; g.letterSpacing = '0px';
+    y += 140 * mk + (story ? 40 : 26);
+
+    // Fyrirsögn
+    const t = story ? 132 : 112;
+    g.font = `700 ${t}px Oswald, sans-serif`; g.fillStyle = '#f5fbfc'; y += t * .86; g.fillText('JÓLABINGÓ', W / 2, y);
+    g.fillStyle = '#f2b544'; y += t * .92; g.fillText('HLJÓMEYJAR', W / 2, y);
+    g.font = `500 ${story ? 42 : 36}px Oswald, sans-serif`; g.fillStyle = '#f5fbfc'; y += story ? 62 : 56;
+    g.fillText('Eitt lag á dag  ·  1.–18. desember', W / 2, y);
+    y += story ? 44 : 40;
+
+    // Góðvinir sóttir fyrst svo hægt sé að reikna plássið
+    const lg = await Promise.all(SP.filter(p => p.share).map(p => new Promise(res => { const i = new Image(); i.onload = () => res({ p, i }); i.onerror = () => res(null); i.src = p.logo; })));
+    const logo = lg.filter(Boolean);
+    const raðir = !logo.length ? 0 : (story ? Math.ceil(logo.length / 8) : (logo.length > 4 ? 2 : 1)), bil = story ? 10 : 10, kh = story ? 66 : 66;
+    const logoH = raðir ? (story ? 26 : 18) + raðir * kh + (raðir - 1) * bil : 0;
+    const restH = (story ? 70 + 62 + 54 + 84 + 60 : 58 + 48 + 40 + 70 + 46) + logoH;
+    const nedst = story ? 210 : 56;
+
+    // Spjaldið: eins stórt og plássið leyfir
+    const cw = Math.max(380, Math.min(story ? 800 : 600, H - nedst - y - restH)), pd = story ? 26 : 20, gap = story ? 14 : 10, size = (cw - pd * 2 - gap * 3) / 4, cx = (W - cw) / 2, ch = pd * 2 + size * 4 + gap * 3;
+    g.save(); g.shadowColor = 'rgba(0,0,0,.4)'; g.shadowBlur = 50; g.shadowOffsetY = 20;
+    g.fillStyle = 'rgba(255,255,255,.07)'; g.beginPath(); g.roundRect(cx, y, cw, ch, 28); g.fill(); g.restore();
+    g.strokeStyle = 'rgba(255,255,255,.16)'; g.lineWidth = 2; g.beginPath(); g.roundRect(cx, y, cw, ch, 28); g.stroke();
+    const jok = new Set((S.joker_cells || []).map(Number));
+    const fs = Math.round(cw / (story ? 32 : 31.5));
     S.card.forEach((n, i) => {
-      const x = pad + (i % 4) * (size + gap), y = top + Math.floor(i / 4) * (size + gap);
-      g.fillStyle = S.ok[i] ? '#f2b544' : '#163a4b';
-      g.beginPath(); g.roundRect(x, y, size, size, 26); g.fill();
-      g.fillStyle = S.ok[i] ? '#123647' : '#f5fbfc'; g.font = (S.ok[i] ? '700 ' : '500 ') + '30px Literata, Georgia, serif';
-      const ord = n.split(' '); const linur = []; let l = '';
-      ord.forEach(o => { const t = l ? l + ' ' + o : o; if (g.measureText(t).width > size - 24 && l) { linur.push(l); l = o; } else l = t; });
-      linur.push(l);
-      linur.slice(0, 4).forEach((t, k) => g.fillText(t, x + size / 2, y + size / 2 + (k - (Math.min(linur.length, 4) - 1) / 2) * 36 + 10));
+      const x = cx + pd + (i % 4) * (size + gap), yy = y + pd + Math.floor(i / 4) * (size + gap), on = S.ok[i];
+      g.fillStyle = on ? '#f2b544' : '#163a4b'; g.beginPath(); g.roundRect(x, yy, size, size, story ? 18 : 14); g.fill();
+      g.fillStyle = on ? '#123647' : 'rgba(245,251,252,.88)'; g.font = `${on ? 700 : 500} ${fs}px Literata, Georgia, serif`;
+      const ord = n.split(/\s+/), lin = []; let l = '';
+      ord.forEach(o => { const s = l ? l + ' ' + o : o; if (g.measureText(s).width > size - 16 && l) { lin.push(l); l = o; } else l = s; }); lin.push(l);
+      const L = lin.slice(0, 4), lh = fs * 1.18;
+      L.forEach((s, k) => { while (g.measureText(s).width > size - 10 && s.length > 3) s = s.slice(0, -2) + '…'; g.fillText(s, x + size / 2, yy + size / 2 + (k - (L.length - 1) / 2) * lh + fs * .35); });
+      if (jok.has(i + 1)) { g.font = `700 ${fs}px Oswald, sans-serif`; g.fillText('★', x + size - fs * .7, yy + fs * 1.1); }
     });
-    g.fillStyle = '#a9c9d4'; g.font = '500 38px Literata, Georgia, serif';
-    g.fillText(S.lines >= 3 ? 'BINGÓ! Þrjár línur' : `${S.lines} ${S.lines === 1 ? 'lína' : 'línur'} · ${S.correct} rétt svör`, W / 2, 1205);
-    g.fillStyle = '#f5fbfc'; g.font = '600 40px Oswald, sans-serif'; g.fillText('Spilaðu með: leikir.hljomey.is', W / 2, 1275);
-    if (myndir.length) {
-      g.fillStyle = '#a9c9d4'; g.font = '500 26px Literata, Georgia, serif'; g.fillText('Styrktaraðilar', W / 2, 1365);
-      // Logo í einni eða tveimur röðum, hvert í jafnstórum kassa
-      const raðir = myndir.length > 5 ? 2 : 1, iRod = Math.ceil(myndir.length / raðir);
-      const kb = Math.min(180, (W - 120 - (iRod - 1) * 16) / iRod), kh = raðir === 2 ? 70 : 100;
-      myndir.forEach(({ p, i }, n) => {
-        const r = Math.floor(n / iRod), iThessari = r === raðir - 1 ? myndir.length - r * iRod : iRod;
-        const x0 = (W - (iThessari * kb + (iThessari - 1) * 16)) / 2 + (n - r * iRod) * (kb + 16), y0 = 1390 + r * (kh + 14);
-        if (p.plate) { g.fillStyle = '#fff'; g.beginPath(); g.roundRect(x0, y0, kb, kh, 14); g.fill(); }
-        const iw = i.naturalWidth || i.width || 200, ih = i.naturalHeight || i.height || 100;
-        const k = Math.min((kb - 20) / iw, (kh - 16) / ih), w = iw * k, h = ih * k;
-        try { g.drawImage(i, x0 + (kb - w) / 2, y0 + (kh - h) / 2, w, h); } catch (e) {}
+    y += ch + (story ? 70 : 58);
+
+    // Staðan og hvatning
+    g.font = `700 ${story ? 64 : 50}px Oswald, sans-serif`; g.fillStyle = '#f2b544'; g.fillText(stadaTexti(), W / 2, y);
+    y += story ? 62 : 48;
+    g.font = `500 ${story ? 34 : 28}px Literata, Georgia, serif`; g.fillStyle = '#a9c9d4';
+    g.fillText('Vinningar að verðmæti yfir 200.000 kr.', W / 2, y);
+    y += story ? 54 : 40;
+
+    // Hnappur
+    const ct = 'Spilaðu með  ·  leikir.hljomey.is/jolabingo';
+    g.font = `600 ${story ? 38 : 32}px Oswald, sans-serif`;
+    const bw = g.measureText(ct).width + (story ? 80 : 64), bh = story ? 84 : 70;
+    g.fillStyle = '#f2b544'; g.beginPath(); g.roundRect((W - bw) / 2, y, bw, bh, bh / 2); g.fill();
+    g.fillStyle = '#123647'; g.fillText(ct, W / 2, y + bh / 2 + (story ? 13 : 11));
+    y += bh + (story ? 60 : 46);
+
+    // Góðvinir
+    if (logo.length) {
+      g.font = `italic 400 ${story ? 30 : 24}px Literata, Georgia, serif`; g.fillStyle = '#6fc4dc';
+      g.fillText('Í samvinnu við góðvini Hljómeyjar', W / 2, y); y += story ? 26 : 18;
+      const iRod = Math.ceil(logo.length / raðir);
+      const kb = Math.min(story ? 160 : 150, (W - (story ? 80 : 120) - (iRod - 1) * bil) / iRod);
+      logo.forEach(({ p, i }, n) => {
+        const rr = Math.floor(n / iRod), iRod2 = rr === raðir - 1 ? logo.length - rr * iRod : iRod;
+        const x0 = (W - (iRod2 * kb + (iRod2 - 1) * bil)) / 2 + (n - rr * iRod) * (kb + bil), y0 = y + rr * (kh + bil);
+        // Grunnlitur reitsins tekinn úr horni logosins svo logo með eigin bakgrunn fylli reitinn
+        let lit = p.plate ? '#ffffff' : 'rgba(255,255,255,.06)';
+        try { const t = document.createElement('canvas'); t.width = t.height = 1; const tg = t.getContext('2d'); tg.drawImage(i, 0, 0, 1, 1, 0, 0, 1, 1); const d = tg.getImageData(0, 0, 1, 1).data; if (d[3] > 200) lit = `rgb(${d[0]},${d[1]},${d[2]})`; } catch (e) {}
+        g.fillStyle = lit; g.beginPath(); g.roundRect(x0, y0, kb, kh, 12); g.fill();
+        const iw = i.naturalWidth || 200, ih = i.naturalHeight || 100, k = Math.min((kb - 16) / iw, (kh - 12) / ih);
+        g.save(); g.beginPath(); g.roundRect(x0, y0, kb, kh, 12); g.clip();
+        try { g.drawImage(i, x0 + (kb - iw * k) / 2, y0 + (kh - ih * k) / 2, iw * k, ih * k); } catch (e) {}
+        g.restore();
       });
     }
-    c.toBlob(async blob => {
-      const file = new File([blob], 'jolabingo-hljomey.png', { type: 'image/png' });
-      const texti = 'Ég er að spila Jólabingó Hljómeyjar, eitt lag á dag 1.–18. desember! ' + location.origin + '/jolabingo.html';
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try { await navigator.share({ files: [file], text: texti }); } catch (e) {}
-      } else {
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-      }
-    }, 'image/png');
+    const blob = await new Promise(res => c.toBlob(res, 'image/png'));
+    return { blob, url: URL.createObjectURL(blob), nafn: `jolabingo-hljomey-${story ? 'story' : 'faersla'}.png` };
+  }
+
+  const deiliTexti = () => `Ég er að spila Jólabingó Hljómeyjar 🎄 Eitt lag á dag 1.–18. desember og vinningar yfir 200.000 kr. Spilaðu með! ${SLOD}`;
+
+  function opnaDeilingu() {
+    deiliMynd = null;
+    $('dVal').classList.remove('hidden'); $('dForsyn').classList.add('hidden');
+    $('deila').classList.remove('hidden');
+  }
+  async function bua(snid) {
+    $('dVal').classList.add('hidden'); $('dForsyn').classList.remove('hidden');
+    $('dMynd').removeAttribute('src'); $('dBid').classList.remove('hidden'); $('dTakkar').classList.add('hidden');
+    try {
+      if (deiliMynd) URL.revokeObjectURL(deiliMynd.url);
+      deiliMynd = await teiknaMynd(snid);
+      $('dMynd').src = deiliMynd.url; $('dMynd').className = snid;
+      $('dBid').classList.add('hidden'); $('dTakkar').classList.remove('hidden');
+      $('dRad').textContent = snid === 'story' ? 'Settu myndina í story á Instagram eða Facebook og bættu við hlekk á leikir.hljomey.is/jolabingo.' : 'Settu myndina í færslu á Facebook eða Instagram. Textinn með hlekknum er afritaður þegar þú deilir.';
+    } catch (e) { toast('Ekki tókst að búa til myndina.'); $('deila').classList.add('hidden'); }
+  }
+  async function afrita(t) { try { await navigator.clipboard.writeText(t); return true; } catch (e) { return false; } }
+
+  $('shareBtn').onclick = opnaDeilingu;
+  if ($('shareLink')) $('shareLink').onclick = async () => {
+    if (navigator.share) { try { await navigator.share({ title: 'Jólabingó Hljómeyjar', text: 'Eitt lag á dag 1.–18. desember. Vinningar yfir 200.000 kr. Spilaðu með!', url: SLOD }); } catch (e) {} }
+    else if (await afrita(SLOD)) toast('Hlekkurinn er afritaður.');
+  };
+  $('dStory').onclick = () => bua('story');
+  $('dFaersla').onclick = () => bua('faersla');
+  $('dHlekkur').onclick = async () => {
+    $('deila').classList.add('hidden');
+    if (navigator.share) { try { await navigator.share({ title: 'Jólabingó Hljómeyjar', text: deiliTexti(), url: SLOD }); } catch (e) {} }
+    else window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(SLOD), '_blank', 'noopener');
+  };
+  $('dLoka').onclick = () => $('deila').classList.add('hidden');
+  $('deila').onclick = e => { if (e.target.id === 'deila') $('deila').classList.add('hidden'); };
+  $('dDeila').onclick = async () => {
+    if (!deiliMynd) return;
+    const file = new File([deiliMynd.blob], deiliMynd.nafn, { type: 'image/png' });
+    await afrita(deiliTexti());
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], text: deiliTexti() }); } catch (e) {}
+    } else { $('dVista').click(); toast('Myndin er vistuð og textinn afritaður. Settu hana inn á Facebook eða Instagram.'); }
+  };
+  $('dVista').onclick = () => {
+    if (!deiliMynd) return;
+    const a = document.createElement('a'); a.href = deiliMynd.url; a.download = deiliMynd.nafn; document.body.appendChild(a); a.click(); a.remove();
   };
 
   // ---------- Klukka og endurhleðsla ----------
